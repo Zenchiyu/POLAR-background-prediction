@@ -10,6 +10,7 @@ uproot = "*"
 numba = "*"
 ipykernel = "*"
 pandas = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
