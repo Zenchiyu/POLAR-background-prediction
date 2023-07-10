@@ -12,7 +12,8 @@ def load_TTree(root_filename="../data/Allaux_Bfield.root",
         print()
     return data
 
-def load_data_as_dict(TTree_features_dict={
+def load_data_as_dict(root_filename="../data/Allaux_Bfield.root",
+			TTree_features_dict={
                         "t_hk_obox":
                                 ["saa", 
                                "raz",
@@ -26,16 +27,13 @@ def load_data_as_dict(TTree_features_dict={
                                "tunix",
                                "fe_cosmic",
                                "fe_rate"],
-                        "B_field":
-                                ["B_r",
-                                 "B_theta",
-                                 "B_phi"]
                         },
                       verbose=True):
 
     data_dict = {}
     for TTree_name, features_name in TTree_features_dict.items():
-        data = load_TTree(TTree_name=TTree_name)
+        data = load_TTree(root_filename=root_filename,
+			  TTree_name=TTree_name)
         data_dict |= data.arrays(features_name, library="np")
     return data_dict
     
