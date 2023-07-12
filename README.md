@@ -27,6 +27,11 @@ conda install python=3.10.12
 conda install pipenv && conda install jupyter
 ```
 
+- **All in one**:
+```
+conda create -y --name polar&& conda activate polar && conda install -y python=3.10.12 && conda install -y pipenv && conda install -y jupyter 
+```
+
 ## Pipenv
 
 All you need should be to do `pipenv shell`
@@ -37,4 +42,10 @@ All you need should be to do `pipenv shell`
 python -m ipykernel install --user --name=polar-virtualenv
 ```
 
-- https://stackoverflow.com/questions/47295871/is-there-a-way-to-use-pipenv-with-jupyter-notebook
+```
+jupyter notebook
+```
+Then inside jupyter notebook, select `polar-virtualenv` kernel.
+
+- See this link for more details: https://stackoverflow.com/questions/47295871/is-there-a-way-to-use-pipenv-with-jupyter-notebook
+
