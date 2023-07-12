@@ -7,7 +7,7 @@ The idea of the project is to first predict the background part of a light curve
 ---
 
 ## Installation
-If you don't use Anaconda, you can skip the first steps with Anaconda but you need to make sure you already have Python version `3.10.12`. Moreover, Jupyter notebook is required to run the notebooks. 
+If you don't use Anaconda, you can skip the first steps with Anaconda but you need to make sure you already have Python version `3.10.12` and `pipenv` installed (using `pip` for ex.). Moreover, Jupyter notebook is required to run the notebooks. 
 
 
 <details>
