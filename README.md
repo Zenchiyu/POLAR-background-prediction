@@ -4,6 +4,10 @@
 
 The idea of the project is to first predict the background part of a light curve (y axis being the number of photons arriving into the POLAR detector per second) or transformed light curve. After fitting the curve, we would like to subtract it from the original curve and use the resulting curve to detect gamma ray bursts (GRBs).
 
+Related links:
+- https://www.astro.unige.ch/polar/
+- https://www.unige.ch/dpnc/fr/groups/xin-wu/experiences/polar/
+
 ---
 
 ## Installation
