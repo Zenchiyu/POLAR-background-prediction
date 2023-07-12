@@ -1,12 +1,18 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 # POLAR background prediction
 
 The idea of the project is to first predict the background part of a light curve (y axis being the number of photons arriving into the POLAR detector per second) or transformed light curve. After fitting the curve, we would like to subtract it from the original curve and use the resulting curve to detect gamma ray bursts (GRBs).
 
-# Installation
+---
+
+## Installation
 If you don't use Anaconda, you can skip the first steps with Anaconda but you need to make sure you already have Python version `3.10.12`. Moreover, Jupyter notebook is required to run the notebooks. 
 
-## Preparing an Anaconda environment for pipenv
 
+<details>
+<summary>Preparing an Anaconda environment for pipenv</summary>
+  
 The anaconda environment is mostly used here to have the Python version `3.10.12`.
 
 1. You can create a new Anaconda environment and activate the environment.
@@ -27,17 +33,25 @@ conda install python=3.10.12
 conda install pipenv && conda install jupyter
 ```
 
+</details>
+
 - **All in one**:
 ```
 conda create -y --name polar&& conda activate polar && conda install -y python=3.10.12 && conda install -y pipenv && conda install -y jupyter 
 ```
 
-## Pipenv
+
+
+<details>
+<summary>Pipenv</summary>
 
 All you need should be to do `pipenv shell`
 
-## How to use jupyter notebook with pipenv ?
+</details>
 
+<details>
+<summary>How to use jupyter notebook with pipenv ?</summary>
+  
 ```
 python -m ipykernel install --user --name=polar-virtualenv
 ```
@@ -47,5 +61,48 @@ jupyter notebook
 ```
 Then inside jupyter notebook, select `polar-virtualenv` kernel.
 
+
+
 - See this link for more details: https://stackoverflow.com/questions/47295871/is-there-a-way-to-use-pipenv-with-jupyter-notebook
+
+</details>
+
+## Usage
+
+Assuming you already did the installation steps. There are different main scenarios:
+
+<details>
+<summary>Want to use jupyter notebooks with Anaconda</summary>
+
+```
+conda activate polar && pipenv shell && jupyter notebook
+```
+
+Then inside jupyter notebook, select `polar-virtualenv` kernel.
+
+</details>
+
+<details>
+<summary>Want to use jupyter notebooks without Anaconda</summary>
+
+```
+pipenv shell && jupyter notebook
+```
+
+Then inside jupyter notebook, select `polar-virtualenv` kernel.
+
+</details>
+
+<details>
+<summary>Run python scripts</summary>
+
+```
+pipenv shell
+```
+
+Then `python <script-name>`.
+
+</details>
+
+## Credits
 
