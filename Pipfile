@@ -12,6 +12,7 @@ ipykernel = "*"
 pandas = "*"
 scikit-learn = "*"
 seaborn = "*"
+wandb = "*"
 
 [dev-packages]
 
