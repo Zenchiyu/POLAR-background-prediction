@@ -1,0 +1,83 @@
+2023-07-13 20:49:59,631 INFO    StreamThr :29628 [internal.py:wandb_internal():86] W&B internal server running at pid: 29628, started at: 2023-07-13 20:49:59.630137
+2023-07-13 20:49:59,633 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status
+2023-07-13 20:49:59,634 INFO    WriterThread:29628 [datastore.py:open_for_write():85] open: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\run-mqnbtwgf.wandb
+2023-07-13 20:49:59,635 DEBUG   SenderThread:29628 [sender.py:send():369] send: header
+2023-07-13 20:49:59,635 DEBUG   SenderThread:29628 [sender.py:send():369] send: run
+2023-07-13 20:50:00,300 INFO    SenderThread:29628 [dir_watcher.py:__init__():211] watching files in: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files
+2023-07-13 20:50:00,301 INFO    SenderThread:29628 [sender.py:_start_run_threads():1100] run started: mqnbtwgf with start time 1689274198.728611
+2023-07-13 20:50:00,310 DEBUG   SenderThread:29628 [sender.py:send_request():396] send_request: summary_record
+2023-07-13 20:50:00,311 INFO    SenderThread:29628 [sender.py:_save_file():1354] saving file wandb-summary.json with policy end
+2023-07-13 20:50:00,315 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: check_version
+2023-07-13 20:50:00,315 DEBUG   SenderThread:29628 [sender.py:send_request():396] send_request: check_version
+2023-07-13 20:50:00,450 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: run_start
+2023-07-13 20:50:00,463 DEBUG   HandlerThread:29628 [system_info.py:__init__():31] System info init
+2023-07-13 20:50:00,463 DEBUG   HandlerThread:29628 [system_info.py:__init__():46] System info init done
+2023-07-13 20:50:00,463 INFO    HandlerThread:29628 [system_monitor.py:start():181] Starting system monitor
+2023-07-13 20:50:00,464 INFO    SystemMonitor:29628 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2023-07-13 20:50:00,464 INFO    HandlerThread:29628 [system_monitor.py:probe():201] Collecting system info
+2023-07-13 20:50:00,468 INFO    SystemMonitor:29628 [interfaces.py:start():190] Started cpu monitoring
+2023-07-13 20:50:00,469 INFO    SystemMonitor:29628 [interfaces.py:start():190] Started disk monitoring
+2023-07-13 20:50:00,469 INFO    SystemMonitor:29628 [interfaces.py:start():190] Started gpu monitoring
+2023-07-13 20:50:00,477 INFO    SystemMonitor:29628 [interfaces.py:start():190] Started memory monitoring
+2023-07-13 20:50:00,482 DEBUG   HandlerThread:29628 [system_info.py:probe():195] Probing system
+2023-07-13 20:50:00,495 INFO    SystemMonitor:29628 [interfaces.py:start():190] Started network monitoring
+2023-07-13 20:50:00,497 DEBUG   HandlerThread:29628 [system_info.py:_probe_git():180] Probing git
+2023-07-13 20:50:00,583 DEBUG   HandlerThread:29628 [system_info.py:_probe_git():188] Probing git done
+2023-07-13 20:50:00,583 DEBUG   HandlerThread:29628 [system_info.py:probe():240] Probing system done
+2023-07-13 20:50:00,583 DEBUG   HandlerThread:29628 [system_monitor.py:probe():210] {'os': 'Windows-10-10.0.19045-SP0', 'python': '3.10.12', 'heartbeatAt': '2023-07-13T18:50:00.482004', 'startedAt': '2023-07-13T18:49:51.264298', 'docker': None, 'cuda': None, 'args': None, 'state': 'running', 'program': '<python with no main file>', 'git': {'remote': 'git@github.com:Zenchiyu/POLAR-background-prediction.git', 'commit': '3e779f23492b28c8ea91a37e5516f5f09729a3c7'}, 'email': 'stephane13ste@gmail.com', 'root': 'D:/Etudes/Projects/POLAR-background-prediction', 'host': 'DESKTOP-RFHF37P', 'username': 'steph', 'executable': 'C:\\Users\\steph\\.virtualenvs\\POLAR-background-prediction-cyL85rzf\\Scripts\\python.exe', 'cpu_count': 4, 'cpu_count_logical': 8, 'cpu_freq': {'current': 3600.0, 'min': 0.0, 'max': 3600.0}, 'cpu_freq_per_core': [{'current': 3600.0, 'min': 0.0, 'max': 3600.0}], 'disk': {'total': 931.3867149353027, 'used': 662.0859184265137}, 'gpu': 'NVIDIA GeForce GTX 1070', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA GeForce GTX 1070', 'memory_total': 8589934592}], 'memory': {'total': 15.961116790771484}}
+2023-07-13 20:50:00,583 INFO    HandlerThread:29628 [system_monitor.py:probe():211] Finished collecting system info
+2023-07-13 20:50:00,583 INFO    HandlerThread:29628 [system_monitor.py:probe():214] Publishing system info
+2023-07-13 20:50:00,583 DEBUG   HandlerThread:29628 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-07-13 20:50:00,583 DEBUG   HandlerThread:29628 [system_info.py:_save_pip():67] Saving pip packages done
+2023-07-13 20:50:00,584 INFO    HandlerThread:29628 [system_monitor.py:probe():216] Finished publishing system info
+2023-07-13 20:50:00,585 DEBUG   SenderThread:29628 [sender.py:send():369] send: files
+2023-07-13 20:50:00,585 INFO    SenderThread:29628 [sender.py:_save_file():1354] saving file wandb-metadata.json with policy now
+2023-07-13 20:50:00,602 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: stop_status
+2023-07-13 20:50:00,602 DEBUG   SenderThread:29628 [sender.py:send_request():396] send_request: stop_status
+2023-07-13 20:50:00,850 DEBUG   SenderThread:29628 [sender.py:send():369] send: telemetry
+2023-07-13 20:50:00,850 DEBUG   SenderThread:29628 [sender.py:send():369] send: config
+2023-07-13 20:50:01,211 INFO    wandb-upload_0:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\2uaun647-wandb-metadata.json
+2023-07-13 20:50:01,221 DEBUG   SenderThread:29628 [sender.py:send():369] send: files
+2023-07-13 20:50:01,221 INFO    SenderThread:29628 [sender.py:_save_file():1354] saving file media\plotly\validation/prediction-rate-0_0_56f0fe0252c64c89c400.plotly.json with policy now
+2023-07-13 20:50:01,307 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly\validation\prediction-rate-0_0_56f0fe0252c64c89c400.plotly.json
+2023-07-13 20:50:01,308 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\requirements.txt
+2023-07-13 20:50:01,308 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\wandb-metadata.json
+2023-07-13 20:50:01,308 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\output.log
+2023-07-13 20:50:01,309 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\wandb-summary.json
+2023-07-13 20:50:01,309 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media
+2023-07-13 20:50:01,309 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly
+2023-07-13 20:50:01,310 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly\validation
+2023-07-13 20:50:02,510 INFO    wandb-upload_0:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\vuhzk0cf-media/plotly/validation/prediction-rate-0_0_56f0fe0252c64c89c400.plotly.json
+2023-07-13 20:50:03,313 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_modified():289] file/dir modified: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\output.log
+2023-07-13 20:50:03,680 DEBUG   SenderThread:29628 [sender.py:send():369] send: files
+2023-07-13 20:50:03,681 INFO    SenderThread:29628 [sender.py:_save_file():1354] saving file media\plotly\dataset/prediction-rate-0_0_ca5fa43ed2c68e291aae.plotly.json with policy now
+2023-07-13 20:50:03,725 INFO    wandb-upload_0:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\eggvxwaz-media/plotly/validation/prediction-rate-0_0_56f0fe0252c64c89c400.plotly.json
+2023-07-13 20:50:03,736 DEBUG   SenderThread:29628 [sender.py:send():369] send: files
+2023-07-13 20:50:03,736 INFO    SenderThread:29628 [sender.py:_save_file():1354] saving file media\plotly\train/loss_0_7624389e7614e4c8ef3c.plotly.json with policy now
+2023-07-13 20:50:04,316 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly\train\loss_0_7624389e7614e4c8ef3c.plotly.json
+2023-07-13 20:50:04,316 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly\dataset\prediction-rate-0_0_ca5fa43ed2c68e291aae.plotly.json
+2023-07-13 20:50:04,317 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_modified():289] file/dir modified: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly
+2023-07-13 20:50:04,317 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly\train
+2023-07-13 20:50:04,317 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_created():272] file/dir created: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\media\plotly\dataset
+2023-07-13 20:50:04,379 INFO    wandb-upload_0:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\z9bcmyj6-media/plotly/train/loss_0_7624389e7614e4c8ef3c.plotly.json
+2023-07-13 20:50:04,750 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:04,992 INFO    wandb-upload_0:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\0qj0ahvq-media/plotly/train/loss_0_7624389e7614e4c8ef3c.plotly.json
+2023-07-13 20:50:05,288 INFO    wandb-upload_1:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\u8zd1j7r-media/plotly/dataset/prediction-rate-0_0_ca5fa43ed2c68e291aae.plotly.json
+2023-07-13 20:50:06,837 INFO    wandb-upload_0:29628 [upload_job.py:push():133] Uploaded file C:\Users\steph\AppData\Local\Temp\tmpxu5ytxlpwandb\no6ybujf-media/plotly/dataset/prediction-rate-0_0_ca5fa43ed2c68e291aae.plotly.json
+2023-07-13 20:50:09,794 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:14,850 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:15,599 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: stop_status
+2023-07-13 20:50:15,601 DEBUG   SenderThread:29628 [sender.py:send_request():396] send_request: stop_status
+2023-07-13 20:50:19,864 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:24,885 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:29,935 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:30,550 INFO    Thread-31 :29628 [dir_watcher.py:_on_file_modified():289] file/dir modified: D:\Etudes\Projects\POLAR-background-prediction\notebooks\wandb\run-20230713_204951-mqnbtwgf\files\config.yaml
+2023-07-13 20:50:30,613 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: stop_status
+2023-07-13 20:50:30,614 DEBUG   SenderThread:29628 [sender.py:send_request():396] send_request: stop_status
+2023-07-13 20:50:35,850 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:40,884 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:45,638 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: stop_status
+2023-07-13 20:50:45,639 DEBUG   SenderThread:29628 [sender.py:send_request():396] send_request: stop_status
+2023-07-13 20:50:46,102 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:51,146 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
+2023-07-13 20:50:56,173 DEBUG   HandlerThread:29628 [handler.py:handle_request():144] handle_request: status_report
