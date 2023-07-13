@@ -13,6 +13,7 @@ pandas = "*"
 scikit-learn = "*"
 seaborn = "*"
 wandb = "*"
+plotly = "*"
 
 [dev-packages]
 
