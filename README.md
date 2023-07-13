@@ -49,7 +49,7 @@ conda create -y --name polar&& conda activate polar && conda install -y python=3
 <details>
 <summary>Pipenv</summary>
 
-All you need should be to do `pipenv shell`
+All you need should be to do `pipenv install` then `pipenv shell`
 
 </details>
 
@@ -79,7 +79,10 @@ Assuming you already did the installation steps. There are different main scenar
 <summary>Want to use jupyter notebooks with Anaconda</summary>
 
 ```
-conda activate polar && pipenv shell && jupyter notebook
+conda activate polar && pipenv shell
+```
+```
+jupyter notebook
 ```
 
 Then inside jupyter notebook, select `polar-virtualenv` kernel.
@@ -90,7 +93,11 @@ Then inside jupyter notebook, select `polar-virtualenv` kernel.
 <summary>Want to use jupyter notebooks without Anaconda</summary>
 
 ```
-pipenv shell && jupyter notebook
+pipenv shell
+```
+
+```
+jupyter notebook
 ```
 
 Then inside jupyter notebook, select `polar-virtualenv` kernel.
