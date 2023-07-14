@@ -20,6 +20,8 @@ seaborn = "*"
 wandb = "*"
 plotly = "*"
 torch = {version = "*", index = "downloadpytorch"}
+torchvision = "*"
+torchaudio = "*"
 
 [dev-packages]
 
