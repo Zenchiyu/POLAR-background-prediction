@@ -44,6 +44,10 @@ conda install pipenv && conda install jupyter
 conda create -y --name polar&& conda activate polar && conda install -y python=3.10.12 && conda install -y pipenv && conda install -y jupyter 
 ```
 
+- The [following](https://stackoverflow.com/questions/36345136/use-unix-based-commands-with-anaconda-in-windows-operating-system) might also be useful if you want to use commands such as `ls` within your conda environment:
+```
+conda install m2-base
+```
 
 
 <details>
