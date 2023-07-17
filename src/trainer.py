@@ -131,11 +131,11 @@ class Trainer:
                           "val/loss": val_loss[epoch]})
             
             # Save checkpoints
-            torch.save(self.model.state_dict(), "../checkpoints/model.pth")
-            torch.save(self.optimizer.state_dict(), "../checkpoints/optimizer.pth")
-            torch.save(epoch, "../checkpoints/epoch.pth")
-            torch.save(train_loss, "../checkpoints/train_loss.pth")
-            torch.save(val_loss, "../checkpoints/val_loss.pth")
+            torch.save(self.model.state_dict(), "checkpoints/model.pth")
+            torch.save(self.optimizer.state_dict(), "checkpoints/optimizer.pth")
+            torch.save(epoch, "checkpoints/epoch.pth")
+            torch.save(train_loss, "checkpoints/train_loss.pth")
+            torch.save(val_loss, "checkpoints/val_loss.pth")
             
         self.run.finish()
         
