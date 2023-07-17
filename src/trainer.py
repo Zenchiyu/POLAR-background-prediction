@@ -48,8 +48,8 @@ class Trainer:
         
         # Process data by applying centering and reducing
         data_train_tensor = self.dataset_train.dataset.X[self.dataset_train.indices]
-        mean_train = self.data_train_tensor.mean(dim=0)
-        std_train = self.data_train_tensor.std(dim=0)
+        mean_train = data_train_tensor.mean(dim=0)
+        std_train = data_train_tensor.std(dim=0)
         
         self.dataset_full.transform =  Lambda(lambda x: (x-std_train)/mean_train)
         
