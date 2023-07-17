@@ -1,0 +1,26 @@
+wandb:
+  project: POLAR-background-prediction
+
+common:
+  seed: 42
+  n_epochs: 500
+  device: cuda
+
+dataset:
+  filename: data/fmrate_dataset.csv
+  feature_names: ["unix_time", "fe_cosmic"]
+  target_names: ["rate[0]"]
+  train:
+    size: 0.6
+    batch_size: 1
+    shuffle: True
+  val:
+    size: 0.2
+    batch_size: 1
+  test:
+    size: 0.2
+    batch_size: 1
+
+optimizer:
+  hyperparams:
+    lr: 1e-3
