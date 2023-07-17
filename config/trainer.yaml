@@ -1,5 +1,6 @@
 wandb:
   project: POLAR-background-prediction
+  mode: online
 
 common:
   seed: 42
@@ -8,8 +9,11 @@ common:
 
 dataset:
   filename: data/fmrate_dataset.csv
-  feature_names: ["unix_time", "fe_cosmic"]
-  target_names: ["rate[0]"]
+  feature_names:
+    - unix_time
+    - fe_cosmic
+  target_names:
+    - rate[0]
   train:
     size: 0.6
     batch_size: 1
