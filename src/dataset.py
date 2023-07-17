@@ -12,8 +12,12 @@ class PolarDataset(Dataset):
         super(PolarDataset, self).__init__()
         # Full dataset including targets
         self.data_df = pd.read_csv(filename)
-        self.X = torch.tensor(self.data_df[feature_names], device=device)
-        self.y = torch.tensor(self.data_df[target_names], device=device)
+        self.X = torch.tensor(self.data_df[feature_names].values,
+                              dtype=torch.float,
+                              device=device)
+        self.y = torch.tensor(self.data_df[target_names].values,
+                              dtype=torch.float,
+                              device=device)
         
         self.n_examples = self.X.shape[0]
         self.n_features = self.X.shape[1]
