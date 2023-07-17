@@ -39,33 +39,34 @@ class Trainer:
                                     self.device)
         
         # Split train, validation, test
-        dataset_train, dataset_val, dataset_test = random_split(self.dataset_full,
+        self.dataset_train, self.dataset_val, self.dataset_test = random_split(self.dataset_full,
                                                                   [cfg.dataset.train.size,
                                                                    cfg.dataset.val.size,
                                                                    cfg.dataset.test.size])
+        print(len(self.dataset_train), len(self.dataset_val))
         # TODO: use something else instead of random split
         
         # Process data by applying centering and reducing
-        data_train_tensor = dataset_train.dataset.X[dataset_train.indices]
-        mean_train = data_train_tensor.mean(dim=0)
-        std_train = data_train_tensor.std(dim=0)
+        data_train_tensor = self.dataset_train.dataset.X[self.dataset_train.indices]
+        mean_train = self.data_train_tensor.mean(dim=0)
+        std_train = self.data_train_tensor.std(dim=0)
         
         self.dataset_full.transform =  Lambda(lambda x: (x-std_train)/mean_train)
         
         # TODO: check that it works
         
         # Dataloaders
-        self.train_loader = DataLoader(dataset_train,
+        self.train_loader = DataLoader(self.dataset_train,
                                   batch_size=cfg.dataset.train.batch_size,
                                   shuffle=cfg.dataset.train.shuffle)
-        self.val_loader = DataLoader(dataset_val,
+        self.val_loader = DataLoader(self.dataset_val,
                                   batch_size=cfg.dataset.val.batch_size)
-        self.test_loader = DataLoader(dataset_test,
+        self.test_loader = DataLoader(self.dataset_test,
                                   batch_size=cfg.dataset.test.batch_size)
         
         
         ### Model
-        print(self.dataset_full.n_features, self.dataset_full.n_targets)
+        
         # TODO: place the hyperparams in a config
         model = nn.Sequential(
             nn.Linear(self.dataset_full.n_features, 100),
@@ -88,10 +89,11 @@ class Trainer:
     
     def fit(self) -> None:
         ## Metrics
-        # train_loss = []
-        # val_loss = []
+        train_loss = torch.zeros(self.n_epochs)
+        val_loss = torch.zeros(self.n_epochs)
         
-        for e in tqdm(range(self.n_epochs)):
+        # TODO: add second end_condition related to stagnation of training loss
+        for epoch in tqdm(range(self.n_epochs)):
             self.model.train()
             train_epoch_loss = 0
             for batch in self.train_loader:
@@ -105,7 +107,7 @@ class Trainer:
                 
                 train_epoch_loss += loss.item()
                 
-            # train_loss.append(train_epoch_loss)
+            train_loss[epoch] = train_epoch_loss/len(self.dataset_train)
             
             ## Validation set
             self.model.eval()
@@ -121,12 +123,19 @@ class Trainer:
                 
                 val_epoch_loss += loss.item()
                 
-            # val_loss.append(val_epoch_loss)
+            val_loss[epoch] = val_epoch_loss/len(self.dataset_val)
             
             self.model.eval()
-            self.run.log({"epoch": e,
-                          "train/loss": train_epoch_loss,
-                          "val/loss": val_epoch_loss})
+            self.run.log({"epoch": epoch,
+                          "train/loss": train_loss[epoch],
+                          "val/loss": val_loss[epoch]})
+            
+            # Save checkpoints
+            torch.save(self.model.state_dict(), "../checkpoints/model.pth")
+            torch.save(self.optimizer.state_dict(), "../checkpoints/optimizer.pth")
+            torch.save(epoch, "../checkpoints/epoch.pth")
+            torch.save(train_loss, "../checkpoints/train_loss.pth")
+            torch.save(val_loss, "../checkpoints/val_loss.pth")
             
         self.run.finish()
-        # return train_loss, val_loss
+        
