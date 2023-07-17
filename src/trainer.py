@@ -7,12 +7,13 @@ from torch.utils.data import DataLoader, random_split
 from torch import nn
 from torch.optim import Adam
 from tqdm import tqdm
+from torchvision.transforms import ToTensor, Lambda
+
 
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
         print(OmegaConf.to_yaml(cfg))
-        
         
         self.run = wandb.init(config=OmegaConf.to_container(cfg, resolve=True),
                               **cfg.wandb)
@@ -28,6 +29,9 @@ class Trainer:
         else:
             self.device = self.cfg.common.device
         
+        print(f"Using device: {self.device}")
+        
+        
         ### Dataset
         self.dataset_full = PolarDataset(cfg.dataset.filename,
                                     cfg.dataset.feature_names,
@@ -39,13 +43,16 @@ class Trainer:
                                                                   [cfg.dataset.train.size,
                                                                    cfg.dataset.val.size,
                                                                    cfg.dataset.test.size])
-        self.dataset_train = dataset_train
-        self.dataset_val = dataset_val
-        self.dataset_test = dataset_test
         # TODO: use something else instead of random split
         
-        # Process data
-        # TODO: apply centering and reducing
+        # Process data by applying centering and reducing
+        data_train_tensor = dataset_train.dataset.X[dataset_train.indices]
+        mean_train = data_train_tensor.mean(dim=0)
+        std_train = data_train_tensor.std(dim=0)
+        
+        self.dataset_full.transform =  Lambda(lambda x: (x-std_train)/mean_train)
+        
+        # TODO: check that it works
         
         # Dataloaders
         self.train_loader = DataLoader(dataset_train,
@@ -81,8 +88,8 @@ class Trainer:
     
     def fit(self) -> None:
         ## Metrics
-        train_loss = []
-        val_loss = []
+        # train_loss = []
+        # val_loss = []
         
         for e in tqdm(range(self.n_epochs)):
             self.model.train()
@@ -98,7 +105,7 @@ class Trainer:
                 
                 train_epoch_loss += loss.item()
                 
-            train_loss.append(train_epoch_loss)
+            # train_loss.append(train_epoch_loss)
             
             ## Validation set
             self.model.eval()
@@ -114,7 +121,7 @@ class Trainer:
                 
                 val_epoch_loss += loss.item()
                 
-            val_loss.append(val_epoch_loss)
+            # val_loss.append(val_epoch_loss)
             
             self.model.eval()
             self.run.log({"epoch": e,
@@ -122,4 +129,4 @@ class Trainer:
                           "val/loss": val_epoch_loss})
             
         self.run.finish()
-        return train_loss, val_loss
+        # return train_loss, val_loss
