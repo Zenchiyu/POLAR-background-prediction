@@ -4,7 +4,7 @@ wandb:
 
 common:
   seed: 42
-  n_epochs: 500
+  n_epochs: 200
   device: cuda
 
 dataset:
@@ -16,15 +16,18 @@ dataset:
     - rate[0]
   train:
     size: 0.6
-    batch_size: 1
+    batch_size: 200  # similar to sklearn 'auto'
     shuffle: True
   val:
     size: 0.2
-    batch_size: 1
+    batch_size: 200
   test:
     size: 0.2
-    batch_size: 1
+    batch_size: 200
 
 optimizer:
   hyperparams:
+    # For adam optimizer
     lr: 1e-3
+    betas: (0.9, 0.999)
+    eps: 1e-08

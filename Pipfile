@@ -22,6 +22,9 @@ plotly = "*"
 torch = {version = "*", index = "downloadpytorch"}
 torchvision = "*"
 torchaudio = "*"
+google = "*"
+pip = "*"
+hydra-core = "*"
 
 [dev-packages]
 

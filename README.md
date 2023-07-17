@@ -121,3 +121,4 @@ Then `python <script-name>`.
 
 ## Credits
 
+A part of the code was inspired from https://github.com/eloialonso/iris
