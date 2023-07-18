@@ -53,7 +53,9 @@ class Trainer:
         
         self.dataset_full.transform =  Lambda(lambda x: (x-mean_train)/std_train)
         
-        # TODO: check that it works
+        # XXX: be careful when evaluating on train or test set, we need to be sure
+        # that we're using the same transform !
+        
         
         # Dataloaders
         self.train_loader = DataLoader(self.dataset_train,
