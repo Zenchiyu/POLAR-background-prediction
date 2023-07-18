@@ -36,7 +36,7 @@ we could still observe a spike around "per 1 hour 30" frequency in the magnitude
 due to GRBs (Gamma Ray Bursts) which could cause visible spikes:
 		- We manually chose some threshold based on the magnitude spectrum to kill some low frequencies as well as some spikes
 
-
+- We won't necessarily use the reconstructed light curve as target
 
 
 ### (Future) Goals:
@@ -50,6 +50,7 @@ we're predicting a time series or sequence using multiple time series or sequenc
 - `fe_rate` contains $25$ values representing photon rates from different modules but `rate` contains $12$ values representing photon rates for different "energies" (but I don't know what they are as I'm not the expert).
 - We used linear regression for two datasets, the same as previous week as well as a new one `fm_rate`. Therefore we also loaded `fm_rate`, preprocessed it etc.
 - The datasets we use are not necessarily the final one.
+- For the data inputted to the neural network, we tried with different features (e.g all measurements except targets and `unix_time`).
 
 ### Summary:
 - Visualized the Pearson correlation coefficient between the measurements (magnetic field, latitude, longitude, cosmic rates etc.) as well as
@@ -63,6 +64,33 @@ with our target. Found that cosmic rates have quiet some linearly correlation wi
 - We then started using another dataset `fm_rate` and applied similar steps as the dataset from previous week. Note however that this dataset comprises of only about 60k examples, with intervals of about 60 seconds
 between them (except for missing data or 'holes'). The `m` comes from "m"inute.
 
-- Using that dataset, we tried applying a simple fully connected neural network from sklearn using the base MLPRegressor but with 100 neurons in the hidden layer.
+- Using that dataset (splitting it 60/20/20 for train, validation, test after shuffling), we tried applying a simple fully connected neural network from sklearn using the base MLPRegressor but with 100 neurons in the hidden layer.
+We moved on to two hidden layers with 100 neurons each (see this [notebook](https://github.com/Zenchiyu/POLAR-background-prediction/blob/develop/notebooks/fmrate_prediction.ipynb)). Instead of predicting the sum of rates obtained from each module, we try to predict each rates from "each energy" (`rate[i]` instead of `sum_fe_rate`)
+- With similar data split, we tried applying a linear regression to predict `rate[0]` only using `sum_fe_cosmic`
+- Even though **it's incorrect** to use the whole dataset, we used our trained model to predict over the whole dataset, the photon rates `rate[0]`.
+- From them, we computed the residual plots (target-prediction), showed their histograms, gaussian fits of residuals.
+- We also showed rescaled residual plots (target-prediction)/sqrt(target) ("pull" plot), their histograms and modified gaussian fits of "pulls". The modified gaussian fit:
+
+```
+def find_std(data):
+    low = -np.inf
+    high = np.inf
+    prev_std = np.inf
+    std = np.std(data)
+    mean = np.mean(data)
+    
+    while ~np.isclose(prev_std, std):
+        # Update interval
+        low = -3*std + mean
+        high = 3*std + mean
+        
+        prev_std = std
+        std = np.std(data[(data>low) & (data<high)])
+        print(mean, std, low, high)
+    return mean, std
+```
+
+was suggest by Nicolas Produit in order to ignore the "outliers" in the "pull histogram".
+
 
 ## Week 3: 18.07.23 - 23.07.23
