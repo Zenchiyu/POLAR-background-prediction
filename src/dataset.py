@@ -26,6 +26,15 @@ class PolarDataset(Dataset):
         self.n_features = self.X.shape[1]
         self.n_targets = self.y.shape[1] if self.y.dim() > 1 else 1
         
+        self.feature_names = feature_names
+        self.id2feature_names = self.feature_names
+        self.feature_names2id = {f: i for i, f in enumerate(feature_names)}
+        
+        self.target_names = target_names
+        self.id2target_names = self.target_names
+        self.target_names2id = {t: i for i, t in enumerate(target_names)}
+        
+        
         self.transform = transform
         self.target_transform = target_transform
     

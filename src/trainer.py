@@ -51,7 +51,7 @@ class Trainer:
         mean_train = data_train_tensor.mean(dim=0)
         std_train = data_train_tensor.std(dim=0)
         
-        self.dataset_full.transform =  Lambda(lambda x: (x-std_train)/mean_train)
+        self.dataset_full.transform =  Lambda(lambda x: (x-mean_train)/std_train)
         
         # TODO: check that it works
         
@@ -73,6 +73,8 @@ class Trainer:
             nn.ReLU(),
             nn.Linear(100, 100),
             nn.ReLU(),
+	    nn.Linear(100, 100),
+	    nn.ReLU(),
             nn.Linear(100, self.dataset_full.n_targets),
             )
         
@@ -86,6 +88,9 @@ class Trainer:
         self.model = model.to(device=self.device)
         self.criterion = criterion.to(device=self.device)
         
+        if cfg.wandb_watch:
+            self.run.watch(self.model, self.criterion,
+                           log="all", log_graph=True)
     
     def fit(self) -> None:
         ## Metrics
