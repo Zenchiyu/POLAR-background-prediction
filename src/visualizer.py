@@ -13,6 +13,9 @@ def plot_loss(train_loss, val_loss, epoch=None):
     if epoch:
         plt.plot(train_loss[:epoch+1])
         plt.plot(val_loss[:epoch+1])
+    else:
+        plt.plot(train_loss)
+        plt.plot(val_loss)
     plt.savefig("results/images/loss.png")
     
 
