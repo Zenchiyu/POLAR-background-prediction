@@ -141,7 +141,7 @@ temporal relationships.
 we're predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
-- To use artifacts for datasets. Need to version datasets as I can work with different datasets
+- To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more logs information.
 
