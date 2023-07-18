@@ -25,19 +25,18 @@ and [root_numpy](http://scikit-hep.org/root_numpy/start.html).
 	- "quantized" the data so that the examples are at round seconds (each two seconds). Note that there are missing data so examples are not necessarily at equidistant times.
 	- ignored/removed part of the data so that we work with a subset (e.g keep data after the period in which astronauts went onboard the space lab)
 - Applied FFT on the time series: `sum_fe_rate`against "quantized" time (this is called the light curve). Note that because there can be some missing data,
-it's not completely correct to use FFT. However, due to the [orbital period of Tiangong-2 space lab](https://en.wikipedia.org/wiki/Tiangong-2), Earth's rotation, etc., there are seasonalities involved.
-we could still observe a spike around "per 1 hour 30" frequency in the magnitude spectrum of the light curve.
+it's not completely correct to use FFT. However, due to the [orbital period of Tiangong-2 space lab](https://en.wikipedia.org/wiki/Tiangong-2), Earth's rotation, etc., there are seasonalities involved and we could still observe a spike around "per 1 hour 30" frequency in the magnitude spectrum of the light curve.
 
-- Using the results of FFT, we want to perform some operations in Fourier domain before constructing the light curve and use it as a target in our regression problem:
+- Using the results of FFT, we want to perform some operations in Fourier domain before reconstructing the light curve and using it as a target in our regression problem:
 	- Started to code something in order to kill the spikes in the magnitude spectrum using two methods:
 		- Using a box filter on the magnitude (but what window size should we use ? what padding method ?)
-		- Applied linear regression in the "log x, log y" magnitude plot as it looked like some power law then wanted to use it to find the spikes before killing only the spikes (unfinished as we moved on to another idea, see next bullet point)
+		- Applied linear regression in the "log x, log y" magnitude plot as the magnitude spectrum looked like some power law. We then wanted to use it to find the spikes before killing only the spikes (unfinished as we moved on to another idea, see next bullet point)
 	- We stopped trying to kill the spikes and started to think about killing low frequencies instead as we're mostly interested in high frequencies
 due to GRBs (Gamma Ray Bursts) which could cause visible spikes:
 		- We manually chose some threshold based on the magnitude spectrum to kill some low frequencies as well as some spikes
 
 - We won't necessarily use the reconstructed light curve as target
-
+- Setted up the github project and pipenv
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set.
@@ -49,8 +48,8 @@ we're predicting a time series or sequence using multiple time series or sequenc
 
 - `fe_rate` contains $25$ values representing photon rates from different modules but `rate` contains $12$ values representing photon rates for different "energies" (but I don't know what they are as I'm not the expert).
 - We used linear regression for two datasets, the same as previous week as well as a new one `fm_rate`. Therefore we also loaded `fm_rate`, preprocessed it etc.
-- The datasets we use are not necessarily the final one.
-- For the data inputted to the neural network, we tried with different features (e.g all measurements except targets and `unix_time`).
+- The datasets we use are not necessarily the final ones.
+- For the data `fm_rate` inputted to the neural network, we tried with different features (e.g all measurements except targets and `unix_time`).
 
 ### Summary:
 - Visualized the Pearson correlation coefficient between the measurements (magnetic field, latitude, longitude, cosmic rates etc.) as well as
@@ -90,7 +89,59 @@ def find_std(data):
     return mean, std
 ```
 
-was suggest by Nicolas Produit in order to ignore the "outliers" in the "pull histogram".
+was suggested by Nicolas Produit in order to ignore the "outliers" in the "pull histogram".
 
+- Started learning about pytorch, weights and biases and JAX.
+- Issues installing JAX with GPU support on Windows (my desktop computer), therefore, stayed with Pytorch with GPU.
+- Modified README.md by adding information about how to use pipenv and how to install.
+
+### (Future) Goals:
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
+and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+temporal relationships.
+- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
+we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To try using pytorch and GPUs
 
 ## Week 3: 18.07.23 - 23.07.23
+
+
+### Summary
+
+- Started writing logbook
+- Connected to GPU (Quadro RTX 4000) of POLAR group. Can run my python scripts remotely.
+- Started learning about weights and biases and using it for the first time ([Project's weights and biases](https://wandb.ai/stephane-nguyen/POLAR-background-prediction?workspace=user-stephane-nguyen)). 
+Here's an example of [run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/1j329ps1?workspace=user-stephane-nguyen).
+- Started writing the pytorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using hydra
+for first time too).
+
+### Comments
+
+- pipenv currently "half-outdated" due to hydra and pytorch gpu (pipenv not working as expected on the POLAR machine, couldn't install pytorch via pipenv but
+installed it via normal pip)
+
+- Run:
+```
+python src/main.py
+```
+to run the training phase and log information in Weights and Biases.
+
+- Run:
+```
+python src/main.py wandb.online = disabled
+```
+to run the training phase without logging information into Weights and Biases.
+
+
+### (Future) Goals:
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
+and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+temporal relationships.
+- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
+we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To better understand Adam optimizer, different parts of what I've used in general.
+- To better understand or to learn more about Hydra
+- To use artifacts for datasets. Need to version datasets as I can work with different datasets
+- To learn more about regularization, dropout, batch normalization
+- To learn more about W&B sweeps and add more logs information.
+
