@@ -114,6 +114,8 @@ we're predicting a time series or sequence using multiple time series or sequenc
 Here's an example of [run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/1j329ps1?workspace=user-stephane-nguyen).
 - Started writing the pytorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using hydra
 for first time too).
+- Added code to save models, criterions and more
+- Applied model on validation set and visualized prediction (over whole validation set)
 
 ### Comments
 
