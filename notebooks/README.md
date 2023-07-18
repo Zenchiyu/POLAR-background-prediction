@@ -17,12 +17,14 @@ They are not needed for more complex models (are implemented in PyTorch in `src`
 ```
 
 Note: You can ignore `dataset_f1rate.ipynb` as we don't provide the dataset and we don't really use it afterwards. We keep it just for the `logbook`.
-The only two files you can run (as the dataset is in the `data` folder) are `dataset_fmrate.ipynb` and `fmrate_prediction`.
 
-We ran wrote or ran the code in this order:
+We wrote or ran the code in this order:
 - `exploring_polar_data.ipynb`
 - `dataset.ipynb`
 - `linear_regression.ipynb`
 - (`dataset_f1rate.ipynb`)
 - `dataset_fmrate.ipynb`
 - `fmrate_prediction.ipynb`
+
+But the only two files you can run (as the dataset is in the `data` folder) are `dataset_fmrate.ipynb` and `fmrate_prediction`.
+
