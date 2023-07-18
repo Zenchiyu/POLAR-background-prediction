@@ -65,8 +65,12 @@ def main(cfg: DictConfig):
     
     
     plot_loss(torch.train_loss, torch.val_loss)
+    
+    dataset_full = trainer.dataset_full
+    dataset_val_tensor = trainer.dataset_val.dataset.X[trainer.dataset_val.indices]
+    dataset_val_tensor = dataset_full.transform(dataset_val_tensor)
     plot_val_prediction_rate_0(trainer.dataset_val,
-                               trainer.model(trainer.dataset_val.dataset.X[trainer.dataset_val.indices]))
+                               trainer.model(dataset_val_tensor))
     
 
 if __name__ == "__main__":
