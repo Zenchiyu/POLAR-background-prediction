@@ -128,7 +128,7 @@ to run the training phase and log information in Weights and Biases.
 
 - Run:
 ```
-python src/main.py wandb.online=disabled
+python src/main.py wandb.mode=disabled
 ```
 to run the training phase without logging information into Weights and Biases.
 
