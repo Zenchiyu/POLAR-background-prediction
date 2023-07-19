@@ -37,7 +37,7 @@ def create_dataset(root_filename="data/fmrate.root",
     print("Available feature names or target names: ", data_dict.keys())
 
     data_df = pd.DataFrame.from_dict(data_dict)
-    sample_spacing = int(data_df[tunix_name].iloc[1] - data_df[tunix_name].iloc[0])
+    sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
     print("Sample spacing between examples: ", sample_spacing)
     # We don't bin the data anymore
     
