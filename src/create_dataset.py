@@ -7,11 +7,12 @@ import copy
 import sys
 from load_data import load_data_as_dict
 from pathlib import Path
-
+import re
 
 
 def create_dataset(root_filename="data/fmrate.root",
                tunix_name="unix_time",
+               new_columns=[],
                save_format=None):
     filename_no_extension = Path(root_filename).stem
     # Load the whole root file, keep all features: "None"
@@ -33,13 +34,29 @@ def create_dataset(root_filename="data/fmrate.root",
                 # Remove from data_dict, the key "key"
                 del data_dict[key]
     
-    del keys
-    print("Available feature names or target names: ", data_dict.keys())
-
+    del keys    
+    
+    print("\nAvailable feature names or target names from root file: ", data_dict.keys())
     data_df = pd.DataFrame.from_dict(data_dict)
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
     print("Sample spacing between examples: ", sample_spacing)
     # We don't bin the data anymore
+    
+    ### XXX: here apply some further preprocessing
+    
+    # Create new columns of data_df
+    if len(new_columns) != 0:
+        # data_df["rate[0]/rate_err[0]"] = data_df["rate[0]"]/data_df["rate_err[0]"]
+        for col in new_columns:
+            # you can try with col = 'rate + rate[0]/(rate_err_0[90] + 5.) + rate' (just for the regex)
+            operands = re.findall('[\w]+[\[][0-9]*[\]]|[\w]+', col)
+            expression = col
+            for op in operands:
+                expression.replace(op, f"data_df[{op}]")
+            data_df[col] = eval(expression)
+    
+    print("\nAvailable feature names or target names from data_df: ", data_df.columns)
+    
     
     if save_format:
         os.makedirs('data', exist_ok=True)
