@@ -37,6 +37,7 @@ class Trainer:
                                     cfg.dataset.feature_names,
                                     cfg.dataset.target_names,
                                     self.device,
+                                    cfg.dataset.new_columns,
                                     cfg.dataset.save_format)
         
         # Split train, validation, test
