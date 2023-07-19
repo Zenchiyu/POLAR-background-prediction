@@ -1,8 +1,5 @@
 import numpy as np
 import uproot as ur
-import sklearn
-from sklearn.model_selection import train_test_split
-
 
 def load_TTree(root_filename="../data/Allaux_Bfield.root",
                        TTree_name="t_hk_obox",
@@ -47,6 +44,9 @@ def train_val_test_split(X, y, val_size=0.2, test_size=0.2, random_state=42, shu
     Split the dataset into train, validation and test sets.
     X and y are pandas dataframes
     """
+    import sklearn
+    from sklearn.model_selection import train_test_split
+
     assert val_size + test_size < 1, "There's no training examples, need some training examples" 
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         test_size=test_size, 
