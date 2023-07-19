@@ -73,7 +73,7 @@ def create_dataset(root_filename="data/fmrate.root",
         else:
             raise NotImplementedError(f"save_format {save_format} not supported."+\
                                       "Only supporting csv or pkl")
-    return data_df
+    return data_df.astype('float64')
 
 if __name__ == "__main__":
     #create_dataset("data/nf1rate.root")
