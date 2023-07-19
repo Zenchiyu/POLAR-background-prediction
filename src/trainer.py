@@ -37,8 +37,8 @@ class Trainer:
                                     cfg.dataset.feature_names,
                                     cfg.dataset.target_names,
                                     self.device,
-                                    cfg.dataset.new_columns,
-                                    cfg.dataset.save_format)
+                                    new_columns=cfg.dataset.new_columns,
+                                    save_format=cfg.dataset.save_format)
         
         # Split train, validation, test
         self.dataset_train, self.dataset_val, self.dataset_test = random_split(self.dataset_full,

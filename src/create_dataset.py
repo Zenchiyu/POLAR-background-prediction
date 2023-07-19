@@ -43,20 +43,26 @@ def create_dataset(root_filename="data/fmrate.root",
     # We don't bin the data anymore
     
     ### XXX: here apply some further preprocessing
-    
-    # Create new columns of data_df
+    # Create new columns of data_df and evaluate expressions
     if len(new_columns) != 0:
         # data_df["rate[0]/rate_err[0]"] = data_df["rate[0]"]/data_df["rate_err[0]"]
         for col in new_columns:
             # you can try with col = 'rate + rate[0]/(rate_err_0[90] + 5.) + rate' (just for the regex)
-            operands = re.findall('[\w]+[\[][0-9]*[\]]|[\w]+', col)
+            # operands = re.findall('[\w]+[\[][0-9]*[\]]|[\w]+', col)
+            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)
             expression = col
+            incr = 0
             for op in operands:
-                expression.replace(op, f"data_df[{op}]")
+                start_idx, end_idx = op.span()
+                before = expression[:start_idx+incr]
+                after = expression[end_idx+incr:]
+                expression = before + f"data_df['{op.group()}']" + after
+                incr += len(f"data_df['']")
+            print(f"Expr to eval for col {col}: {expression}")
             data_df[col] = eval(expression)
     
     print("\nAvailable feature names or target names from data_df: ", data_df.columns)
-    
+    print(data_df.dtypes)
     
     if save_format:
         os.makedirs('data', exist_ok=True)
