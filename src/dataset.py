@@ -1,6 +1,7 @@
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
+from create_dataset import create_dataset
 
 
 class PolarDataset(Dataset):
@@ -10,11 +11,23 @@ class PolarDataset(Dataset):
                  target_names,
                  device="cpu",
                  transform=None,
-                 target_transform=None):
+                 target_transform=None,
+                 save_format=None):
         
         super(PolarDataset, self).__init__()
+        
         # Full dataset including targets
-        self.data_df = pd.read_csv(filename)
+        if filename.endswith(".root"):
+            # Create dataset file if cfg.dataset.target_format is not None
+            self.data_df = create_dataset(filename, save_format)
+        elif filename.endswith(".pkl"):
+            self.data_df = pd.read_pkl(filename)
+        elif filename.endswith(".csv"):
+            self.data_df = pd.read_csv(filename)
+        else:
+            raise NotImplementedError(f"Extension of {filename} not supported."+\
+                                      "Only supporting csv, pkl or root")
+            
         self.X = torch.tensor(self.data_df[feature_names].values,
                               dtype=torch.float,
                               device=device)

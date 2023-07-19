@@ -36,14 +36,14 @@ class Trainer:
         self.dataset_full = PolarDataset(cfg.dataset.filename,
                                     cfg.dataset.feature_names,
                                     cfg.dataset.target_names,
-                                    self.device)
+                                    self.device,
+                                    cfg.dataset.save_format)
         
         # Split train, validation, test
         self.dataset_train, self.dataset_val, self.dataset_test = random_split(self.dataset_full,
                                                                   [cfg.dataset.train.size,
                                                                    cfg.dataset.val.size,
                                                                    cfg.dataset.test.size])
-        print(len(self.dataset_train), len(self.dataset_val))
         # TODO: use something else instead of random split
         
         # Process data by applying centering and reducing
@@ -75,8 +75,8 @@ class Trainer:
             nn.ReLU(),
             nn.Linear(100, 100),
             nn.ReLU(),
-	    nn.Linear(100, 100),
-	    nn.ReLU(),
+            nn.Linear(100, 100),
+            nn.ReLU(),
             nn.Linear(100, self.dataset_full.n_targets),
             )
         
