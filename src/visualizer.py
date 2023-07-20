@@ -42,7 +42,7 @@ def plot_val_prediction_rate_0(dataset_val, pred):
     fig_val_prediction_rate_0, ax = plt.subplots()
     ax.plot(sorted_time_val, sorted_y_val_r0, '-g', linewidth=0.1)
     ax.plot(sorted_time_val, sorted_val_r0, '-r', linewidth=0.1)
-    ax.set_xlabel("Quantized Tunix [s]")
+    ax.set_xlabel("Tunix [s]")
     ax.set_ylabel("Avg Rate[0] [Hz]")  # Nb. photons per second (averaged over each bin)
     ax.set_title("Light curve of Rate[0]")
     plt.savefig("results/images/pred_rate_0.png")
@@ -55,6 +55,7 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     trainer = Trainer(cfg)
     
+    ### Loading checkpoint
     general_checkpoint = torch.load("checkpoints/general_checkpoint.pth")
     trainer.model.load_state_dict(general_checkpoint["model_state_dict"])
     trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
@@ -65,9 +66,11 @@ def main(cfg: DictConfig):
     
     trainer.model.eval()
     
-    
+    ### Plotting
+    ## Loss
     plot_loss(torch.train_loss, torch.val_loss)
     
+    ## Prediction on validation set (predicting rate 0)
     # Need to transform before inputting the whole validation set into
     # the model
     dataset_full = trainer.dataset_full
