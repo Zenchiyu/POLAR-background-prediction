@@ -112,12 +112,13 @@ def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
     os.makedirs('data', exist_ok=True)
-    if save_format == "csv":
-        data_df.to_csv(f'data/{filename_no_extension}_dataset.csv', index=False)
-    elif save_format == "pkl":
-        data_df.to_pickle(f'data/{filename_no_extension}_dataset.pkl')
-    else:
-        raise NotImplementedError(f"save_format {save_format} not supported."+\
+    match save_format:
+        case "csv":
+            data_df.to_csv(f'data/{filename_no_extension}_dataset.csv', index=False)
+        case "pkl":
+            data_df.to_pickle(f'data/{filename_no_extension}_dataset.pkl')
+        case _:
+            raise NotImplementedError(f"save_format {save_format} not supported."+\
                                   "Only supporting csv or pkl")
             
 
