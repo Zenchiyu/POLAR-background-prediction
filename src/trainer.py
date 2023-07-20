@@ -1,18 +1,20 @@
+import hydra
 import torch
 import wandb
-import hydra
-from omegaconf import DictConfig, OmegaConf
-from dataset import PolarDataset
-from torch.utils.data import DataLoader, random_split
+
 from torch import nn
 from torch.optim import Adam
-from tqdm import tqdm
+from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import ToTensor, Lambda
 
+from dataset import PolarDataset
+from omegaconf import DictConfig, OmegaConf
+from tqdm import tqdm
 
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
+        print("Config")
         print(OmegaConf.to_yaml(cfg))
         
         self.run = wandb.init(config=OmegaConf.to_container(cfg, resolve=True),
@@ -32,40 +34,8 @@ class Trainer:
         print(f"Using device: {self.device}")
         
         
-        ### Dataset
-        self.dataset_full = PolarDataset(cfg.dataset.filename,
-                                    cfg.dataset.feature_names,
-                                    cfg.dataset.target_names,
-                                    self.device,
-                                    new_columns=cfg.dataset.new_columns,
-                                    save_format=cfg.dataset.save_format)
-        
-        # Split train, validation, test
-        self.dataset_train, self.dataset_val, self.dataset_test = random_split(self.dataset_full,
-                                                                  [cfg.dataset.train.size,
-                                                                   cfg.dataset.val.size,
-                                                                   cfg.dataset.test.size])
-        # TODO: use something else instead of random split
-        
-        # Process data by applying centering and reducing
-        data_train_tensor = self.dataset_train.dataset.X[self.dataset_train.indices]
-        mean_train = data_train_tensor.mean(dim=0)
-        std_train = data_train_tensor.std(dim=0)
-        
-        self.dataset_full.transform =  Lambda(lambda x: (x-mean_train)/std_train)
-        
-        # XXX: be careful when evaluating on train or test set, we need to be sure
-        # that we're using the same transform !
-        
-        
-        # Dataloaders
-        self.train_loader = DataLoader(self.dataset_train,
-                                  batch_size=cfg.dataset.train.batch_size,
-                                  shuffle=cfg.dataset.train.shuffle)
-        self.val_loader = DataLoader(self.dataset_val,
-                                  batch_size=cfg.dataset.val.batch_size)
-        self.test_loader = DataLoader(self.dataset_test,
-                                  batch_size=cfg.dataset.test.batch_size)
+        ### Datasets: train
+        self.init_datasets()
         
         
         ### Model
@@ -92,6 +62,7 @@ class Trainer:
         self.criterion = criterion.to(device=self.device)
         
         if cfg.wandb_watch:
+            # Log model and more into wandb
             self.run.watch(self.model, self.criterion,
                            log="all", log_graph=True)
     
@@ -134,6 +105,7 @@ class Trainer:
             val_loss[epoch] = val_epoch_loss/len(self.dataset_val)
             
             self.model.eval()
+            # Wandb log
             self.run.log({"epoch": epoch,
                           "train/loss": train_loss[epoch],
                           "val/loss": val_loss[epoch]})
@@ -144,6 +116,57 @@ class Trainer:
             torch.save(epoch, "checkpoints/epoch.pth")
             torch.save(train_loss, "checkpoints/train_loss.pth")
             torch.save(val_loss, "checkpoints/val_loss.pth")
-            
+        
+        # Wandb finish
         self.run.finish()
         
+        
+    def init_datasets(self):
+        """
+        Create:
+        - self.dataset_full (Pytorch Dataset) with:
+            - self.dataset_full.transform: (x-mean_train)/std_train
+            
+        - self.dataset_train, self.dataset_val, self.dataset_test (Pytorch Subset)
+        - self.train_loader, self.val_loader, self.test_loader (Pytorch DataLoader)
+        
+        Links:
+        - https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset
+        - https://pytorch.org/docs/stable/data.html#torch.utils.data.Subset
+        - https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader
+        """
+        self.dataset_full = PolarDataset(self.cfg.dataset.filename,
+                                    self.cfg.dataset.feature_names,
+                                    self.cfg.dataset.target_names,
+                                    self.device,
+                                    new_columns=self.cfg.dataset.new_columns,
+                                    save_format=self.cfg.dataset.save_format)
+        
+        # Split train, validation, test
+        split_percentages = [self.cfg.dataset.train.size,
+                             self.cfg.dataset.val.size,
+                             self.cfg.dataset.test.size]
+        # TODO: use something else instead of random split
+        datasets = random_split(self.dataset_full, split_percentages)
+        self.dataset_train, self.dataset_val, self.dataset_test = datasets
+        
+        # Process features by applying centering and reducing
+        data_train_tensor = self.dataset_train.dataset.X[self.dataset_train.indices]
+        mean_train = data_train_tensor.mean(dim=0)
+        std_train = data_train_tensor.std(dim=0)
+        
+        self.dataset_full.transform =  Lambda(lambda x: (x-mean_train)/std_train)
+        
+        # XXX: be careful when evaluating on train or test set, we need to be sure
+        # that we're using the same transform !
+        
+        # Dataloaders
+        self.train_loader = DataLoader(self.dataset_train,
+                                  batch_size=self.cfg.dataset.train.batch_size,
+                                  shuffle=self.cfg.dataset.train.shuffle)
+        self.val_loader = DataLoader(self.dataset_val,
+                                  batch_size=self.cfg.dataset.val.batch_size)
+        self.test_loader = DataLoader(self.dataset_test,
+                                  batch_size=self.cfg.dataset.test.batch_size)
+        
+        return self.train_loader, self.val_loader, self.test_loader
