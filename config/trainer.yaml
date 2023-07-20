@@ -10,10 +10,11 @@ common:
   device: cuda
 
 dataset:
-  filename: data/nf1rate.root
+  filename: data/fmrate.root  # data/nf1rate.root
   save_format: null  # won't save in .pkl nor .csv
-  new_columns:
-    - rate[0]/rate_err[0]
+  new_columns: []
+  # new_columns:
+  #   - rate[0]/rate_err[0]
   feature_names:
     - unix_time
     - glat
@@ -27,14 +28,14 @@ dataset:
     - decx
     - is_orbit_up
     - time_since_saa
-    - crabarf
-    - sun
-    - sun_spot
+    # - crabarf
+    # - sun
+    # - sun_spot
     - B_r
     - B_theta
     - B_phi
   target_names:
-    - rate[0]/rate_err[0]  # had to specify in new_columns
+    - rate[0]  # rate[0]/rate_err[0]  # had to specify in new_columns
   train:
     size: 0.6
     batch_size: 200  # similar to sklearn 'auto'
