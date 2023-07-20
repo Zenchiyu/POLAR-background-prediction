@@ -93,6 +93,9 @@ def create_new_columns(data_df: pd.DataFrame,
     Warning: careful with "silent" errors related to the operations on existing
     columns (e.g division by 0)
     """
+    # Warnings are treated as errors when we evaluate expressions
+    warnings.filterwarnings("error")
+
     if len(new_columns) != 0:
         for col in new_columns:
             operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)
@@ -105,10 +108,16 @@ def create_new_columns(data_df: pd.DataFrame,
                 expression = before + f"data_df['{op.group()}'].values" + after
                 incr += len("data_df[''].values")
             if verbose: print(f"Expr to eval for col {col}: {expression}")
+            
             # Add new column with evaluated expression
-            data_df[col] = eval(expression)
-            # TODO: want to filter out examples that we don't want
-                
+            eval(expression)
+            data_df[col] = eval(expression.replace(".values", ""))  # can have NaNs
+            print(data_df.shape[0])
+            # Filter out the rows with NaN
+            data_df = data_df.dropna()
+            print(data_df.shape[0])
+    
+    
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
