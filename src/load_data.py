@@ -5,6 +5,7 @@ import uproot as ur
 
 
 from typing import Optional
+from numpy.typing import NDArray
 
 
 def load_TTree(root_filename: str = "../data/Allaux_Bfield.root",
@@ -34,9 +35,9 @@ def load_data_as_dict(root_filename: str = "../data/Allaux_Bfield.root",
                                "fe_cosmic",
                                "fe_rate"],
                         },
-                      verbose: bool = True) -> dict[str, np.typing.NDArray[typing.Any]]:
+                      verbose: bool = True) -> dict[str, NDArray[typing.Any]]:
 
-    data_dict: dict[str, np.typing.NDArray[typing.Any]] = {}
+    data_dict: dict[str, NDArray[typing.Any]] = {}
     for TTree_name, features_name in TTree_features_dict.items():
         data = load_TTree(root_filename=root_filename,
 			  TTree_name=TTree_name)
