@@ -6,7 +6,6 @@ import typing
 from create_dataset import create_dataset
 from pathlib import Path
 from torch.utils.data import Dataset
-from torchvision.transforms import Transform
 from typing import Optional, TypeAlias
 
 
@@ -16,8 +15,8 @@ class PolarDataset(Dataset):
                  feature_names: list[str],
                  target_names: list[str],
                  device: str = "cpu",
-                 transform: Optional[Transform]=None,
-                 target_transform: Optional[Transform]=None,
+                 transform: Optional[torch.nn.Module]=None,
+                 target_transform: Optional[torch.nn.Module]=None,
                  new_columns: list[str] = [],
                  save_format: Optional[str] = None) -> None:
         
