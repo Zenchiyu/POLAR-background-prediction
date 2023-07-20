@@ -4,6 +4,7 @@ import torchvision
 import typing
 
 from create_dataset import create_dataset
+from pathlib import Path
 from torch.utils.data import Dataset
 from torchvision.transforms import Transform
 from typing import Optional, TypeAlias
@@ -23,18 +24,19 @@ class PolarDataset(Dataset):
         super(PolarDataset, self).__init__()
         
         # Full dataset including targets
-        if filename.endswith(".root"):
-            # Create dataset file if cfg.dataset.target_format is not None
-            self.data_df = create_dataset(filename, 
-                                          new_columns=new_columns,
-                                          save_format=save_format)
-        elif filename.endswith(".pkl"):
-            self.data_df = pd.read_pkl(filename)
-        elif filename.endswith(".csv"):
-            self.data_df = pd.read_csv(filename)
-        else:
-            raise NotImplementedError(f"Extension of {filename} not supported."+\
-                                      "Only supporting csv, pkl or root")
+        match Path(filename).suffix:
+            case ".root":
+                # Create dataset file if cfg.dataset.target_format is not None
+                self.data_df = create_dataset(filename, 
+                                              new_columns=new_columns,
+                                              save_format=save_format)
+            case ".pkl":
+                self.data_df = pd.read_pkl(filename)
+            case ".csv":
+                self.data_df = pd.read_csv(filename)
+            case _:
+                raise NotImplementedError(f"Extension {Path(filename).suffix} of {filename} not supported."+\
+                                          "Only supporting csv, pkl or root")
         
         self.X = torch.tensor(self.data_df[feature_names].values.astype(float),
                               dtype=torch.float,
