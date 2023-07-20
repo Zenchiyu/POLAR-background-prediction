@@ -1,5 +1,6 @@
 import hydra
 import os
+import shutil
 import torch
 import typing
 import wandb
@@ -62,6 +63,9 @@ class Trainer:
         """
         Train the model using the training set
         """
+        ## Copy config file into specific run folder for future usage.
+        self.save_config()
+            
         ## Metrics
         train_loss = torch.zeros(self.n_epochs)
         val_loss = torch.zeros(self.n_epochs)
@@ -163,6 +167,13 @@ class Trainer:
         
         return self.train_loader, self.val_loader, self.test_loader
     
+    def save_config(self) -> None:
+        if self.cfg.wandb.mode == "online":
+            today = str(date.today())
+            path = f'checkpoints/{today}/run_{self.run.id}'
+            os.makedirs(path, exist_ok=True)
+            shutil.copyfile("config/trainer.yaml", path + "/trainer.yaml")
+            
     def save_checkpoints(self,
                          epoch: int,
                          train_loss: torch.Tensor,
@@ -184,7 +195,7 @@ class Trainer:
             path = f'checkpoints/{today}/run_{self.run.id}'
             os.makedirs(path, exist_ok=True)
             
-            torch.save(general_checkpoint, path + "/" + "general_checkpoint.pth")
+            torch.save(general_checkpoint, path + "/general_checkpoint.pth")
         
     
     def create_model(self) -> nn.Module:
