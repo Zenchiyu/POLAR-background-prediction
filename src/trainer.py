@@ -173,7 +173,7 @@ class Trainer:
                               "optimizer_state_dict": self.optimizer.state_dict(),
                               "epoch": epoch,
                               "train_loss": train_loss}
-        if val_loss:
+        if val_loss is not None:
             general_checkpoint["val_loss"] = val_loss
         
         torch.save(general_checkpoint, "checkpoints/general_checkpoint.pth")
@@ -216,7 +216,7 @@ class Trainer:
                             layers.append(nn.ReLU())
                         case _:
                             raise NotImplementedError("Inner activation function"+\
-                                                      f"{inner_activation_fct} not recognized")
+                                                      f" {inner_activation_fct} not recognized")
                     in_size = out_size
                 
                 ## Last layer
