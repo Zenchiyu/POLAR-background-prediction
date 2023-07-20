@@ -108,12 +108,16 @@ def create_new_columns(data_df: pd.DataFrame,
             if verbose: print(f"Expr to eval for col {col}: {expression}")
             
             # Add new column with evaluated expression
-            eval(expression)
-            data_df[col] = eval(expression.replace(".values", ""))  # can have NaNs
-            print(data_df.shape[0])
-            # Filter out the rows with NaN
+            eval(expression)  # just to show any warnings or errors
+            data_df[col] = eval(expression.replace(".values", ""))
+            
+            n_examples_old = data_df.shape[0]
+            # Filter out the rows having at least a NaN or missing value
             data_df = data_df.dropna()
-            print(data_df.shape[0])
+            
+            if verbose:
+                print("Number of examples before filtering: ", n_examples_old)
+                print("Number of examples after filtering (if happened): ", data_df.shape[0])
     
     
 def df_save_format(data_df: pd.DataFrame,
