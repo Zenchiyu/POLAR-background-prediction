@@ -1,4 +1,5 @@
 import hydra
+import os
 import torch
 import typing
 import wandb
@@ -40,15 +41,7 @@ class Trainer:
         
         ### Model
         # TODO: place the hyperparams in a config
-        model = nn.Sequential(
-            nn.Linear(self.dataset_full.n_features, 100),
-            nn.ReLU(),
-            nn.Linear(100, 100),
-            nn.ReLU(),
-            nn.Linear(100, 100),
-            nn.ReLU(),
-            nn.Linear(100, self.dataset_full.n_targets),
-            )
+        model = self.create_model()
         
         ### Criterion
         criterion = nn.MSELoss()
@@ -92,6 +85,8 @@ class Trainer:
             train_loss[epoch] = train_epoch_loss/len(self.dataset_train)
             
             ## Validation set, evaluation using current model
+            # TODO: add toggle whether want evaluation or not and
+            # TODO: update config file where we can choose to toggle or not
             self.model.eval()
             val_epoch_loss = 0
             for batch in self.val_loader:
@@ -112,16 +107,11 @@ class Trainer:
                           "train/loss": train_loss[epoch],
                           "val/loss": val_loss[epoch]})
             
-            # Save checkpoints
-            torch.save(self.model.state_dict(), "checkpoints/model.pth")
-            torch.save(self.optimizer.state_dict(), "checkpoints/optimizer.pth")
-            torch.save(epoch, "checkpoints/epoch.pth")
-            torch.save(train_loss, "checkpoints/train_loss.pth")
-            torch.save(val_loss, "checkpoints/val_loss.pth")
-        
+            # Save general checkpoint
+            self.save_checkpoints(epoch, train_loss, val_loss)
+            
         # Wandb finish
         self.run.finish()
-        
         
     def init_datasets(self) -> tuple[DataLoader, ...]:
         """
@@ -172,3 +162,73 @@ class Trainer:
                                   batch_size=self.cfg.dataset.test.batch_size)
         
         return self.train_loader, self.val_loader, self.test_loader
+    
+    def save_checkpoints(self,
+                         epoch: int,
+                         train_loss: torch.Tensor,
+                         val_loss: Optional[torch.Tensor] = None) -> None:
+        
+        # https://pytorch.org/tutorials/recipes/recipes/saving_and_loading_a_general_checkpoint.html
+        general_checkpoint = {"model_state_dict": self.model.state_dict(),
+                              "optimizer_state_dict": self.optimizer.state_dict(),
+                              "epoch": epoch,
+                              "train_loss": train_loss}
+        if val_loss:
+            general_checkpoint["val_loss"] = val_loss
+        
+        torch.save(general_checkpoint, "checkpoints/general_checkpoint.pth")
+        
+        # Also save it within particular folder related to wandb run.
+        if self.cfg.wandb.mode == "online":
+            path = f'checkpoints/run_{self.run.id}/'
+            os.makedirs(f'checkpoints/run_{self.run.id}', exist_ok=True)
+            torch.save(general_checkpoint, path + "general_checkpoint.pth")
+        
+        # torch.save(self.model.state_dict(), "checkpoints/model.pth")
+        # torch.save(self.optimizer.state_dict(), "checkpoints/optimizer.pth")
+        # torch.save(epoch, "checkpoints/epoch.pth")
+        # torch.save(train_loss, "checkpoints/train_loss.pth")
+        # torch.save(val_loss, "checkpoints/val_loss.pth")
+    
+    def create_model(self) -> nn.Module:
+        match self.cfg.model.type:
+            case "MLP":
+                inner_activation_fct = self.cfg.model.inner_activation_fct
+                output_activation_fct = self.cfg.mode.output_activation_fct
+                hidden_layer_sizes = self.cfg.model.hidden_layer_sizes
+                in_size = self.dataset_full.n_features
+                
+                # layers = [nn.Linear(self.dataset_full.n_features, 100),
+                # nn.ReLU(),
+                # nn.Linear(100, 100),
+                # nn.ReLU(),
+                # nn.Linear(100, 100),
+                # nn.ReLU(),
+                # nn.Linear(100, self.dataset_full.n_targets)]
+                
+                layers = []
+                
+                for h in hidden_layer_sizes:
+                    out_size = h
+                    layers.append(nn.Linear(in_size, out_size))
+                    match inner_activation_fct:
+                        case "ReLU":
+                            layers.append(nn.ReLU())
+                        case _:
+                            raise NotImplementedError("Inner activation function"+\
+                                                      f"{inner_activation_fct} not recognized")
+                    in_size = out_size
+                
+                ## Last layer
+                layers.append(nn.Linear(in_size, self.dataset_full.n_targets))
+                # No activation function or identity by default (nn.Identity())
+                match output_activation_fct:
+                    case _:
+                        # layers.append(nn.Identity())
+                        print("Using default identity activation"+\
+                              "function for last layer")
+
+                model = nn.Sequential(*layers)
+            case _:
+                raise NotImplementedError(f"Model type {self.cfg.model.type} not recognized")
+        return model
