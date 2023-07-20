@@ -114,6 +114,11 @@ we're predicting a time series or sequence using multiple time series or sequenc
 Here's an example of [run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/1j329ps1?workspace=user-stephane-nguyen).
 - Started writing the pytorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using hydra
 for first time too).
+- Added code to save models, criterions and more
+- Applied model on validation set and visualized prediction (over whole validation set)
+- Further cleaning of code and added python type hints (not for all files though)
+- Can now save a general checkpoint at two different places; one as last checkpoint and the other is attached to a date and run id (see checkpoints folder)
+- Can now specify the number of neurons for each hidden layers directly inside the yaml config file.
 
 ### Comments
 
@@ -128,7 +133,7 @@ to run the training phase and log information in Weights and Biases.
 
 - Run:
 ```
-python src/main.py wandb.online = disabled
+python src/main.py wandb.mode=disabled
 ```
 to run the training phase without logging information into Weights and Biases.
 
