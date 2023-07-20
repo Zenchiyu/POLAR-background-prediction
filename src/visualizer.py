@@ -56,7 +56,7 @@ def main(cfg: DictConfig):
     trainer = Trainer(cfg)
     
     ### Loading checkpoint
-    general_checkpoint = torch.load("checkpoints/general_checkpoint.pth")
+    general_checkpoint = torch.load("checkpoints/last_general_checkpoint.pth")
     trainer.model.load_state_dict(general_checkpoint["model_state_dict"])
     trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
 

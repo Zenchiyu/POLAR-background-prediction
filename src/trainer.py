@@ -176,7 +176,7 @@ class Trainer:
         if val_loss is not None:
             general_checkpoint["val_loss"] = val_loss
         
-        torch.save(general_checkpoint, "checkpoints/general_checkpoint.pth")
+        torch.save(general_checkpoint, "checkpoints/last_general_checkpoint.pth")
         
         # Also save it within particular folder related to wandb run.
         if self.cfg.wandb.mode == "online":
