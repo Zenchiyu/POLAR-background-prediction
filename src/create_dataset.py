@@ -86,6 +86,13 @@ def flatten_dict_arrays(data_dict: dict[str, np.typing.NDArray[typing.Any]]) -> 
 def create_new_columns(data_df: pd.DataFrame,
                        new_columns: list[str] = [],
                        verbose: bool = True) -> None:
+    """
+    Create new columns of data_df. Can evaluate expressions to create
+    columns based on existing columns.
+    
+    Warning: careful with "silent" errors related to the operations on existing
+    columns (e.g division by 0)
+    """
     if len(new_columns) != 0:
         for col in new_columns:
             operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)

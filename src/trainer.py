@@ -1,11 +1,13 @@
 import hydra
 import torch
+import typing
 import wandb
 
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import ToTensor, Lambda
+from typing import Optional
 
 from dataset import PolarDataset
 from omegaconf import DictConfig, OmegaConf
@@ -14,7 +16,7 @@ from tqdm import tqdm
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
-        print("Config")
+        print("Config:")
         print(OmegaConf.to_yaml(cfg))
         
         self.run = wandb.init(config=OmegaConf.to_container(cfg, resolve=True),
@@ -26,20 +28,17 @@ class Trainer:
         
         self.n_epochs = self.cfg.common.n_epochs
         
-        if self.cfg.common.device is not None:
+        if self.cfg.common.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu" 
         else:
             self.device = self.cfg.common.device
         
         print(f"Using device: {self.device}")
         
-        
         ### Datasets: train
         self.init_datasets()
         
-        
         ### Model
-        
         # TODO: place the hyperparams in a config
         model = nn.Sequential(
             nn.Linear(self.dataset_full.n_features, 100),
@@ -61,18 +60,22 @@ class Trainer:
         self.model = model.to(device=self.device)
         self.criterion = criterion.to(device=self.device)
         
-        if cfg.wandb_watch:
-            # Log model and more into wandb
+        ### Logging more info into wandb (e.g model architecture with log_graph)
+        if self.cfg.wandb_watch:
             self.run.watch(self.model, self.criterion,
                            log="all", log_graph=True)
     
     def fit(self) -> None:
+        """
+        Train the model using the training set
+        """
         ## Metrics
         train_loss = torch.zeros(self.n_epochs)
         val_loss = torch.zeros(self.n_epochs)
         
         # TODO: add second end_condition related to stagnation of training loss
         for epoch in tqdm(range(self.n_epochs)):
+            ## Updating model with one pass through training set
             self.model.train()
             train_epoch_loss = 0
             for batch in self.train_loader:
@@ -88,7 +91,7 @@ class Trainer:
                 
             train_loss[epoch] = train_epoch_loss/len(self.dataset_train)
             
-            ## Validation set
+            ## Validation set, evaluation using current model
             self.model.eval()
             val_epoch_loss = 0
             for batch in self.val_loader:
@@ -104,7 +107,6 @@ class Trainer:
                 
             val_loss[epoch] = val_epoch_loss/len(self.dataset_val)
             
-            self.model.eval()
             # Wandb log
             self.run.log({"epoch": epoch,
                           "train/loss": train_loss[epoch],
@@ -121,7 +123,7 @@ class Trainer:
         self.run.finish()
         
         
-    def init_datasets(self):
+    def init_datasets(self) -> tuple[DataLoader, ...]:
         """
         Create:
         - self.dataset_full (Pytorch Dataset) with:
@@ -142,7 +144,7 @@ class Trainer:
                                     new_columns=self.cfg.dataset.new_columns,
                                     save_format=self.cfg.dataset.save_format)
         
-        # Split train, validation, test
+        ### Split train, validation, test
         split_percentages = [self.cfg.dataset.train.size,
                              self.cfg.dataset.val.size,
                              self.cfg.dataset.test.size]
@@ -150,7 +152,7 @@ class Trainer:
         datasets = random_split(self.dataset_full, split_percentages)
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
         
-        # Process features by applying centering and reducing
+        ### Process features by applying centering and reducing
         data_train_tensor = self.dataset_train.dataset.X[self.dataset_train.indices]
         mean_train = data_train_tensor.mean(dim=0)
         std_train = data_train_tensor.std(dim=0)
@@ -160,7 +162,7 @@ class Trainer:
         # XXX: be careful when evaluating on train or test set, we need to be sure
         # that we're using the same transform !
         
-        # Dataloaders
+        ### Dataloaders
         self.train_loader = DataLoader(self.dataset_train,
                                   batch_size=self.cfg.dataset.train.batch_size,
                                   shuffle=self.cfg.dataset.train.shuffle)

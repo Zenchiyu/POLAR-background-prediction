@@ -1,9 +1,15 @@
 import numpy as np
+import pandas as pd
+import typing
 import uproot as ur
 
-def load_TTree(root_filename="../data/Allaux_Bfield.root",
-                       TTree_name="t_hk_obox",
-                       verbose=True):
+
+from typing import Optional
+
+
+def load_TTree(root_filename: str = "../data/Allaux_Bfield.root",
+               TTree_name: str = "t_hk_obox",
+               verbose: bool = True) -> ur.reading.ReadOnlyDirectory:
     # Open the file and show its contents (like .ls in ROOT CERN)
     data = ur.open(root_filename+":"+TTree_name)
     if verbose:
@@ -12,8 +18,8 @@ def load_TTree(root_filename="../data/Allaux_Bfield.root",
         print()
     return data
 
-def load_data_as_dict(root_filename="../data/Allaux_Bfield.root",
-			TTree_features_dict={
+def load_data_as_dict(root_filename: str = "../data/Allaux_Bfield.root",
+                      TTree_features_dict: dict[str, Optional[list[str]]] = {
                         "t_hk_obox":
                                 ["saa", 
                                "raz",
@@ -28,9 +34,9 @@ def load_data_as_dict(root_filename="../data/Allaux_Bfield.root",
                                "fe_cosmic",
                                "fe_rate"],
                         },
-                      verbose=True):
+                      verbose: bool = True) -> dict[str, np.typing.NDArray[typing.Any]]:
 
-    data_dict = {}
+    data_dict: dict[str, np.typing.NDArray[typing.Any]] = {}
     for TTree_name, features_name in TTree_features_dict.items():
         data = load_TTree(root_filename=root_filename,
 			  TTree_name=TTree_name)
@@ -39,7 +45,12 @@ def load_data_as_dict(root_filename="../data/Allaux_Bfield.root",
     
 
 
-def train_val_test_split(X, y, val_size=0.2, test_size=0.2, random_state=42, shuffle=True):
+def train_val_test_split(X: pd.Dataframe,
+                         y: pd.DataFrame,
+                         val_size: float =0.2,
+                         test_size: float =0.2,
+                         random_state: Optional[int] =42,
+                         shuffle: bool = True) -> tuple[pd.DataFrame, ...]:
     """
     Split the dataset into train, validation and test sets.
     X and y are pandas dataframes

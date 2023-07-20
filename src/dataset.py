@@ -1,19 +1,24 @@
 import pandas as pd
 import torch
-from torch.utils.data import Dataset
+import torchvision
+import typing
+
 from create_dataset import create_dataset
+from torch.utils.data import Dataset
+from torchvision.transforms import Transform
+from typing import Optional, TypeAlias
 
 
 class PolarDataset(Dataset):
     def __init__(self,
-                 filename, 
-                 feature_names,
-                 target_names,
-                 device="cpu",
-                 transform=None,
-                 target_transform=None,
-                 new_columns=[],
-                 save_format=None):
+                 filename: str, 
+                 feature_names: list[str],
+                 target_names: list[str],
+                 device: str = "cpu",
+                 transform: Optional[Transform]=None,
+                 target_transform: Optional[Transform]=None,
+                 new_columns: list[str] = [],
+                 save_format: Optional[str] = None) -> None:
         
         super(PolarDataset, self).__init__()
         
@@ -38,9 +43,9 @@ class PolarDataset(Dataset):
                               dtype=torch.float,
                               device=device)
         
-        self.n_examples = self.X.shape[0]
-        self.n_features = self.X.shape[1]
-        self.n_targets = self.y.shape[1] if self.y.dim() > 1 else 1
+        self.n_examples: int = self.X.shape[0]
+        self.n_features: int = self.X.shape[1]
+        self.n_targets: int = self.y.shape[1] if self.y.dim() > 1 else 1
         
         self.feature_names = feature_names
         self.id2feature_names = self.feature_names
@@ -54,10 +59,10 @@ class PolarDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
     
-    def __len__(self):
+    def __len__(self) -> int:
         return self.n_examples
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         features = self.X[idx]
         targets = self.y[idx]
         if self.transform:
