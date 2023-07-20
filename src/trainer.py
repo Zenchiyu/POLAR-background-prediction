@@ -198,16 +198,7 @@ class Trainer:
                 hidden_layer_sizes = self.cfg.model.hidden_layer_sizes
                 in_size = self.dataset_full.n_features
                 
-                # layers = [nn.Linear(self.dataset_full.n_features, 100),
-                # nn.ReLU(),
-                # nn.Linear(100, 100),
-                # nn.ReLU(),
-                # nn.Linear(100, 100),
-                # nn.ReLU(),
-                # nn.Linear(100, self.dataset_full.n_targets)]
-                
                 layers = []
-                
                 for h in hidden_layer_sizes:
                     out_size = h
                     layers.append(nn.Linear(in_size, out_size))
