@@ -93,8 +93,6 @@ def create_new_columns(data_df: pd.DataFrame,
     Warning: careful with "silent" errors related to the operations on existing
     columns (e.g division by 0)
     """
-    # Warnings are treated as errors when we evaluate expressions
-    warnings.filterwarnings("error")
 
     if len(new_columns) != 0:
         for col in new_columns:
