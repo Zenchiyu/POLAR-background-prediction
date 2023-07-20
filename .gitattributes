@@ -1,1 +1,2 @@
 notebooks/*.ipynb linguist-language=python
+notebooks/*.ipynb text diff=python
