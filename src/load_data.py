@@ -46,7 +46,7 @@ def load_data_as_dict(root_filename: str = "../data/Allaux_Bfield.root",
     
 
 
-def train_val_test_split(X: pd.Dataframe,
+def train_val_test_split(X: pd.DataFrame,
                          y: pd.DataFrame,
                          val_size: float =0.2,
                          test_size: float =0.2,
