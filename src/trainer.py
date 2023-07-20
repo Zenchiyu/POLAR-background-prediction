@@ -11,9 +11,9 @@ from torchvision.transforms import ToTensor, Lambda
 from typing import Optional
 
 from dataset import PolarDataset
+from datetime import date
 from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
-
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
@@ -180,15 +180,12 @@ class Trainer:
         
         # Also save it within particular folder related to wandb run.
         if self.cfg.wandb.mode == "online":
-            path = f'checkpoints/run_{self.run.id}/'
-            os.makedirs(f'checkpoints/run_{self.run.id}', exist_ok=True)
-            torch.save(general_checkpoint, path + "general_checkpoint.pth")
+            today = str(date.today())
+            path = f'checkpoints/{today}/run_{self.run.id}'
+            os.makedirs(path, exist_ok=True)
+            
+            torch.save(general_checkpoint, path + "/" + "general_checkpoint.pth")
         
-        # torch.save(self.model.state_dict(), "checkpoints/model.pth")
-        # torch.save(self.optimizer.state_dict(), "checkpoints/optimizer.pth")
-        # torch.save(epoch, "checkpoints/epoch.pth")
-        # torch.save(train_loss, "checkpoints/train_loss.pth")
-        # torch.save(val_loss, "checkpoints/val_loss.pth")
     
     def create_model(self) -> nn.Module:
         match self.cfg.model.type:
