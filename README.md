@@ -10,6 +10,11 @@ Related links:
 
 ---
 
+Install pytorch:
+```
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+
 ## Installation (OUTDATED - need to take into account pytorch and hydra and the case where we only use pip)
 If you don't use Anaconda, you can skip the first steps with Anaconda but you need to make sure you already have Python version `3.10.12` and `pipenv` installed (using `pip` for ex.). Moreover, Jupyter notebook is required to run the notebooks. 
 
