@@ -1,11 +1,11 @@
-import torch
-import numpy as np
-import pandas as pd
 import hydra
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import torch
+
 from omegaconf import DictConfig, OmegaConf
 from trainer import Trainer  
-
 
 
 def plot_loss(train_loss, val_loss, epoch=None):
@@ -51,15 +51,17 @@ def plot_val_prediction_rate_0(dataset_val, pred):
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
 def main(cfg: DictConfig):
+    # don't want to start a wandb run
     cfg.wandb.mode = "disabled"
     trainer = Trainer(cfg)
     
-    trainer.model.load_state_dict(torch.load("checkpoints/model.pth"))
-    trainer.optimizer.load_state_dict(torch.load("checkpoints/optimizer.pth"))
+    general_checkpoint = torch.load("checkpoints/general_checkpoint.pth")
+    trainer.model.load_state_dict(general_checkpoint["model_state_dict"])
+    trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
 
-    trainer.epoch = torch.load("checkpoints/epoch.pth")
-    torch.train_loss = torch.load("checkpoints/train_loss.pth")
-    torch.val_loss = torch.load("checkpoints/val_loss.pth")
+    trainer.epoch = general_checkpoint["epoch"]
+    torch.train_loss = general_checkpoint["train_loss"]
+    torch.val_loss = general_checkpoint["val_loss"]
     
     trainer.model.eval()
     
