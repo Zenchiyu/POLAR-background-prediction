@@ -102,12 +102,13 @@ def create_new_columns(data_df: pd.DataFrame,
                 start_idx, end_idx = op.span()
                 before = expression[:start_idx+incr]
                 after = expression[end_idx+incr:]
-                expression = before + f"data_df['{op.group()}']" + after
-                incr += len("data_df['']")
+                expression = before + f"data_df['{op.group()}'].values" + after
+                incr += len("data_df[''].values")
             if verbose: print(f"Expr to eval for col {col}: {expression}")
             # Add new column with evaluated expression
             data_df[col] = eval(expression)
-            
+            # TODO: want to filter out examples that we don't want
+                
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
