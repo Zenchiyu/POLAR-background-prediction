@@ -5,19 +5,35 @@ import os
 import pandas as pd
 import re
 import sys
+import typing
 import uproot as ur
 
 from load_data import load_data_as_dict
 from pathlib import Path
+from typing import Optional
 
 
-def create_dataset(root_filename="data/fmrate.root",
-               tunix_name="unix_time",
-               new_columns=[],
-               save_format=None):
+def create_dataset(root_filename: str = "data/fmrate.root",
+                   tunix_name: str = "unix_time",
+                   new_columns: list[str] = [],
+                   save_format: Optional[str] = None) -> pd.DataFrame:
+    """
+    - Create pandas dataframe containing the whole dataset (features & target) from
+    a .root file.
+    
+    - Optionally save dataframe into specified format among these:
+        - "pkl"
+        - "csv"
+        - None (when don't want to save)
+    
+    - Can also create new columns based on existing columns.
+    Each new column is specified by a string in new_columns list. The string
+    must contain operations over existing dataframe column names.
+    """
     filename_no_extension = Path(root_filename).stem
     
-    # Load the whole root file, keep all features: "None"
+    # Load the whole root file while keeping all features:
+    # filename_no_extension: None -> keeps all features
     data_dict = load_data_as_dict(root_filename=root_filename,
                             TTree_features_dict={filename_no_extension: None})
     
@@ -31,32 +47,20 @@ def create_dataset(root_filename="data/fmrate.root",
     
     ### XXX: here apply some further preprocessing
     # Create new columns of data_df and evaluate expressions
-    if len(new_columns) != 0:
-        for col in new_columns:
-            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)
-            expression = col
-            incr = 0
-            for op in operands:
-                start_idx, end_idx = op.span()
-                before = expression[:start_idx+incr]
-                after = expression[end_idx+incr:]
-                expression = before + f"data_df['{op.group()}']" + after
-                incr += len(f"data_df['']")
-            print(f"Expr to eval for col {col}: {expression}")
-            data_df[col] = eval(expression)
+    create_new_columns(data_df)
     
     
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
     print("Sample spacing (seconds) between examples: ", sample_spacing)
-    print("\nAvailable feature names or target names from root file: ", data_dict.keys())
-    print("\nAvailable feature names or target names from data_df: ", data_df.columns)
+    print("\nAvailable feature/target names from root file: ", data_dict.keys())
+    print("\nAvailable feature/target names from data_df: ", data_df.columns)
     print(data_df.dtypes)
     
     if save_format: df_save_format(data_df, filename_no_extension, save_format)
     
     return data_df
 
-def flatten_dict_arrays(data_dict):
+def flatten_dict_arrays(data_dict: dict[str, np.typing.NDArray[typing.Any]]) -> None:
     """
     "Flattening" each matrix from data_dict by distributing its columns into
     new keys.
@@ -70,15 +74,36 @@ def flatten_dict_arrays(data_dict):
         # Combine that dictionary with data_dict
         if data_dict[key].ndim > 1:
             if data_dict[key].shape[1] < 2:
-                
                 data_dict |= {key: data_dict[key].flatten()}
             else:
-                data_dict |= dict(zip([f"{key}[{i}]" for i in range(data_dict[key].shape[1])], data_dict[key].T))
-                # Remove from data_dict, the key "key"
+                # Create multiple keys
+                new_keys = [f"{key}[{i}]" for i in range(data_dict[key].shape[1])]
+                data_dict |= dict(zip(new_keys, data_dict[key].T))
+                
                 del data_dict[key]   
-    del keys 
+    del keys
 
-def df_save_format(data_df, filename_no_extension="fmrate", save_format=None):
+def create_new_columns(data_df: pd.DataFrame,
+                       new_columns: list[str] = [],
+                       verbose: bool = True) -> None:
+    if len(new_columns) != 0:
+        for col in new_columns:
+            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)
+            expression = col
+            incr = 0
+            for op in operands:
+                start_idx, end_idx = op.span()
+                before = expression[:start_idx+incr]
+                after = expression[end_idx+incr:]
+                expression = before + f"data_df['{op.group()}']" + after
+                incr += len("data_df['']")
+            if verbose: print(f"Expr to eval for col {col}: {expression}")
+            # Add new column with evaluated expression
+            data_df[col] = eval(expression)
+
+def df_save_format(data_df: pd.DataFrame,
+                   filename_no_extension: str = "fmrate",
+                   save_format: Optional[str] = None) -> None:
     os.makedirs('data', exist_ok=True)
     if save_format == "csv":
         data_df.to_csv(f'data/{filename_no_extension}_dataset.csv', index=False)
