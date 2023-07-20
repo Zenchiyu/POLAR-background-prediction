@@ -47,7 +47,7 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     
     ### XXX: here apply some further preprocessing
     # Create new columns of data_df and evaluate expressions
-    create_new_columns(data_df)
+    create_new_columns(data_df, new_columns=new_columns)
     
     
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
@@ -107,7 +107,7 @@ def create_new_columns(data_df: pd.DataFrame,
             if verbose: print(f"Expr to eval for col {col}: {expression}")
             # Add new column with evaluated expression
             data_df[col] = eval(expression)
-
+            
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
