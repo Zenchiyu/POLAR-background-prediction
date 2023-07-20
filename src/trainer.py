@@ -194,7 +194,7 @@ class Trainer:
         match self.cfg.model.type:
             case "MLP":
                 inner_activation_fct = self.cfg.model.inner_activation_fct
-                output_activation_fct = self.cfg.mode.output_activation_fct
+                output_activation_fct = self.cfg.model.output_activation_fct
                 hidden_layer_sizes = self.cfg.model.hidden_layer_sizes
                 in_size = self.dataset_full.n_features
                 
