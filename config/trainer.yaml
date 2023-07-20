@@ -46,6 +46,14 @@ dataset:
     size: 0.2
     batch_size: 200
 
+model:
+  type: MLP
+  inner_activation_fct: ReLU
+  output_activation_fct: null  # identity
+  hidden_layer_sizes:
+    - 100
+    - 100
+
 optimizer:
   hyperparams:
     # For adam optimizer
