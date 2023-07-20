@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from src.frequencies import f, f_after_first, f_interval
+from frequencies import f, f_after_first, f_interval
+
 
 def plot_quantity_wrt_freqs(ax,
                             quantity,

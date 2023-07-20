@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def compute_freqs(size, timestep=2):
     # d=2 seconds by default
     freqs_tmp = np.fft.fftfreq(size, d=timestep)

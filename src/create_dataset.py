@@ -8,7 +8,7 @@ import sys
 import typing
 import uproot as ur
 
-from load_data import load_data_as_dict
+from utils import load_data_as_dict
 from pathlib import Path
 from typing import Optional
 
