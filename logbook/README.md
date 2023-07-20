@@ -116,6 +116,9 @@ Here's an example of [run](https://wandb.ai/stephane-nguyen/POLAR-background-pre
 for first time too).
 - Added code to save models, criterions and more
 - Applied model on validation set and visualized prediction (over whole validation set)
+- Further cleaning of code and added python type hints (not for all files though)
+- Can now save a general checkpoint at two different places; one as last checkpoint and the other is attached to a date and run id (see checkpoints folder)
+- Can now specify the number of neurons for each hidden layers directly inside the yaml config file.
 
 ### Comments
 
