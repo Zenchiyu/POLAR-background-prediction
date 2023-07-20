@@ -28,6 +28,8 @@ The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 a
 - `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if don't want to use weights and biases)
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates for validation set.
 
+You can change the `config/trainer.yaml` if you want a different model architecture, different hyperparameters, features etc.
+
 ## Credits
 
 A part of the code was inspired from https://github.com/eloialonso/iris
