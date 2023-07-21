@@ -113,7 +113,7 @@ def create_new_columns(data_df: pd.DataFrame,
             
             n_examples_old = data_df.shape[0]
             # Filter out the rows having at least a NaN or missing value
-            data_df = data_df.dropna()
+            data_df.dropna(inplace=True)
             
             if verbose:
                 print("Number of examples before filtering: ", n_examples_old)

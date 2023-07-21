@@ -37,7 +37,6 @@ def plot_val_prediction_rate_0(dataset_val, pred):
     sorted_time_val = X_val["unix_time"][argsort]
     sorted_y_val_r0 = y_val.loc[:, "rate[0]"][argsort]
     sorted_val_r0 = pred.cpu().detach().numpy()[:, 0][argsort]
-    
 
     fig_val_prediction_rate_0, ax = plt.subplots()
     ax.plot(sorted_time_val, sorted_y_val_r0, '-g', linewidth=0.1)
@@ -47,6 +46,28 @@ def plot_val_prediction_rate_0(dataset_val, pred):
     ax.set_title("Light curve of Rate[0]")
     plt.savefig("results/images/pred_rate_0.png")
 
+def plot_val_target_against_time(dataset_val,
+                                 target_name="rate[0]"):
+    # Plot one measurement "target_name" wrt unix_time
+    # for the validation set
+    dataset = dataset_val.dataset
+    data_df = dataset.data_df
+    data_df_val = data_df.iloc[dataset_val.indices]
+    
+    data_df_val.reset_index(drop=True, inplace=True)
+    data_df_val.reset_index(drop=True, inplace=True)
+    
+    time = data_df_val.loc[:, "unix_time"]
+    argsort = np.argsort(time)[::-1]
+    sorted_time_val = time[argsort]
+    sorted_y_val_r0 = data_df_val.loc[:, target_name][argsort]
+    
+    fig_val_prediction_rate_0, ax = plt.subplots()
+    ax.plot(sorted_time_val, sorted_y_val_r0, '-g', linewidth=0.1)
+    ax.set_xlabel("Tunix [s]")
+    ax.set_ylabel(f"{target_name}")
+    ax.set_title(f"{target_name} wrt unix time for validation seet")
+    plt.savefig("results/images/target.png")
 
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
@@ -78,6 +99,10 @@ def main(cfg: DictConfig):
     dataset_val_tensor = dataset_full.transform(dataset_val_tensor)
     plot_val_prediction_rate_0(trainer.dataset_val,
                                trainer.model(dataset_val_tensor))
+    
+    ## rate[0]/rate_err[0] wrt unix_time for validation set
+    plot_val_target_against_time(trainer.dataset_val,
+                                 target_name=["rate[0]/rate_err[0]"])
     
 
 if __name__ == "__main__":

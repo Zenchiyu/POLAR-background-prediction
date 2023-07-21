@@ -41,7 +41,6 @@ class Trainer:
         self.init_datasets()
         
         ### Model
-        # TODO: place the hyperparams in a config
         model = self.create_model()
         
         ### Criterion
