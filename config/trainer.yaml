@@ -10,11 +10,11 @@ common:
   device: cuda
 
 dataset:
-  filename: data/fmrate.root  # data/nf1rate.root
+  filename: data/nf1rate.root
   save_format: null  # won't save in .pkl nor .csv
-  new_columns: []
-  # new_columns:
-  #   - rate[0]/rate_err[0]
+  # new_columns: []
+  new_columns:
+    - rate[0]/rate_err[0]
   feature_names:
     - unix_time
     - glat
