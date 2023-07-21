@@ -195,11 +195,13 @@ class Trainer:
             os.makedirs(path, exist_ok=True)
             
             torch.save(general_checkpoint, path + "/general_checkpoint.pth")
-        
+
+    def lowercase(self, txt: Optional[str]) -> Optional[str]:
+        return txt.lower() if txt else None
     
     def create_model(self) -> nn.Module:
-        match self.cfg.model.type:
-            case "MLP":
+        match self.lowercase(self.cfg.model.type):
+            case "mlp":
                 inner_activation_fct = self.cfg.model.inner_activation_fct
                 output_activation_fct = self.cfg.model.output_activation_fct
                 hidden_layer_sizes = self.cfg.model.hidden_layer_sizes
@@ -209,8 +211,8 @@ class Trainer:
                 for h in hidden_layer_sizes:
                     out_size = h
                     layers.append(nn.Linear(in_size, out_size))
-                    match inner_activation_fct:
-                        case "ReLU":
+                    match self.lowercase(inner_activation_fct):
+                        case "relu":
                             layers.append(nn.ReLU())
                         case _:
                             raise NotImplementedError("Inner activation function"+\
@@ -220,7 +222,7 @@ class Trainer:
                 ## Last layer
                 layers.append(nn.Linear(in_size, self.dataset_full.n_targets))
                 # No activation function or identity by default (nn.Identity())
-                match output_activation_fct:
+                match self.lowercase(output_activation_fct):
                     case _:
                         # layers.append(nn.Identity())
                         print("Using default identity activation"+\
