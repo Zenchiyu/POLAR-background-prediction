@@ -119,11 +119,12 @@ for first time too).
 - Further cleaning of code and added python type hints (not for all files though)
 - Can now save a general checkpoint at two different places; one as last checkpoint and the other is attached to a date and run id (see checkpoints folder)
 - Can now specify the number of neurons for each hidden layers directly inside the yaml config file.
+- Removed pipenv, we no longer use pipenv. Modified README in consequence.
+- Trained model again but on `nf1rate` (taking about 3 hours for training) with as target `rate[0]` (using all examples, additional filtering on `rate_err[0]`) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3zdzy861?workspace=user-stephane-nguyen)).
+- Trained model again on "same" dataset but with as target `rate[0]/rate_err[0]` (filtered examples when cannot do the division) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3hevg2jy/overview?workspace=user-stephane-nguyen))
+- Added more plots in `src/visualizer` where we can now plot the residual plot with its histogram.
 
 ### Comments
-
-- pipenv currently "half-outdated" due to hydra and pytorch gpu (pipenv not working as expected on the POLAR machine, couldn't install pytorch via pipenv but
-installed it via normal pip)
 
 - Run:
 ```
