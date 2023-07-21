@@ -1,0 +1,65 @@
+wandb:
+  project: POLAR-background-prediction
+  mode: online
+
+wandb_watch: True  # log in w&b model & criterion
+
+common:
+  seed: 42
+  n_epochs: 200
+  device: cuda
+
+dataset:
+  filename: data/nf1rate.root
+  save_format: null  # won't save in .pkl nor .csv
+  # new_columns: []
+  new_columns:
+    - rate[0]/rate_err[0]
+  feature_names:
+    - unix_time
+    - glat
+    - glon
+    - altitude
+    - temperature
+    - fe_cosmic
+    - raz
+    - decz
+    - rax
+    - decx
+    - is_orbit_up
+    - time_since_saa
+    # - crabarf
+    # - sun
+    # - sun_spot
+    - B_r
+    - B_theta
+    - B_phi
+  target_names:
+    - rate[0]  # rate[0]/rate_err[0]  # had to specify in new_columns
+  train:
+    size: 0.6
+    batch_size: 200  # similar to sklearn 'auto'
+    shuffle: True
+  val:
+    size: 0.2
+    batch_size: 200
+  test:
+    size: 0.2
+    batch_size: 200
+
+model:
+  type: MLP
+  inner_activation_fct: ReLU
+  output_activation_fct: null  # identity
+  hidden_layer_sizes:
+    - 100
+    - 100
+
+optimizer:
+  hyperparams:
+    # For adam optimizer
+    lr: 1e-3
+    betas:
+      - 0.9
+      - 0.999
+    eps: 1e-08
