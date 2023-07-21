@@ -12,9 +12,9 @@ common:
 dataset:
   filename: data/nf1rate.root
   save_format: null  # won't save in .pkl nor .csv
-  # new_columns: []
-  new_columns:
-    - rate[0]/rate_err[0]
+  new_columns: []
+  # new_columns:  # this was logged in wandb but the run follows more new_columns: [] as we didn't filter based on rate_err
+  #   - rate[0]/rate_err[0]
   feature_names:
     - unix_time
     - glat
