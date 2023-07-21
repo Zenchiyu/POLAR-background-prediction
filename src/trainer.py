@@ -62,6 +62,8 @@ class Trainer:
         """
         Train the model using the training set
         """
+        self.begin_date = str(date.today())
+
         ## Copy config file into specific run folder for future usage.
         self.save_config()
             
@@ -168,8 +170,7 @@ class Trainer:
     
     def save_config(self) -> None:
         if self.cfg.wandb.mode == "online":
-            today = str(date.today())
-            path = f'checkpoints/{today}/run_{self.run.id}'
+            path = f'checkpoints/{self.begin_date}/run_{self.run.id}'
             os.makedirs(path, exist_ok=True)
             shutil.copyfile("config/trainer.yaml", path + "/trainer.yaml")
             
@@ -190,8 +191,7 @@ class Trainer:
         
         # Also save it within particular folder related to wandb run.
         if self.cfg.wandb.mode == "online":
-            today = str(date.today())
-            path = f'checkpoints/{today}/run_{self.run.id}'
+            path = f'checkpoints/{self.begin_date}/run_{self.run.id}'
             os.makedirs(path, exist_ok=True)
             
             torch.save(general_checkpoint, path + "/general_checkpoint.pth")
