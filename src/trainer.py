@@ -137,7 +137,8 @@ class Trainer:
                                     self.cfg.dataset.target_names,
                                     self.device,
                                     new_columns=self.cfg.dataset.new_columns,
-                                    save_format=self.cfg.dataset.save_format)
+                                    save_format=self.cfg.dataset.save_format,
+                                    filter_conditions=self.cfg.dataset.filter_conditions)
         
         ### Split train, validation, test
         split_percentages = [self.cfg.dataset.train.size,
@@ -226,7 +227,7 @@ class Trainer:
                     case _:
                         # layers.append(nn.Identity())
                         print("Using default identity activation"+\
-                              "function for last layer")
+                              " function for last layer")
 
                 model = nn.Sequential(*layers)
             case _:

@@ -16,7 +16,8 @@ from typing import Optional
 def create_dataset(root_filename: str = "data/fmrate.root",
                    tunix_name: str = "unix_time",
                    new_columns: list[str] = [],
-                   save_format: Optional[str] = None) -> pd.DataFrame:
+                   save_format: Optional[str] = None,
+                   filter_conditions: list[str] = []) -> pd.DataFrame:
     """
     - Create pandas dataframe containing the whole dataset (features & target) from
     a .root file.
@@ -45,9 +46,11 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     
     # We don't bin the data anymore
     
-    ### XXX: here apply some further preprocessing
+    ### XXX: Apply some further preprocessing
     # Create new columns of data_df and evaluate expressions
     create_new_columns(data_df, new_columns=new_columns)
+    # Filter some examples based on "filter" (true -> keep)
+    filter_examples(data_df, filter_conditions=filter_conditions)
     
     
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
@@ -96,7 +99,7 @@ def create_new_columns(data_df: pd.DataFrame,
 
     if len(new_columns) != 0:
         for col in new_columns:
-            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)
+            operands = re.finditer('[\w]+[\[][0-9]*[\]]', col)
             expression = col
             incr = 0
             for op in operands:
@@ -119,7 +122,39 @@ def create_new_columns(data_df: pd.DataFrame,
                 print("Number of examples before filtering: ", n_examples_old)
                 print("Number of examples after filtering (if happened): ", data_df.shape[0])
     
-    
+def filter_examples(data_df: pd.DataFrame,
+                    filter_conditions: list[str] = [],
+                    verbose: bool = True) -> None:
+    """
+    """
+
+    if len(filter_conditions) != 0:
+        for col in filter_conditions:
+            operands = re.finditer('[\w]+[\[][0-9]*[\]]', col)
+            expression = col
+            incr = 0
+            for op in operands:
+                start_idx, end_idx = op.span()
+                before = expression[:start_idx+incr]
+                after = expression[end_idx+incr:]
+                expression = before + f"data_df['{op.group()}'].values" + after
+                incr += len("data_df[''].values")
+            if verbose: print(f"Expr to eval for col {col}: {expression}")
+            
+            # Add new column with evaluated expression
+            eval(expression)  # just to show any warnings or errors
+            n_examples_old = data_df.shape[0]
+
+            # Filter examples based on the condition, if true -> keep
+            data_df = data_df[eval(expression.replace(".values", ""))]
+            # Filter out the rows having at least a NaN or missing value
+            data_df.dropna(inplace=True)
+            
+            if verbose:
+                print("Number of examples before filtering: ", n_examples_old)
+                print("Number of examples after filtering (if happened): ", data_df.shape[0])
+
+
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
