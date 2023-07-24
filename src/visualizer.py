@@ -222,7 +222,8 @@ def main(cfg: DictConfig):
     # don't want to start a wandb run
     cfg.wandb.mode = "disabled"
     
-    ## Save dataset or load it
+    ## Save dataset or load it (need to do it everytime we change something
+    # in the dataset)
     # cfg.dataset.save_format = "pkl"  # to save dataset
     p = Path(cfg.dataset.filename)
     cfg.dataset.filename = f"{str(p.parent)}/{p.stem}_dataset.pkl"

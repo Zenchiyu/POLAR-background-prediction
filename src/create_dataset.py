@@ -146,7 +146,9 @@ def filter_examples(data_df: pd.DataFrame,
             n_examples_old = data_df.shape[0]
 
             # Filter examples based on the condition, if true -> keep
-            data_df = data_df[eval(expression.replace(".values", ""))]
+            index_to_keep = data_df.loc[eval(expression.replace(".values", "")), :].index
+            data_df.drop(index=data_df.index.difference(index_to_keep),
+                         inplace=True)
             # Filter out the rows having at least a NaN or missing value
             data_df.dropna(inplace=True)
             
