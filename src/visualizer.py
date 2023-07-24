@@ -84,7 +84,8 @@ def plot_normalized_hist(data,
                          mean,
                          std,
                          transform="sqrt",
-                         title="Normalized Histogram"):
+                         title="Normalized Histogram",
+                         save_path="results/images/residual_hist.png"):
     """
     Plot normalized histogram along with a gaussian specified by mean, std.
     The histogram can be visualized with different yscale specified by 'transform',
@@ -112,13 +113,14 @@ def plot_normalized_hist(data,
         if title is not None: ax.set_title("Sqrt Normalized Histogram")
     else:
         ax.set_title(title)
-    plt.savefig("results/images/residual_hist.png")
+    if save_path: plt.savefig(save_path)
 
     return fig
 
 #############################################################################
 def plot_val_target_against_time(dataset_val,
-                                 target_name="rate[0]"):
+                                 target_name="rate[0]",
+                                 save_path="results/images/target.png"):
     """
     Plot one measurement "target_name" wrt unix_time
     for the validation set
@@ -130,11 +132,12 @@ def plot_val_target_against_time(dataset_val,
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name}")
     ax.set_title(f"{target_name} wrt unix time for validation seet")
-    plt.savefig("results/images/target.png")
+    if save_path: plt.savefig(save_path)
 
 def plot_loss(train_loss,
               val_loss,
-              epoch=None):
+              epoch=None,
+              save_path="results/images/loss.png"):
     plt.figure()
     if epoch:
         plt.plot(train_loss[:epoch+1])
@@ -144,11 +147,12 @@ def plot_loss(train_loss,
         plt.plot(val_loss)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.savefig("results/images/loss.png")
+    if save_path: plt.savefig(save_path)
 
 def plot_val_prediction_target(dataset_val,
                                pred,
-                               target_name="rate[0]"):
+                               target_name="rate[0]",
+                               save_path=f"results/images/pred_target.png"):  # TODO: use a better name
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -161,11 +165,13 @@ def plot_val_prediction_target(dataset_val,
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
     ax.set_title(f"Prediction of {target_name.capitalize()}")
-    plt.savefig(f"results/images/pred_target.png")  # TODO: use a better name
+    if save_path: plt.savefig(save_path)
 
 def plot_val_residual(dataset_val,
                       pred,
-                      target_name="rate[0]"):
+                      target_name="rate[0]",
+                      save_path="results/images/residual_plot.png",
+                      save_path_hist="results/images/residual_hist.png"):
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -201,11 +207,14 @@ def plot_val_residual(dataset_val,
                      y=target_name,
                      stat="density",
                      ax=ax_histy)
-    plt.savefig("results/images/residual_plot.png")
+    if save_path: plt.savefig(save_path)
 
     ######
     
-    plot_normalized_hist(residuals, new_mean, new_std)
+    plot_normalized_hist(residuals,
+                         new_mean,
+                         new_std,
+                         save_path=save_path_hist)
     
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
