@@ -30,7 +30,7 @@ class PolarDataset(Dataset):
                                               new_columns=new_columns,
                                               save_format=save_format)
             case ".pkl":
-                self.data_df = pd.read_pkl(filename)
+                self.data_df = pd.read_pickle(filename)
             case ".csv":
                 self.data_df = pd.read_csv(filename)
             case _:

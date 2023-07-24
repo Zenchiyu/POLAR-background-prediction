@@ -123,6 +123,7 @@ def create_new_columns(data_df: pd.DataFrame,
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
+    print(f"Saving dataset in {save_format} format")
     os.makedirs('data', exist_ok=True)
     match save_format:
         case "csv":

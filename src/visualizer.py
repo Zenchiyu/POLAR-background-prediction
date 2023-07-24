@@ -7,7 +7,8 @@ import torch
 
 from matplotlib.scale import FuncScale
 from omegaconf import DictConfig
-from trainer import Trainer  
+from pathlib import Path
+from trainer import Trainer
 
 
 def get_time_y(dataset_val,
@@ -211,6 +212,13 @@ def plot_val_residual(dataset_val,
 def main(cfg: DictConfig):
     # don't want to start a wandb run
     cfg.wandb.mode = "disabled"
+    
+    ## Save dataset or load it
+    # cfg.dataset.save_format = "pkl"  # to save dataset
+    p = Path(cfg.dataset.filename)
+    cfg.dataset.filename = f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    # Comment the previous lines if don't want to save dataset or load it
+
     trainer = Trainer(cfg)
     
     ### Loading checkpoint
