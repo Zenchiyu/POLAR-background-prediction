@@ -36,6 +36,8 @@ dataset:
     - B_phi
   target_names:
     - rate[0]/rate_err[0]  # had to specify in new_columns
+  filter_conditions:
+    - rate[0]/rate_err[0] > 20
   train:
     size: 0.6
     batch_size: 200  # similar to sklearn 'auto'
