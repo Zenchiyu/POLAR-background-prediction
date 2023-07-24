@@ -151,3 +151,48 @@ we're predicting a time series or sequence using multiple time series or sequenc
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more logs information.
 
+
+## Week 3: 24.07.23 - 30.07.23
+
+
+### Summary
+
+- Exploring the 55 GRBs (from [Overview_of_the_GRB_observation_by_POLAR's paper](https://www.researchgate.net/profile/Yuanhao-Wang-8/publication/326811280_Overview_of_the_GRB_observation_by_POLAR/links/5cfe12c0a6fdccd1308f8b32/Overview-of-the-GRB-observation-by-POLAR.pdf), after converting UTC to Unix time) and comparing them to our dataset:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cd6024cc-37ed-4a7b-a8a2-774cd53c8a99)
+
+We can observe that there are GRBs (in red) outside our time range of our dataset (in blue)
+
+- Restricting to only our time range, we're left with 25 GRBs:
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d)
+
+Closer look (+- 50 seconds windows):
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33)
+
+Note that the one at the bottom-mid was within the period with no data.
+
+- From the residual histogram (from applying our model to the validation set) and modified gaussian fit, we highlighted the data points from the validation set having
+their residual above 5 standard deviation:
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36a33a27-afde-4c81-9c8c-18b2d6b59ac9)
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/666e62c7-1f41-455a-a65a-bba77cbf6365)
+
+We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
+
+- If we compare the red points with the 25 GRBs, we can only see $5$ red points. Moreover, we must remember the fact that we're showing red points that are from the validation set, not the full dataset.
+- Fixed create_columns that can try to create a column based on a `data_df["<numerical value>"]` for example
+- Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
+- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20
+
+
+### (Future) Goals:
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
+and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+temporal relationships.
+- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
+we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To better understand Adam optimizer, different parts of what I've used in general.
+- To better understand or to learn more about Hydra
+- To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
+- To learn more about regularization, dropout, batch normalization
+- To learn more about W&B sweeps and add more logs information.
+
