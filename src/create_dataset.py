@@ -99,7 +99,10 @@ def create_new_columns(data_df: pd.DataFrame,
 
     if len(new_columns) != 0:
         for col in new_columns:
-            operands = re.finditer('[\w]+[\[][0-9]*[\]]', col)
+            # Match either a column name of the form:
+            # - column_64_name[some number]
+            # - column_64_name
+            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[a-zA-Z][\w]*', col)   # re.finditer('[\w]+[\[][0-9]*[\]]', col)
             expression = col
             incr = 0
             for op in operands:
@@ -108,7 +111,7 @@ def create_new_columns(data_df: pd.DataFrame,
                 after = expression[end_idx+incr:]
                 expression = before + f"data_df['{op.group()}'].values" + after
                 incr += len("data_df[''].values")
-            if verbose: print(f"Expr to eval for col {col}: {expression}")
+            if verbose: print(f"\nExpr to eval for col {col}: {expression}")
             
             # Add new column with evaluated expression
             eval(expression)  # just to show any warnings or errors
@@ -130,7 +133,10 @@ def filter_examples(data_df: pd.DataFrame,
 
     if len(filter_conditions) != 0:
         for col in filter_conditions:
-            operands = re.finditer('[\w]+[\[][0-9]*[\]]', col)
+            # Match either a column name of the form:
+            # - column_64_name[some number]
+            # - column_64_name
+            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[a-zA-Z][\w]*', col)
             expression = col
             incr = 0
             for op in operands:
@@ -139,7 +145,7 @@ def filter_examples(data_df: pd.DataFrame,
                 after = expression[end_idx+incr:]
                 expression = before + f"data_df['{op.group()}'].values" + after
                 incr += len("data_df[''].values")
-            if verbose: print(f"Expr to eval for col {col}: {expression}")
+            if verbose: print(f"\nExpr to eval for col {col}: {expression}")
             
             # Add new column with evaluated expression
             eval(expression)  # just to show any warnings or errors
