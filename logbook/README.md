@@ -179,9 +179,22 @@ their residual above 5 standard deviation:
 We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
 
 - If we compare the red points with the 25 GRBs, we can only see $5$ red points. Moreover, we must remember the fact that we're showing red points that are from the validation set, not the full dataset.
+
 - Fixed create_columns that can try to create a column based on a `data_df["<numerical value>"]` for example
 - Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
-- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20
+- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/094c849f-c217-4c35-a15a-df7e7768f6a6)
+
+where again the red points come from the validation set and have residuals > 5 standard deviation (the modified one based on the modified gaussian fit).
+
+- Ran the training phase again but ignoring +-100 seconds around the 25 GRBs. Also ignored them in validation and test set but maybe shouldn't because we
+no longer can compare the prediction for these +-100 seconds around the 25 GRBs with the real curve. We can't plot anymore the plot we've shown above. However, here's a zoomed-in version of what our model predicts into 4 arbitrary intervals of the validation set:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d)
+
+`l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). 
+
 
 
 ### (Future) Goals:
