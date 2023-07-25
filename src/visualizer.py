@@ -140,13 +140,14 @@ def plot_loss(train_loss,
               save_path="results/images/loss.png"):
     plt.figure()
     if epoch:
-        plt.plot(train_loss[:epoch+1])
-        plt.plot(val_loss[:epoch+1])
+        plt.plot(train_loss[:epoch+1], label="train")
+        plt.plot(val_loss[:epoch+1], label="val")
     else:
-        plt.plot(train_loss)
-        plt.plot(val_loss)
+        plt.plot(train_loss, label="train")
+        plt.plot(val_loss, label="val")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
+    plt.legend()
     if save_path: plt.savefig(save_path)
 
 def plot_val_prediction_target(dataset_val,
@@ -215,19 +216,52 @@ def plot_val_residual(dataset_val,
                          new_mean,
                          new_std,
                          save_path=save_path_hist)
+
+def plot_val_prediction_target_zoom(dataset_val,
+                               pred,
+                               target_name="rate[0]",
+                               save_path=f"results/images/pred_target_zoom.png"):  # TODO: use a better name
+    tmp = get_time_y_y_hat(dataset_val, pred, target_name)
+    sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
+    del tmp
+
+    low_n = 1000
+    high_n = 1500
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+
+    for i, (low_n, high_n) in enumerate([(1000, 1200), (2000, 2200),
+                                    (10000, 10200), (12000, 12200)]):
+        axs[i//2, i%2].plot(sorted_time_val[low_n:high_n], sorted_y_val[low_n:high_n], '-g', linewidth=0.5)
+        axs[i//2, i%2].plot(sorted_time_val[low_n:high_n], sorted_y_hat_val[low_n:high_n], '-r', linewidth=0.5)
+        axs[i//2, i%2].set_xlabel("Tunix [s]")
+        axs[i//2, i%2].set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
+        axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
+    plt.tight_layout()
+    if save_path: plt.savefig(save_path)
+
+    
+
     
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
 def main(cfg: DictConfig):
-    # don't want to start a wandb run
+    ## Don't start a wandb run
     cfg.wandb.mode = "disabled"
     
-    ## Save dataset or load it (need to do it everytime we change something
-    # in the dataset)
-    # cfg.dataset.save_format = "pkl"  # to save dataset
-    p = Path(cfg.dataset.filename)
-    cfg.dataset.filename = f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    # Comment the previous lines if don't want to save dataset or load it
+    
+    cfg.dataset.save_format = "pkl"
+    # Comment prev. line and uncomment this below
+    # once we're sure that we don't change anymore the dataset:
+    
+    ## Save dataset or load it
+    # p = Path(cfg.dataset.filename)
+    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    # if Path(filename).is_file():  # if exists and is a file
+    #     cfg.dataset.filename = filename
+    # else:
+    #     cfg.dataset.save_format = "pkl"  # to save dataset
+    
+
 
     trainer = Trainer(cfg)
     
@@ -259,18 +293,23 @@ def main(cfg: DictConfig):
     dataset_val_tensor = dataset_full.transform(dataset_val_tensor)
 
     pred = trainer.model(dataset_val_tensor)
+
     for target_name in cfg.dataset.target_names:
         plot_val_prediction_target(trainer.dataset_val,
                                    pred,
                                    target_name=target_name)
+        # Closer look/zoomed in for some regions
+        plot_val_prediction_target_zoom(trainer.dataset_val,
+                                   pred,
+                                   target_name=target_name)
     
-    ### Residuals + hist + gaussian fit
+    ## Residuals + hist + gaussian fit
     for target_name in cfg.dataset.target_names:
         plot_val_residual(trainer.dataset_val,
                                    pred,
                                    target_name=target_name)
     
-    ### Comment this line below if don't want to show
+    ## Comment this line below if don't want to show
     plt.show()
 
 

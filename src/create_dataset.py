@@ -146,6 +146,15 @@ def filter_examples(data_df: pd.DataFrame,
                     filter_conditions: list[str] = [],
                     verbose: bool = True) -> None:
     """
+    Filter based on existing columns (incl. new columns after their
+    creation via new_columns).
+    The filters are specified as a list of string where each string must contain
+    operations over existing dataframe column names.
+
+    They should be expressions that, when evaluated, return some boolean value
+    (after replacing the column names by the corresponding array/dataframe)
+    
+    Order on these filters matters.
     """
 
     if len(filter_conditions) != 0:
