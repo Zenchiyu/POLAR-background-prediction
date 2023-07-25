@@ -66,6 +66,8 @@ class Trainer:
         Link(s):
         - https://stats.stackexchange.com/questions/436154/is-it-better-to-accumulate-accuracy-and-loss-during-an-epoch-or-recompute-all-of/608648#608648
         - https://stackoverflow.com/questions/54053868/how-do-i-get-a-loss-per-epoch-and-not-per-batch
+        - https://stackoverflow.com/questions/55627780/evaluating-pytorch-models-with-torch-no-grad-vs-model-eval
+        - https://discuss.pytorch.org/t/loss-changes-with-torch-no-grad/30806/5
         """
         self.begin_date = str(date.today())
 
@@ -98,13 +100,14 @@ class Trainer:
             # TODO: add toggle whether want evaluation or not and
             # TODO: update config file where we can choose to toggle or not
             self.model.eval()
-            val_epoch_loss = 0
-            for batch in self.val_loader:
-                x, y = batch
-                y_hat = self.model(x)
-                
-                loss = self.criterion(y_hat, y)
-                val_epoch_loss += loss.item()
+            with torch.no_grad():
+                val_epoch_loss = 0
+                for batch in self.val_loader:
+                    x, y = batch
+                    y_hat = self.model(x)
+                    
+                    loss = self.criterion(y_hat, y)
+                    val_epoch_loss += loss.item()
                 
             val_loss[epoch] = val_epoch_loss/len(self.val_loader)
             
