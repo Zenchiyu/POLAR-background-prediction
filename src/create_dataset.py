@@ -10,7 +10,6 @@ from typing import Optional, Generator
 
 
 def create_dataset(root_filename: str = "data/fmrate.root",
-                   tunix_name: str = "unix_time",
                    new_columns: list[str] = [],
                    save_format: Optional[str] = None,
                    filter_conditions: list[str] = []) -> pd.DataFrame:
@@ -125,22 +124,24 @@ def create_new_columns(data_df: pd.DataFrame,
     columns (e.g division by 0)
     """
 
-    if len(new_columns) != 0:
-        expressions = generator_expressions(new_columns)
+    if len(new_columns) == 0:
+        return None
+    
+    expressions = generator_expressions(new_columns)
 
-        for col, expression in zip(new_columns, expressions):
-            if verbose: print(f"\nExpr to eval for col {col}: {expression}")
-            # Add new column with evaluated expression
-            eval(expression)  # just to show any warnings or errors
-            data_df[col] = eval(expression.replace(".values", ""))
-            
-            n_examples_old = data_df.shape[0]
-            # Filter out the rows having at least a NaN or missing value
-            data_df.dropna(inplace=True)
-            
-            if verbose:
-                print("Number of examples before filtering: ", n_examples_old)
-                print("Number of examples after filtering (if happened): ", data_df.shape[0])
+    for col, expression in zip(new_columns, expressions):
+        if verbose: print(f"\nExpr to eval for col {col}: {expression}")
+        # Add new column with evaluated expression
+        eval(expression)  # just to show any warnings or errors
+        data_df[col] = eval(expression.replace(".values", ""))
+        
+        n_examples_old = data_df.shape[0]
+        # Filter out the rows having at least a NaN or missing value
+        data_df.dropna(inplace=True)
+        
+        if verbose:
+            print("Number of examples before filtering: ", n_examples_old)
+            print("Number of examples after filtering (if happened): ", data_df.shape[0])
     
 def filter_examples(data_df: pd.DataFrame,
                     filter_conditions: list[str] = [],
@@ -157,24 +158,26 @@ def filter_examples(data_df: pd.DataFrame,
     Order on these filters matters.
     """
 
-    if len(filter_conditions) != 0:
-        expressions = generator_expressions(filter_conditions)
+    if len(filter_conditions) == 0:
+        return None
 
-        for cond, expression in zip(filter_conditions, expressions):
-            if verbose: print(f"\nExpr to eval for cond {cond}: {expression}")
-            eval(expression)  # just to show any warnings or errors
-            n_examples_old = data_df.shape[0]
+    expressions = generator_expressions(filter_conditions)
 
-            # Filter examples based on the condition, if true -> keep
-            index_to_keep = data_df.loc[eval(expression.replace(".values", "")), :].index
-            data_df.drop(index=data_df.index.difference(index_to_keep),
-                         inplace=True)
-            # Filter out the rows having at least a NaN or missing value
-            data_df.dropna(inplace=True)
-            
-            if verbose:
-                print("Number of examples before filtering: ", n_examples_old)
-                print("Number of examples after filtering (if happened): ", data_df.shape[0])
+    for cond, expression in zip(filter_conditions, expressions):
+        if verbose: print(f"\nExpr to eval for cond {cond}: {expression}")
+        eval(expression)  # just to show any warnings or errors
+        n_examples_old = data_df.shape[0]
+
+        # Filter examples based on the condition, if true -> keep
+        index_to_keep = data_df.loc[eval(expression.replace(".values", "")), :].index
+        data_df.drop(index=data_df.index.difference(index_to_keep),
+                        inplace=True)
+        # Filter out the rows having at least a NaN or missing value
+        data_df.dropna(inplace=True)
+        
+        if verbose:
+            print("Number of examples before filtering: ", n_examples_old)
+            print("Number of examples after filtering (if happened): ", data_df.shape[0])
 
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",

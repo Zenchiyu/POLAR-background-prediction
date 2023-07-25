@@ -1,5 +1,5 @@
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from trainer import Trainer  
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")

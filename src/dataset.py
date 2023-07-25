@@ -1,12 +1,10 @@
 import pandas as pd
 import torch
-import torchvision
-import typing
 
 from create_dataset import create_dataset
 from pathlib import Path
 from torch.utils.data import Dataset
-from typing import Optional, TypeAlias
+from typing import Optional
 
 
 class PolarDataset(Dataset):

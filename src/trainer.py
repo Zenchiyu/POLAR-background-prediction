@@ -1,14 +1,12 @@
-import hydra
 import os
 import shutil
 import torch
-import typing
 import wandb
 
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
-from torchvision.transforms import ToTensor, Lambda
+from torchvision.transforms import Lambda
 from typing import Optional
 
 from dataset import PolarDataset
@@ -26,7 +24,7 @@ class Trainer:
         
         self.cfg = cfg
         self.seed = self.cfg.common.seed
-        torch.manual_seed(self.seed)
+        torch.manual_seed(self.seed)  # TODO: careful about numpy or random libraries
         
         self.n_epochs = self.cfg.common.n_epochs
         
@@ -37,7 +35,7 @@ class Trainer:
         
         print(f"Using device: {self.device}")
         
-        ### Datasets: train
+        ### Datasets: train, validation, test sets
         self.init_datasets()
         
         ### Model
@@ -60,7 +58,14 @@ class Trainer:
     
     def fit(self) -> None:
         """
-        Train the model using the training set
+        Train the model using the training set.
+
+        Note: the losses per epoch that we log are biased,
+        especially train loss as the model changes in between 
+
+        Link(s):
+        - https://stats.stackexchange.com/questions/436154/is-it-better-to-accumulate-accuracy-and-loss-during-an-epoch-or-recompute-all-of/608648#608648
+        - https://stackoverflow.com/questions/54053868/how-do-i-get-a-loss-per-epoch-and-not-per-batch
         """
         self.begin_date = str(date.today())
 
@@ -87,7 +92,7 @@ class Trainer:
                 
                 train_epoch_loss += loss.item()
                 
-            train_loss[epoch] = train_epoch_loss/len(self.dataset_train)
+            train_loss[epoch] = train_epoch_loss/len(self.train_loader)
             
             ## Validation set, evaluation using current model
             # TODO: add toggle whether want evaluation or not and
@@ -99,13 +104,9 @@ class Trainer:
                 y_hat = self.model(x)
                 
                 loss = self.criterion(y_hat, y)
-                loss.backward()
-                self.optimizer.step()
-                self.optimizer.zero_grad()
-                
                 val_epoch_loss += loss.item()
                 
-            val_loss[epoch] = val_epoch_loss/len(self.dataset_val)
+            val_loss[epoch] = val_epoch_loss/len(self.val_loader)
             
             # Wandb log
             self.run.log({"epoch": epoch,
@@ -201,6 +202,9 @@ class Trainer:
         return txt.lower() if txt else None
     
     def create_model(self) -> nn.Module:
+        """
+        Create model based on self.cfg.model.type, e.g Multi Layer Perceptron 
+        """
         match self.lowercase(self.cfg.model.type):
             case "mlp":
                 inner_activation_fct = self.cfg.model.inner_activation_fct
