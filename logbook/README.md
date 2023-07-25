@@ -179,6 +179,9 @@ We also showed in blue the full dataset (train + validation + test) even though 
 
 - If we compare the red points with the 25 GRBs, we can only see $5$ red points. Moreover, we must remember the fact that we're showing red points that are from the validation set, not the full dataset.
 
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/5890e455-8e5c-46c8-967c-8200274d9635)
+
+
 - Fixed create_columns that can try to create a column based on a `data_df["<numerical value>"]` for example
 - Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
 - Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
