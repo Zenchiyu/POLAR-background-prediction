@@ -143,8 +143,7 @@ to run the training phase without logging information into Weights and Biases.
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
 and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
 temporal relationships.
-- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
-we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
@@ -179,20 +178,36 @@ their residual above 5 standard deviation:
 We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
 
 - If we compare the red points with the 25 GRBs, we can only see $5$ red points. Moreover, we must remember the fact that we're showing red points that are from the validation set, not the full dataset.
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/5890e455-8e5c-46c8-967c-8200274d9635)
+
+
 - Fixed create_columns that can try to create a column based on a `data_df["<numerical value>"]` for example
 - Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
-- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20
+- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/094c849f-c217-4c35-a15a-df7e7768f6a6)
+
+where again the red points come from the validation set and have residuals > 5 standard deviation (the modified one based on the modified gaussian fit).
+
+- Ran the training phase again but ignoring +-100 seconds around the 25 GRBs. Also ignored them in validation and test set but maybe shouldn't because we
+no longer can compare the prediction for these +-100 seconds around the 25 GRBs with the real curve. We can't plot anymore the plot we've shown above. However, here's a zoomed-in version of what our model predicts into 4 arbitrary intervals of the validation set:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d)
+
+`l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). 
+
 
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
 and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
 temporal relationships.
-- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
-we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more logs information.
+- To add a "stagnation end condition" to my training loop
 
