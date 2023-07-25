@@ -66,7 +66,7 @@ dataset:
     - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
   train:
     size: 0.6
-    batch_size: 200  # similar to sklearn 'auto', might be better a power of 2
+    batch_size: 200  # similar to sklearn 'auto'
     shuffle: True
   val:
     size: 0.2
