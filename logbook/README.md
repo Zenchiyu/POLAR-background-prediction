@@ -143,8 +143,7 @@ to run the training phase without logging information into Weights and Biases.
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
 and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
 temporal relationships.
-- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
-we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
@@ -201,11 +200,11 @@ no longer can compare the prediction for these +-100 seconds around the 25 GRBs 
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
 and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
 temporal relationships.
-- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
-we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more logs information.
+- To add a "stagnation end condition" to my training loop
 
