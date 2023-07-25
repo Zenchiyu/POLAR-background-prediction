@@ -37,7 +37,7 @@ class Trainer:
         
         ### Datasets: train, validation, test sets
         self.init_datasets()
-        
+
         ### Model
         model = self.create_model()
         
@@ -61,7 +61,7 @@ class Trainer:
         Train the model using the training set.
 
         Note: the losses per epoch that we log are biased,
-        especially train loss as the model changes in between 
+        especially train loss as the model changes in between. 
 
         Link(s):
         - https://stats.stackexchange.com/questions/436154/is-it-better-to-accumulate-accuracy-and-loss-during-an-epoch-or-recompute-all-of/608648#608648
@@ -119,7 +119,7 @@ class Trainer:
         # Wandb finish
         self.run.finish()
         
-    def init_datasets(self) -> tuple[DataLoader, ...]:
+    def init_datasets(self, verbose: bool = True) -> tuple[DataLoader, ...]:
         """
         Create:
         - self.dataset_full (Pytorch Dataset) with:
@@ -167,7 +167,15 @@ class Trainer:
                                   batch_size=self.cfg.dataset.val.batch_size)
         self.test_loader = DataLoader(self.dataset_test,
                                   batch_size=self.cfg.dataset.test.batch_size)
-        
+
+        if verbose:
+            print(f"Training:\n\t- len: {len(self.dataset_train)}"+\
+                  f"\n\t- # of minibatches: {len(self.train_loader)}")
+            print(f"Validation:\n\t- len: {len(self.dataset_val)}"+\
+                  f"\n\t- # of minibatches: {len(self.val_loader)}")
+            print(f"Test:\n\t- len: {len(self.dataset_test)}"+\
+                  f"\n\t- # of minibatches: {len(self.test_loader)}")
+
         return self.train_loader, self.val_loader, self.test_loader
     
     def save_config(self) -> None:
