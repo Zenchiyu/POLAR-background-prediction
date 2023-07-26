@@ -195,8 +195,18 @@ no longer can compare the prediction for these +-100 seconds around the 25 GRBs 
 
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d)
 
-`l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). 
+`l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). In red we have the prediction,
+and in green, the validation set.
 
+- By cleaning the code, I discovered that I was training on the validation set unintentionally, I fixed it then ran the training phase again. I show below
+the previous plot but with fixed code:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf)
+
+- Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green we have the validation set
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e)
+
+We can observe that it doesn't overfit severely but it might still overfit..
 
 
 ### (Future) Goals:
