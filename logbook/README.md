@@ -200,9 +200,8 @@ no longer can compare the prediction for these +-100 seconds around the 25 GRBs 
 
 
 ### (Future) Goals:
-- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
-and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
-temporal relationships.
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+temporal relationships. There's maybe something called "overfitting in feature space".
 - To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
@@ -210,4 +209,5 @@ temporal relationships.
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more logs information.
 - To add a "stagnation end condition" to my training loop
+- Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
 
