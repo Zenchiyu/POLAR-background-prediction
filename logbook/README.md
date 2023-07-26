@@ -211,7 +211,9 @@ We can observe that it doesn't overfit severely but it might still overfit..
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
-temporal relationships. There's maybe something called "overfitting in feature space".
+temporal relationships. There's maybe something called "overfitting in feature space":
+	- https://stats.stackexchange.com/questions/346907/splitting-time-series-data-into-train-test-validation-sets
+	- https://datascience.stackexchange.com/questions/91162/why-is-shuffling-timeseries-a-bad-thing
 - To read more about predicting a time series or sequence using multiple time series or sequences (something to explore) (and correlated residuals):
 	- https://otexts.com/fpp2/regression.html
 	- https://ethz.ch/content/dam/ethz/special-interest/math/statistics/sfs/Education/Advanced%20Studies%20in%20Applied%20Statistics/course-material-1921/Zeitreihen/ATSA_Script_v200504.pdf (from page 133)
