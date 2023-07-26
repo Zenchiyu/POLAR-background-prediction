@@ -9,6 +9,7 @@ from matplotlib.scale import FuncScale
 from omegaconf import DictConfig
 from pathlib import Path
 from trainer import Trainer
+from utils import merge_torch_subsets
 
 
 def get_time_y(dataset_val,
@@ -153,7 +154,7 @@ def plot_loss(train_loss,
 def plot_val_prediction_target(dataset_val,
                                pred,
                                target_name="rate[0]",
-                               save_path=f"results/images/pred_target.png"):  # TODO: use a better name
+                               save_path="results/images/pred_target.png"):  # TODO: use a better name
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -217,30 +218,73 @@ def plot_val_residual(dataset_val,
                          new_std,
                          save_path=save_path_hist)
 
-def plot_val_prediction_target_zoom(dataset_val,
+def plot_prediction_target_zoom(dataset,
                                pred,
                                target_name="rate[0]",
-                               save_path=f"results/images/pred_target_zoom.png"):  # TODO: use a better name
-    tmp = get_time_y_y_hat(dataset_val, pred, target_name)
-    sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
+                               save_path="results/images/pred_target_zoom.png"):  # TODO: use a better name
+    tmp = get_time_y_y_hat(dataset, pred, target_name)
+    sorted_time, sorted_y, sorted_y_hat = tmp
     del tmp
 
-    low_n = 1000
-    high_n = 1500
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
 
     for i, (low_n, high_n) in enumerate([(1000, 1200), (2000, 2200),
                                     (10000, 10200), (12000, 12200)]):
-        axs[i//2, i%2].plot(sorted_time_val[low_n:high_n], sorted_y_val[low_n:high_n], '-g', linewidth=0.5)
-        axs[i//2, i%2].plot(sorted_time_val[low_n:high_n], sorted_y_hat_val[low_n:high_n], '-r', linewidth=0.5)
+        axs[i//2, i%2].plot(sorted_time[low_n:high_n], sorted_y[low_n:high_n], '-g', linewidth=0.5)
+        axs[i//2, i%2].plot(sorted_time[low_n:high_n], sorted_y_hat[low_n:high_n], '-r', linewidth=0.5)
         axs[i//2, i%2].set_xlabel("Tunix [s]")
         axs[i//2, i%2].set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
         axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
 
+
+def plot_train_val_prediction_target_zoom(trainer,
+                                          dataset_train_val,
+                                          pred_train_val,
+                                          target_name="rate[0]",
+                                          save_path="results/images/pred_target_zoom_train_val.png"):  # TODO: use a better name
+    # train + val
+    tmp = get_time_y_y_hat(dataset_train_val, pred_train_val, target_name)
+    sorted_time, sorted_y, sorted_y_hat = tmp
+    del tmp
+
+    # which part of train + val is the training set:
+    mask_train = np.isin(dataset_train_val.indices,
+                         trainer.dataset_train.indices)
+
+    # val
+    tmp = get_time_y(trainer.dataset_val, target_name)
+    sorted_time_val, sorted_y_val = tmp
+    del tmp
+
+    # mask_val = np.zeros(dataset_full.n_examples)
+    # mask_val[dataset_full.dataset_val.indices] = 1
     
 
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+
+    for i, (low_n, high_n) in enumerate([(1000, 1200), (2000, 2200),
+                                    (10000, 10200), (12000, 12200)]):
+        # low_n and high_n: related to validation set, not train + val
+        time_val = sorted_time_val[low_n:high_n]
+        min_time, max_time = time_val.min(), time_val.max()
+        mask_time = ((sorted_time >= min_time) & (sorted_time <= max_time))
+        
+        # Train
+        axs[i//2, i%2].plot(sorted_time[mask_time & mask_train],
+                            sorted_y[mask_time & mask_train], '.-c', linewidth=0.5)
+        # Validation
+        axs[i//2, i%2].plot(time_val, sorted_y_val[low_n:high_n], '.-g', linewidth=0.5)
+        
+        # Prediction using train + val
+        axs[i//2, i%2].plot(sorted_time[mask_time],
+                            sorted_y_hat[mask_time], '-r', linewidth=0.5)
+        axs[i//2, i%2].set_xlabel("Tunix [s]")
+        axs[i//2, i%2].set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
+        axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
+    plt.tight_layout()
+    if save_path: plt.savefig(save_path)
     
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
@@ -249,17 +293,17 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     
     
-    cfg.dataset.save_format = "pkl"
+    # cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    # p = Path(cfg.dataset.filename)
-    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    # if Path(filename).is_file():  # if exists and is a file
-    #     cfg.dataset.filename = filename
-    # else:
-    #     cfg.dataset.save_format = "pkl"  # to save dataset
+    p = Path(cfg.dataset.filename)
+    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    if Path(filename).is_file():  # if exists and is a file
+        cfg.dataset.filename = filename
+    else:
+        cfg.dataset.save_format = "pkl"  # to save dataset
     
 
 
@@ -289,25 +333,42 @@ def main(cfg: DictConfig):
     # Need to transform before inputting the whole validation set into
     # the model
     dataset_full = trainer.dataset_full
-    dataset_val_tensor = trainer.dataset_val.dataset.X[trainer.dataset_val.indices]
-    dataset_val_tensor = dataset_full.transform(dataset_val_tensor)
+    val_tensor = dataset_full.X[trainer.dataset_val.indices]
+    val_tensor = dataset_full.transform(val_tensor)
 
-    pred = trainer.model(dataset_val_tensor)
+    pred = trainer.model(val_tensor)
 
+    ## Prediction on both train + val set
+    dataset_train_val = merge_torch_subsets([trainer.dataset_train,
+                                             trainer.dataset_val])
+    train_val_tensor = dataset_full.X[dataset_train_val.indices]
+    train_val_tensor = dataset_full.transform(train_val_tensor)
+
+    pred_train_val = trainer.model(train_val_tensor)
+    
     for target_name in cfg.dataset.target_names:
         plot_val_prediction_target(trainer.dataset_val,
                                    pred,
                                    target_name=target_name)
         # Closer look/zoomed in for some regions
-        plot_val_prediction_target_zoom(trainer.dataset_val,
-                                   pred,
-                                   target_name=target_name)
-    
+        plot_prediction_target_zoom(trainer.dataset_val,
+                                    pred,
+                                    target_name=target_name)
+        # using both + train
+        # plot_prediction_target_zoom(dataset_train_val,
+        #                             pred_train_val,
+        #                             target_name=target_name,
+        #                             save_path="results/images/pred_target_zoom_train_val.png")
+
+        plot_train_val_prediction_target_zoom(trainer,
+                                              dataset_train_val,
+                                              pred_train_val,
+                                              target_name=target_name)
     ## Residuals + hist + gaussian fit
     for target_name in cfg.dataset.target_names:
         plot_val_residual(trainer.dataset_val,
-                                   pred,
-                                   target_name=target_name)
+                          pred,
+                          target_name=target_name)
     
     ## Comment this line below if don't want to show
     plt.show()

@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+import torch
 import typing
 import uproot as ur
 
+from torch.utils.data import Subset
 from typing import Optional
 from numpy.typing import NDArray
 
@@ -77,3 +79,12 @@ def train_val_test_split(X: pd.DataFrame,
     y_test.reset_index(drop=True, inplace=True)
     
     return X_train, X_val, X_test, y_train, y_val, y_test
+
+
+def merge_torch_subsets(subsets: list[torch.utils.data.Subset]):
+    """
+    Merge PyTorch Subsets assuming the underlying dataset is the same.
+    Will merge indices
+    """
+    indices = list(set().union(*[subset.indices for subset in subsets]))
+    return Subset(subsets[0].dataset, indices)
