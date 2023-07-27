@@ -70,7 +70,6 @@ def get_column(dataset_subset, column_name):
     
     argsort = np.argsort(X_subset["unix_time"])[::-1]
     sorted_column = X_subset.loc[argsort, column_name]
-    print(sorted_column.shape)
     return sorted_column
 
 def find_moments(data, verbose=False):

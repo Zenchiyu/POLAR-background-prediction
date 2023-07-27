@@ -75,8 +75,8 @@ class Trainer:
         self.save_config()
             
         ## Metrics
-        train_loss = torch.zeros(self.n_epochs)
-        val_loss = torch.zeros(self.n_epochs)
+        train_loss = torch.zeros(self.n_epochs, device=self.device)
+        val_loss = torch.zeros(self.n_epochs, device=self.device)
         
         # TODO: add second end_condition related to stagnation of training loss
         for epoch in tqdm(range(self.n_epochs)):
