@@ -208,6 +208,11 @@ the previous plot but with fixed code:
 
 We can observe that it doesn't overfit severely but it might still overfit..
 
+- Started reading a bit about unsupervised learning anomaly detection with auto encoders and using the reconstruction error to detect anomalies:
+	- https://keras.io/examples/timeseries/timeseries_anomaly_detection/
+   	- https://towardsdatascience.com/using-lstm-autoencoders-on-multidimensional-time-series-data-f5a7a51b29a1
+	- https://youtu.be/6S2v7G-OupA
+- Started reading a bit about time series regression. We need to analyze the auto correlation function of residuals to see if there are correlated errors.
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
