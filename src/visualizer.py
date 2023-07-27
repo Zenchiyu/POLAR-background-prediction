@@ -60,6 +60,19 @@ def get_time_y_y_hat(dataset_val,
 
     return sorted_time_val, sorted_y_val, sorted_y_hat_val
 
+def get_column(dataset_subset, column_name):
+    dataset = dataset_subset.dataset
+    df = dataset.data_df
+    # Pandas dataframes
+    X_subset = df.loc[df.index[dataset_subset.indices],
+                      [column_name, "unix_time"]]
+    X_subset.reset_index(drop=True, inplace=True)
+    
+    argsort = np.argsort(X_subset["unix_time"])[::-1]
+    sorted_column = X_subset.loc[argsort, column_name]
+    print(sorted_column.shape)
+    return sorted_column
+
 def find_moments(data, verbose=False):
     """
     Find moments, especially std, for gaussian fit
@@ -197,7 +210,7 @@ def plot_val_residual(dataset_val,
     # Residuals
     ax.plot(sorted_time_val, residuals, '-r', linewidth=0.1)
     ax.set_xlabel("Tunix [s]")
-    ax.set_ylabel(f"{target_name}")  # Nb. photons per second (averaged over each bin)
+    ax.set_ylabel(f"{target_name}")
     ax.set_title(f"Residual plot of {target_name}")
     
     # Gaussian fit
@@ -214,6 +227,58 @@ def plot_val_residual(dataset_val,
     ######
     
     plot_normalized_hist(residuals,
+                         new_mean,
+                         new_std,
+                         save_path=save_path_hist)
+    
+def plot_val_pull(dataset_val,
+                      pred,
+                      target_name="rate[0]",
+                      save_path="results/images/pull_plot.png",
+                      save_path_hist="results/images/pull_hist.png"):
+    # TODO: is it really a pull ? to do residual/rate_err
+    tmp = get_time_y_y_hat(dataset_val, pred, target_name)
+    sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
+    del tmp
+
+
+    left, width = 0.1, 0.65
+    bottom, height = 0.1, 0.65
+    spacing = 0.03
+    rect_pulls = [left, bottom, width, height]
+    rect_histy = [left + width + spacing, bottom, 0.2, height]
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_axes(rect_pulls)
+    ax_histy = fig.add_axes(rect_histy, sharey=ax)
+
+    ax_histy.tick_params(axis="y", labelleft=False)
+    ax_histy.set_title("Normalized Histogram (Density)")
+
+    residuals = sorted_y_val-sorted_y_hat_val
+    rate_err = get_column(dataset_val, "rate_err[0]")
+    pulls = residuals/rate_err
+    new_mean, new_std = find_moments(pulls)
+    
+    # Pulls
+    ax.plot(sorted_time_val, pulls, '-r', linewidth=0.1)
+    ax.set_xlabel("Tunix [s]")
+    ax.set_ylabel(f"{target_name}")
+    ax.set_title(f"Pull plot of {target_name}")
+    
+    # Gaussian fit
+    xs = np.linspace(pulls.min(), pulls.max(), 255)
+    f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
+    ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
+    # Histogram pull
+    _ = sns.histplot(data=pulls.to_frame(target_name),
+                     y=target_name,
+                     stat="density",
+                     ax=ax_histy)
+    if save_path: plt.savefig(save_path)
+
+    ######
+    
+    plot_normalized_hist(pulls,
                          new_mean,
                          new_std,
                          save_path=save_path_hist)
@@ -366,10 +431,14 @@ def main(cfg: DictConfig):
                                               target_name=target_name)
     ## Residuals + hist + gaussian fit
     for target_name in cfg.dataset.target_names:
-        plot_val_residual(trainer.dataset_val,
+        if target_name != "rate[0]":
+            plot_val_residual(trainer.dataset_val,
+                            pred,
+                            target_name=target_name)
+        else:
+            plot_val_pull(trainer.dataset_val,
                           pred,
                           target_name=target_name)
-    
     ## Comment this line below if don't want to show
     plt.show()
 

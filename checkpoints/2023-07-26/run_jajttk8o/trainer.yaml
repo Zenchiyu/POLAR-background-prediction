@@ -12,10 +12,9 @@ common:
 dataset:
   filename: data/nf1rate.root
   save_format: null  # won't save in .pkl nor .csv
-  # new_columns: []
-  new_columns:  # not necessarily used in the features or targets
-    - rate_err[0]
-    - rate[0]/rate_err[0]
+  new_columns: []
+  # new_columns:
+  #   - rate[0]/rate_err[0]
   feature_names:
     - unix_time
     - glat
