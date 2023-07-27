@@ -3,16 +3,17 @@ import shutil
 import torch
 import wandb
 
+from dataset import PolarDataset
+from datetime import date
+from omegaconf import DictConfig, OmegaConf
+
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import Lambda
 from typing import Optional
-
-from dataset import PolarDataset
-from datetime import date
-from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
+from utils import periodical_split
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
@@ -149,9 +150,11 @@ class Trainer:
                              self.cfg.dataset.val.size,
                              self.cfg.dataset.test.size]
         # TODO: use something else instead of random split
-        match self.cfg.dataset.split_type:
+        match self.cfg.dataset.split.type:
             case "periodical":
-                datasets = random_split(self.dataset_full, split_percentages)
+                datasets = periodical_split(self.dataset_full,
+                                            split_percentages,
+                                            self.cfg.dataset.split.periodicity)
             case _:
                 datasets = random_split(self.dataset_full, split_percentages)
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
@@ -212,6 +215,7 @@ class Trainer:
             os.makedirs(path, exist_ok=True)
             
             torch.save(general_checkpoint, path + "/general_checkpoint.pth")
+
 
     def lowercase(self, txt: Optional[str]) -> Optional[str]:
         return txt.lower() if txt else None
