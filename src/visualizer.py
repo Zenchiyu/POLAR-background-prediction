@@ -98,6 +98,7 @@ def plot_normalized_hist(data,
                          std,
                          transform="sqrt",
                          title="Normalized Histogram",
+                         xlabel="Residuals",
                          save_path="results/images/residual_hist.png"):
     """
     Plot normalized histogram along with a gaussian specified by mean, std.
@@ -118,7 +119,7 @@ def plot_normalized_hist(data,
             'r', label=r"$-5\sigma$")
     ax.plot([5*std, 5*std], [0, f(xs, mean, std).max()/36],
             'g', label=r"$+5\sigma$")
-    ax.set_xlabel("Residuals")
+    ax.set_xlabel(xlabel)
     ax.legend()
     if transform == "sqrt":
         ax.set_yscale(FuncScale(0, (lambda x: np.sqrt(x),
@@ -280,6 +281,7 @@ def plot_val_pull(dataset_val,
     plot_normalized_hist(pulls,
                          new_mean,
                          new_std,
+                         xlabel="Residuals/rate_err[0]",
                          save_path=save_path_hist)
 
 def plot_prediction_target_zoom(dataset,

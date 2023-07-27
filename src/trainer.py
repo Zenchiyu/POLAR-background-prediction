@@ -149,7 +149,11 @@ class Trainer:
                              self.cfg.dataset.val.size,
                              self.cfg.dataset.test.size]
         # TODO: use something else instead of random split
-        datasets = random_split(self.dataset_full, split_percentages)
+        match self.cfg.dataset.split_type:
+            case "periodical":
+                datasets = random_split(self.dataset_full, split_percentages)
+            case _:
+                datasets = random_split(self.dataset_full, split_percentages)
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
         
         ### Process features by applying centering and reducing
