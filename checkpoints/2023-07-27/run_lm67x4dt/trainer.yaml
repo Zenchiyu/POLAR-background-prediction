@@ -1,0 +1,97 @@
+wandb:
+  project: POLAR-background-prediction
+  mode: online
+
+wandb_watch: True  # log in w&b model & criterion
+
+common:
+  seed: 42
+  n_epochs: 200
+  device: cuda
+
+dataset:
+  filename: data/nf1rate.root
+  save_format: null  # won't save in .pkl nor .csv
+  # new_columns: []
+  new_columns:  # not necessarily used in the features or targets
+    - rate_err[0]
+    - rate[0]/rate_err[0]
+  feature_names:
+    - unix_time
+    - glat
+    - glon
+    - altitude
+    - temperature
+    - fe_cosmic
+    - raz
+    - decz
+    - rax
+    - decx
+    - is_orbit_up
+    - time_since_saa
+    # - crabarf
+    # - sun
+    # - sun_spot
+    - B_r
+    - B_theta
+    - B_phi
+  target_names:
+    - rate[0]  # rate[0]/rate_err[0]  # had to specify in new_columns
+  filter_conditions:
+    - rate[0]/rate_err[0] > 20
+    # Ignoring GRBs +-100 seconds (so keeping the complement)
+    - (unix_time < 1483596747.0) | (unix_time > 1483596947.0)  # GRB_170105A
+    - (unix_time < 1483931755.0) | (unix_time > 1483931955.0)  # GRB_170109A
+    - (unix_time < 1484262869.0) | (unix_time > 1484263069.0)  # GRB_170112B
+    - (unix_time < 1484431170.0) | (unix_time > 1484431370.0)  # GRB_170114A
+    - (unix_time < 1484423852.0) | (unix_time > 1484424052.0)  # GRB_170114B
+    - (unix_time < 1484911010.0) | (unix_time > 1484911210.0)  # GRB_170120A
+    - (unix_time < 1484962515.2) | (unix_time > 1484962715.2)  # GRB_170121A
+    - (unix_time < 1485291386.0) | (unix_time > 1485291586.0)  # GRB_170124A
+    - (unix_time < 1485480849.0) | (unix_time > 1485481049.0)  # GRB_170127C
+    - (unix_time < 1485760385.0) | (unix_time > 1485760585.0)  # GRB_170130A
+    - (unix_time < 1485904399.0) | (unix_time > 1485904599.0)  # GRB_170131A
+    - (unix_time < 1486019894.0) | (unix_time > 1486020094.0)  # GRB_170202B
+    - (unix_time < 1486378217.7) | (unix_time > 1486378417.7)  # GRB_170206A
+    - (unix_time < 1486381110.0) | (unix_time > 1486381310.0)  # GRB_170206C
+    - (unix_time < 1486503804.0) | (unix_time > 1486504004.0)  # GRB_170207A
+    - (unix_time < 1486559693.0) | (unix_time > 1486559893.0)  # GRB_170208C
+    - (unix_time < 1486694757.0) | (unix_time > 1486694957.0)  # GRB_170210A
+    - (unix_time < 1487462487.0) | (unix_time > 1487462687.0)  # GRB_170219A
+    - (unix_time < 1487616381.0) | (unix_time > 1487616581.0)  # GRB_170220A
+    - (unix_time < 1488306676.0) | (unix_time > 1488306876.0)  # GRB_170228B
+    - (unix_time < 1488694046.8) | (unix_time > 1488694246.8)  # GRB_170305A
+    - (unix_time < 1488809140.0) | (unix_time > 1488809340.0)  # GRB_170306B
+    - (unix_time < 1489062302.0) | (unix_time > 1489062502.0)  # GRB_170309A
+    - (unix_time < 1489586173.0) | (unix_time > 1489586373.0)  # GRB_170315A
+    - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
+  split:
+    type: periodical
+    periodicity: 200  # # of samples for the periodicity, for type periodical
+  train:
+    size: 0.6
+    batch_size: 200  # similar to sklearn 'auto', might be better a power of 2
+    shuffle: True
+  val:
+    size: 0.2
+    batch_size: 200
+  test:
+    size: 0.2
+    batch_size: 200
+
+model:
+  type: MLP
+  inner_activation_fct: ReLU
+  output_activation_fct: null  # identity
+  hidden_layer_sizes:
+    - 100
+    - 100
+
+optimizer:
+  hyperparams:
+    # For adam optimizer
+    lr: 1e-3
+    betas:
+      - 0.9
+      - 0.999
+    eps: 1e-08

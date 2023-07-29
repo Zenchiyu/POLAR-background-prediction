@@ -381,8 +381,8 @@ def main(cfg: DictConfig):
     trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
 
     trainer.epoch = general_checkpoint["epoch"]
-    torch.train_loss = general_checkpoint["train_loss"]
-    torch.val_loss = general_checkpoint["val_loss"]
+    torch.train_loss = general_checkpoint["train_loss"].cpu()
+    torch.val_loss = general_checkpoint["val_loss"].cpu()
     
     trainer.model.eval()
     
