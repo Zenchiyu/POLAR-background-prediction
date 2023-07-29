@@ -151,7 +151,7 @@ temporal relationships.
 - To learn more about W&B sweeps and add more logs information.
 
 
-## Week 3: 24.07.23 - 30.07.23
+## Week 4: 24.07.23 - 30.07.23
 
 
 ### Summary
@@ -163,16 +163,20 @@ temporal relationships.
 We can observe that there are GRBs (in red) outside our time range of our dataset (in blue)
 
 - Restricting to only our time range, we're left with 25 GRBs:
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d)
 
 Closer look (+- 50 seconds windows):
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33)
 
 Note that the one at the bottom-mid was within the period with no data.
 
 - From the residual histogram (from applying our model to the validation set) and modified gaussian fit, we highlighted the data points from the validation set having
 their residual above 5 standard deviation:
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36a33a27-afde-4c81-9c8c-18b2d6b59ac9)
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/666e62c7-1f41-455a-a65a-bba77cbf6365)
 
 We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
@@ -204,6 +208,7 @@ the previous plot but with fixed code:
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf)
 
 - Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green we have the validation set
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e)
 
 We can observe that it doesn't overfit severely but it might still overfit..
