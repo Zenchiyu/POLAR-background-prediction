@@ -151,7 +151,7 @@ temporal relationships.
 - To learn more about W&B sweeps and add more logs information.
 
 
-## Week 3: 24.07.23 - 30.07.23
+## Week 4: 24.07.23 - 30.07.23
 
 
 ### Summary
@@ -163,16 +163,20 @@ temporal relationships.
 We can observe that there are GRBs (in red) outside our time range of our dataset (in blue)
 
 - Restricting to only our time range, we're left with 25 GRBs:
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d)
 
 Closer look (+- 50 seconds windows):
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33)
 
 Note that the one at the bottom-mid was within the period with no data.
 
 - From the residual histogram (from applying our model to the validation set) and modified gaussian fit, we highlighted the data points from the validation set having
 their residual above 5 standard deviation:
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36a33a27-afde-4c81-9c8c-18b2d6b59ac9)
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/666e62c7-1f41-455a-a65a-bba77cbf6365)
 
 We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
@@ -204,6 +208,7 @@ the previous plot but with fixed code:
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf)
 
 - Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green we have the validation set
+
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e)
 
 We can observe that it doesn't overfit severely but it might still overfit..
@@ -235,6 +240,23 @@ We can observe that it doesn't overfit severely but it might still overfit..
 |:-------------------------:|:-------------------------:|
 |<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/6ba9d6c8-9e5a-4a49-84d0-2637f0148ba6">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/37175a7a-a89b-49f9-a8ff-7d6f86cd77ba">|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/20ea06bf-b93d-4929-af4d-b903ed388d1f">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/fdc21464-0c18-4945-b1af-b92f9ba5abec">|
+
+- Splitted differently the data in a periodical manner: train, validation, test (120, 40, 40) then train, validation, test again (do it until no more data left):
+
+
+
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0bf32195-3438-4531-8e9f-06c4e42e2869"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aa2a6095-8394-42ee-bf2e-c34abf399326"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ca7ba5a9-c478-426f-9b86-9984db41f205"> Prediction over train + val, closer look|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/a2f37eaa-8b74-4bb7-99ad-f6652328ffb1"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/9b82a87c-3dbc-4fc6-83ad-678234592213"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/da6267bd-cd97-42fb-b094-a53b89f09260"> Losses (average mini-batch MSE loss)|
+
+- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+
+
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c9d6670e-25c0-4f62-a842-b176e3f2795c">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4455e55e-de08-4554-b93b-4d6bdae5cb47">|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/d0a5370d-7d4d-4167-a08f-e8e9c0ece41c">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/08cd8e81-4239-40e4-aaf6-d9a32856c521">|
 
 
 ### (Future) Goals:
