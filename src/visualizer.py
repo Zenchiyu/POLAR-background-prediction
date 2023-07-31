@@ -27,7 +27,7 @@ def get_time_y(dataset_val,
     y_val.reset_index(drop=True, inplace=True)
 
     print(X_val.columns)
-    argsort = np.argsort(X_val["unix_time"])[::-1]
+    argsort = np.argsort(X_val["unix_time"])
     sorted_time_val = X_val.loc[argsort, "unix_time"]
     sorted_y_val = y_val.loc[argsort, target_name]
 
@@ -53,7 +53,7 @@ def get_time_y_y_hat(dataset_val,
     y_val.reset_index(drop=True, inplace=True)
 
     print(X_val.columns)
-    argsort = np.argsort(X_val["unix_time"])[::-1]
+    argsort = np.argsort(X_val["unix_time"])
     sorted_time_val = X_val.loc[argsort, "unix_time"]
     sorted_y_val = y_val.loc[argsort, target_name]
     sorted_y_hat_val = pred[argsort, idx_target_name]
@@ -68,7 +68,7 @@ def get_column(dataset_subset, column_name):
                       [column_name, "unix_time"]]
     X_subset.reset_index(drop=True, inplace=True)
     
-    argsort = np.argsort(X_subset["unix_time"])[::-1]
+    argsort = np.argsort(X_subset["unix_time"])
     sorted_column = X_subset.loc[argsort, column_name]
     return sorted_column
 
@@ -359,17 +359,17 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     
     
-    # cfg.dataset.save_format = "pkl"
+    cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    p = Path(cfg.dataset.filename)
-    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    if Path(filename).is_file():  # if exists and is a file
-        cfg.dataset.filename = filename
-    else:
-        cfg.dataset.save_format = "pkl"  # to save dataset
+    # p = Path(cfg.dataset.filename)
+    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    # if Path(filename).is_file():  # if exists and is a file
+    #     cfg.dataset.filename = filename
+    # else:
+    #     cfg.dataset.save_format = "pkl"  # to save dataset
     
 
 
@@ -381,8 +381,8 @@ def main(cfg: DictConfig):
     trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
 
     trainer.epoch = general_checkpoint["epoch"]
-    torch.train_loss = general_checkpoint["train_loss"].cpu()
-    torch.val_loss = general_checkpoint["val_loss"].cpu()
+    trainer.train_loss = general_checkpoint["train_loss"].cpu()
+    trainer.val_loss = general_checkpoint["val_loss"].cpu()
     
     trainer.model.eval()
     
@@ -393,7 +393,7 @@ def main(cfg: DictConfig):
                                  target_name=target_name)
     
     ## Loss
-    plot_loss(torch.train_loss, torch.val_loss)
+    plot_loss(trainer.train_loss, trainer.val_loss)
     
     ## Prediction on validation set (e.g rate[0])
     # Need to transform before inputting the whole validation set into
