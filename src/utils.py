@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+import torch
 import typing
 import uproot as ur
 
+from torch.utils.data import Dataset, Subset
 from typing import Optional
 from numpy.typing import NDArray
 
@@ -77,3 +79,27 @@ def train_val_test_split(X: pd.DataFrame,
     y_test.reset_index(drop=True, inplace=True)
     
     return X_train, X_val, X_test, y_train, y_val, y_test
+
+def periodical_split(dataset: Dataset,
+                     lengths: list[float],
+                     periodicity: int) -> tuple[Subset, ...]:
+    all_indices = np.arange(len(dataset))
+    
+    assert sum(lengths) == 1, "lengths should sum to 1"
+    ns = [int(l*periodicity) for l in lengths]
+    assert sum(ns) == periodicity, "ns should sum to periodicity"  # TODO: remove this
+    cumsum = np.cumsum([0] + ns)
+
+    indices = [np.nonzero(np.isin((all_indices % periodicity),
+                                  np.arange(begin, end)))[0] for begin, end in zip(cumsum[:-1], cumsum[1:])]
+    print(indices)
+    subsets = tuple([Subset(dataset, idxs) for idxs in indices])
+    return subsets
+
+def merge_torch_subsets(subsets: list[torch.utils.data.Subset]):
+    """
+    Merge PyTorch Subsets assuming the underlying dataset is the same.
+    Will merge indices
+    """
+    indices = list(set().union(*[subset.indices for subset in subsets]))
+    return Subset(subsets[0].dataset, indices)

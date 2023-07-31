@@ -1,20 +1,19 @@
-import hydra
 import os
 import shutil
 import torch
-import typing
 import wandb
-
-from torch import nn
-from torch.optim import Adam
-from torch.utils.data import DataLoader, random_split
-from torchvision.transforms import ToTensor, Lambda
-from typing import Optional
 
 from dataset import PolarDataset
 from datetime import date
 from omegaconf import DictConfig, OmegaConf
+
+from torch import nn
+from torch.optim import Adam
+from torch.utils.data import DataLoader, random_split
+from torchvision.transforms import Lambda
+from typing import Optional
 from tqdm import tqdm
+from utils import periodical_split
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
@@ -26,7 +25,7 @@ class Trainer:
         
         self.cfg = cfg
         self.seed = self.cfg.common.seed
-        torch.manual_seed(self.seed)
+        torch.manual_seed(self.seed)  # TODO: careful about numpy or random libraries
         
         self.n_epochs = self.cfg.common.n_epochs
         
@@ -37,11 +36,10 @@ class Trainer:
         
         print(f"Using device: {self.device}")
         
-        ### Datasets: train
+        ### Datasets: train, validation, test sets
         self.init_datasets()
-        
+
         ### Model
-        # TODO: place the hyperparams in a config
         model = self.create_model()
         
         ### Criterion
@@ -61,14 +59,25 @@ class Trainer:
     
     def fit(self) -> None:
         """
-        Train the model using the training set
+        Train the model using the training set.
+
+        Note: the losses per epoch that we log are biased,
+        especially train loss as the model changes in between. 
+
+        Link(s):
+        - https://stats.stackexchange.com/questions/436154/is-it-better-to-accumulate-accuracy-and-loss-during-an-epoch-or-recompute-all-of/608648#608648
+        - https://stackoverflow.com/questions/54053868/how-do-i-get-a-loss-per-epoch-and-not-per-batch
+        - https://stackoverflow.com/questions/55627780/evaluating-pytorch-models-with-torch-no-grad-vs-model-eval
+        - https://discuss.pytorch.org/t/loss-changes-with-torch-no-grad/30806/5
         """
+        self.begin_date = str(date.today())
+
         ## Copy config file into specific run folder for future usage.
         self.save_config()
             
         ## Metrics
-        train_loss = torch.zeros(self.n_epochs)
-        val_loss = torch.zeros(self.n_epochs)
+        train_loss = torch.zeros(self.n_epochs, device=self.device)
+        val_loss = torch.zeros(self.n_epochs, device=self.device)
         
         # TODO: add second end_condition related to stagnation of training loss
         for epoch in tqdm(range(self.n_epochs)):
@@ -86,25 +95,22 @@ class Trainer:
                 
                 train_epoch_loss += loss.item()
                 
-            train_loss[epoch] = train_epoch_loss/len(self.dataset_train)
+            train_loss[epoch] = train_epoch_loss/len(self.train_loader)
             
             ## Validation set, evaluation using current model
             # TODO: add toggle whether want evaluation or not and
             # TODO: update config file where we can choose to toggle or not
             self.model.eval()
-            val_epoch_loss = 0
-            for batch in self.val_loader:
-                x, y = batch
-                y_hat = self.model(x)
+            with torch.no_grad():
+                val_epoch_loss = 0
+                for batch in self.val_loader:
+                    x, y = batch
+                    y_hat = self.model(x)
+                    
+                    loss = self.criterion(y_hat, y)
+                    val_epoch_loss += loss.item()
                 
-                loss = self.criterion(y_hat, y)
-                loss.backward()
-                self.optimizer.step()
-                self.optimizer.zero_grad()
-                
-                val_epoch_loss += loss.item()
-                
-            val_loss[epoch] = val_epoch_loss/len(self.dataset_val)
+            val_loss[epoch] = val_epoch_loss/len(self.val_loader)
             
             # Wandb log
             self.run.log({"epoch": epoch,
@@ -117,7 +123,7 @@ class Trainer:
         # Wandb finish
         self.run.finish()
         
-    def init_datasets(self) -> tuple[DataLoader, ...]:
+    def init_datasets(self, verbose: bool = True) -> tuple[DataLoader, ...]:
         """
         Create:
         - self.dataset_full (Pytorch Dataset) with:
@@ -136,14 +142,21 @@ class Trainer:
                                     self.cfg.dataset.target_names,
                                     self.device,
                                     new_columns=self.cfg.dataset.new_columns,
-                                    save_format=self.cfg.dataset.save_format)
+                                    save_format=self.cfg.dataset.save_format,
+                                    filter_conditions=self.cfg.dataset.filter_conditions)
         
         ### Split train, validation, test
         split_percentages = [self.cfg.dataset.train.size,
                              self.cfg.dataset.val.size,
                              self.cfg.dataset.test.size]
         # TODO: use something else instead of random split
-        datasets = random_split(self.dataset_full, split_percentages)
+        match self.cfg.dataset.split.type:
+            case "periodical":
+                datasets = periodical_split(self.dataset_full,
+                                            split_percentages,
+                                            self.cfg.dataset.split.periodicity)
+            case _:
+                datasets = random_split(self.dataset_full, split_percentages)
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
         
         ### Process features by applying centering and reducing
@@ -164,13 +177,20 @@ class Trainer:
                                   batch_size=self.cfg.dataset.val.batch_size)
         self.test_loader = DataLoader(self.dataset_test,
                                   batch_size=self.cfg.dataset.test.batch_size)
-        
+
+        if verbose:
+            print(f"Training:\n\t- len: {len(self.dataset_train)}"+\
+                  f"\n\t- # of minibatches: {len(self.train_loader)}")
+            print(f"Validation:\n\t- len: {len(self.dataset_val)}"+\
+                  f"\n\t- # of minibatches: {len(self.val_loader)}")
+            print(f"Test:\n\t- len: {len(self.dataset_test)}"+\
+                  f"\n\t- # of minibatches: {len(self.test_loader)}")
+
         return self.train_loader, self.val_loader, self.test_loader
     
     def save_config(self) -> None:
         if self.cfg.wandb.mode == "online":
-            today = str(date.today())
-            path = f'checkpoints/{today}/run_{self.run.id}'
+            path = f'checkpoints/{self.begin_date}/run_{self.run.id}'
             os.makedirs(path, exist_ok=True)
             shutil.copyfile("config/trainer.yaml", path + "/trainer.yaml")
             
@@ -191,16 +211,21 @@ class Trainer:
         
         # Also save it within particular folder related to wandb run.
         if self.cfg.wandb.mode == "online":
-            today = str(date.today())
-            path = f'checkpoints/{today}/run_{self.run.id}'
+            path = f'checkpoints/{self.begin_date}/run_{self.run.id}'
             os.makedirs(path, exist_ok=True)
             
             torch.save(general_checkpoint, path + "/general_checkpoint.pth")
-        
+
+
+    def lowercase(self, txt: Optional[str]) -> Optional[str]:
+        return txt.lower() if txt else None
     
     def create_model(self) -> nn.Module:
-        match self.cfg.model.type:
-            case "MLP":
+        """
+        Create model based on self.cfg.model.type, e.g Multi Layer Perceptron 
+        """
+        match self.lowercase(self.cfg.model.type):
+            case "mlp":
                 inner_activation_fct = self.cfg.model.inner_activation_fct
                 output_activation_fct = self.cfg.model.output_activation_fct
                 hidden_layer_sizes = self.cfg.model.hidden_layer_sizes
@@ -210,8 +235,8 @@ class Trainer:
                 for h in hidden_layer_sizes:
                     out_size = h
                     layers.append(nn.Linear(in_size, out_size))
-                    match inner_activation_fct:
-                        case "ReLU":
+                    match self.lowercase(inner_activation_fct):
+                        case "relu":
                             layers.append(nn.ReLU())
                         case _:
                             raise NotImplementedError("Inner activation function"+\
@@ -221,11 +246,11 @@ class Trainer:
                 ## Last layer
                 layers.append(nn.Linear(in_size, self.dataset_full.n_targets))
                 # No activation function or identity by default (nn.Identity())
-                match output_activation_fct:
+                match self.lowercase(output_activation_fct):
                     case _:
                         # layers.append(nn.Identity())
                         print("Using default identity activation"+\
-                              "function for last layer")
+                              " function for last layer")
 
                 model = nn.Sequential(*layers)
             case _:

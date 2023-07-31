@@ -119,11 +119,12 @@ for first time too).
 - Further cleaning of code and added python type hints (not for all files though)
 - Can now save a general checkpoint at two different places; one as last checkpoint and the other is attached to a date and run id (see checkpoints folder)
 - Can now specify the number of neurons for each hidden layers directly inside the yaml config file.
+- Removed pipenv, we no longer use pipenv. Modified README in consequence.
+- Trained model again but on `nf1rate` (taking about 3 hours for training) with as target `rate[0]` (using all examples, no additional filtering based on `rate_err[0]`) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3zdzy861?workspace=user-stephane-nguyen)).
+- Trained model again on "same" dataset but with as target `rate[0]/rate_err[0]` (filtered examples when cannot do the division) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3hevg2jy/overview?workspace=user-stephane-nguyen))
+- Added more plots in `src/visualizer` where we can now plot the residual plot with its histogram.
 
 ### Comments
-
-- pipenv currently "half-outdated" due to hydra and pytorch gpu (pipenv not working as expected on the POLAR machine, couldn't install pytorch via pipenv but
-installed it via normal pip)
 
 - Run:
 ```
@@ -142,11 +143,142 @@ to run the training phase without logging information into Weights and Biases.
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
 and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
 temporal relationships.
-- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
-we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more logs information.
 
+
+## Week 4: 24.07.23 - 30.07.23
+
+
+### Summary
+
+- Exploring the 55 GRBs (from [Overview_of_the_GRB_observation_by_POLAR's paper](https://www.researchgate.net/profile/Yuanhao-Wang-8/publication/326811280_Overview_of_the_GRB_observation_by_POLAR/links/5cfe12c0a6fdccd1308f8b32/Overview-of-the-GRB-observation-by-POLAR.pdf), after converting UTC to Unix time) and comparing them to our dataset:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cd6024cc-37ed-4a7b-a8a2-774cd53c8a99)
+
+We can observe that there are GRBs (in red) outside our time range of our dataset (in blue)
+
+- Restricting to only our time range, we're left with 25 GRBs:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d)
+
+Closer look (+- 50 seconds windows):
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33)
+
+Note that the one at the bottom-mid was within the period with no data.
+
+- From the residual histogram (from applying our model to the validation set) and modified gaussian fit, we highlighted the data points from the validation set having
+their residual above 5 standard deviation:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36a33a27-afde-4c81-9c8c-18b2d6b59ac9)
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/666e62c7-1f41-455a-a65a-bba77cbf6365)
+
+We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
+
+- If we compare the red points with the 25 GRBs, we can only see $5$ red points. Moreover, we must remember the fact that we're showing red points that are from the validation set, not the full dataset.
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/5890e455-8e5c-46c8-967c-8200274d9635)
+
+
+- Fixed create_columns that can try to create a column based on a `data_df["<numerical value>"]` for example
+- Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
+- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/094c849f-c217-4c35-a15a-df7e7768f6a6)
+
+where again the red points come from the validation set and have residuals > 5 standard deviation (the modified one based on the modified gaussian fit).
+
+- Ran the training phase again but ignoring +-100 seconds around the 25 GRBs. Also ignored them in validation and test set but maybe shouldn't because we
+no longer can compare the prediction for these +-100 seconds around the 25 GRBs with the real curve. We can't plot anymore the plot we've shown above. However, here's a zoomed-in version of what our model predicts into 4 arbitrary intervals of the validation set:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d)
+
+`l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). In red we have the prediction,
+and in green, the validation set.
+
+- By cleaning the code, I discovered that I was training on the validation set unintentionally, I fixed it then ran the training phase again. I show below
+the previous plot but with fixed code:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf)
+
+- Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green we have the validation set
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e)
+
+We can observe that it doesn't overfit severely but it might still overfit..
+
+- Started reading a bit about unsupervised learning anomaly detection with auto encoders and using the reconstruction error to detect anomalies:
+	- https://keras.io/examples/timeseries/timeseries_anomaly_detection/
+   	- https://towardsdatascience.com/using-lstm-autoencoders-on-multidimensional-time-series-data-f5a7a51b29a1
+	- https://youtu.be/6S2v7G-OupA
+- Started reading a bit about anomaly detection in general. I should maybe focus on semi-supervised anomaly detection:
+	- https://ai.googleblog.com/2023/02/unsupervised-and-semi-supervised.html
+	- https://arxiv.org/pdf/1906.02694.pdf
+	- https://en.wikipedia.org/wiki/Anomaly_detection
+> Semi-supervised anomaly detection techniques assume that some portion of the data is labelled. This may be any combination of the normal or anomalous data, but more often than not the techniques construct a model representing normal behavior from a given normal training data set, and then test the likelihood of a test instance to be generated by the model.
+- Started reading a bit about time series regression. We need to analyze the auto correlation function of residuals to see if there are correlated errors.
+- Ran training for a different target. We also, instead of plotting the residuals, we plot the residuals divided by `rate_err[0]`. Filtering is the same as before and the plots have the same meanings as before (except for residuals and the target):
+
+
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0c1d6735-97d0-4cc8-936c-b7cbe0e75e36"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aaa0b2cb-029a-4209-9a62-605441d86c02"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/370f9273-84df-4054-ab96-421b6d1d14ea"> Prediction over train + val, closer look|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/7e32e010-39e7-48d7-bfe7-c03212fcc5cf"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/78dbae85-7772-4ef1-ae54-c29258476c9c"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf6ee699-6720-49de-8d3b-c29805222a37"> zoomed-in version|
+
+<!-- https://gist.githubusercontent.com/trusktr/93175b620d47827ffdedbf52433e3b37/raw/e980fa9116cb28dfbdee0dc5c17adc5ed91df783/image-grid.md -->
+
+- If we use our trained model and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+
+
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/6ba9d6c8-9e5a-4a49-84d0-2637f0148ba6">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/37175a7a-a89b-49f9-a8ff-7d6f86cd77ba">|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/20ea06bf-b93d-4929-af4d-b903ed388d1f">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/fdc21464-0c18-4945-b1af-b92f9ba5abec">|
+
+- Splitted differently the data in a periodical manner: train, validation, test (120, 40, 40 datapoints) then train, validation, test again (do it until no more data left) (this time, the splitting is no longer random but there's still shuffling=True in the train loader and we still have 60 %, 20 %, 20 % split ratios):
+
+
+
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0bf32195-3438-4531-8e9f-06c4e42e2869"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aa2a6095-8394-42ee-bf2e-c34abf399326"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ca7ba5a9-c478-426f-9b86-9984db41f205"> Prediction over train + val, closer look|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/a2f37eaa-8b74-4bb7-99ad-f6652328ffb1"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/9b82a87c-3dbc-4fc6-83ad-678234592213"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/da6267bd-cd97-42fb-b094-a53b89f09260"> Losses (average mini-batch MSE loss)|
+
+- We can show how the losses compared to before (violet: `periodical_split`, yellow: `random_split`):
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/6d056ebd-b38a-4a0f-8db5-31d7236bc5a8)
+
+And it shows more clearly the gap between train and validation losses.
+
+- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+
+
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c9d6670e-25c0-4f62-a842-b176e3f2795c">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4455e55e-de08-4554-b93b-4d6bdae5cb47">|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/d0a5370d-7d4d-4167-a08f-e8e9c0ece41c">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/08cd8e81-4239-40e4-aaf6-d9a32856c521">|
+
+
+### (Future) Goals:
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+temporal relationships. There's maybe something called "overfitting in feature space".
+
+- Some links on splitting but our goal is not to forecast but to do predict the "present" from the "present" (or maybe even past but not yet):
+	- https://stats.stackexchange.com/questions/346907/splitting-time-series-data-into-train-test-validation-sets
+	- https://datascience.stackexchange.com/questions/91162/why-is-shuffling-timeseries-a-bad-thing
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore) (and correlated residuals):
+	- https://otexts.com/fpp2/regression.html
+	- https://ethz.ch/content/dam/ethz/special-interest/math/statistics/sfs/Education/Advanced%20Studies%20in%20Applied%20Statistics/course-material-1921/Zeitreihen/ATSA_Script_v200504.pdf (from page 133)
+- To better understand Adam optimizer, different parts of what I've used in general.
+- To better understand or to learn more about Hydra
+- To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
+- To learn more about regularization, dropout, batch normalization
+- To learn more about W&B sweeps and add more logs information.
+- To add a "stagnation end condition" to my training loop
+- Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)

@@ -36,7 +36,7 @@ dataset:
     - B_theta
     - B_phi
   target_names:
-    - rate[0]/rate_err[0]  # had to specify in new_columns
+    - rate[0]  # rate[0]/rate_err[0]  # had to specify in new_columns
   filter_conditions:
     - rate[0]/rate_err[0] > 20
     # Ignoring GRBs +-100 seconds (so keeping the complement)
@@ -65,9 +65,6 @@ dataset:
     - (unix_time < 1489062302.0) | (unix_time > 1489062502.0)  # GRB_170309A
     - (unix_time < 1489586173.0) | (unix_time > 1489586373.0)  # GRB_170315A
     - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
-  split:
-    type: periodical
-    periodicity: 200  # # of samples for the periodicity, for type periodical
   train:
     size: 0.6
     batch_size: 200  # similar to sklearn 'auto', might be better a power of 2

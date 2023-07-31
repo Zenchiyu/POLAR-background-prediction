@@ -36,7 +36,7 @@ dataset:
     - B_theta
     - B_phi
   target_names:
-    - rate[0]/rate_err[0]  # had to specify in new_columns
+    - rate[0]  # rate[0]/rate_err[0]  # had to specify in new_columns
   filter_conditions:
     - rate[0]/rate_err[0] > 20
     # Ignoring GRBs +-100 seconds (so keeping the complement)

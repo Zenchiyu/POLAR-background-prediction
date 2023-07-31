@@ -1,22 +1,18 @@
-import copy
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
 import re
-import sys
 import typing
-import uproot as ur
 
 from utils import load_data_as_dict
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Generator
 
 
 def create_dataset(root_filename: str = "data/fmrate.root",
-                   tunix_name: str = "unix_time",
                    new_columns: list[str] = [],
-                   save_format: Optional[str] = None) -> pd.DataFrame:
+                   save_format: Optional[str] = None,
+                   filter_conditions: list[str] = []) -> pd.DataFrame:
     """
     - Create pandas dataframe containing the whole dataset (features & target) from
     a .root file.
@@ -29,6 +25,19 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     - Can also create new columns based on existing columns.
     Each new column is specified by a string in new_columns list. The string
     must contain operations over existing dataframe column names.
+    
+    Order on these new column names can matter (e.g creating a new column
+    based on a new column).
+
+    - Can also filter based on existing columns (incl. new columns after their
+    creation via new_columns).
+    The filters are specified as a list of string where each string must contain
+    operations over existing dataframe column names.
+
+    They should be expressions that, when evaluated, return some boolean value
+    (after replacing the column names by the corresponding array/dataframe)
+    
+    Order on these filters matters.
     """
     filename_no_extension = Path(root_filename).stem
     
@@ -45,9 +54,11 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     
     # We don't bin the data anymore
     
-    ### XXX: here apply some further preprocessing
+    ### XXX: Apply some further preprocessing
     # Create new columns of data_df and evaluate expressions
     create_new_columns(data_df, new_columns=new_columns)
+    # Filter some examples based on "filter" (true -> keep)
+    filter_examples(data_df, filter_conditions=filter_conditions)
     
     
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
@@ -65,8 +76,8 @@ def flatten_dict_arrays(data_dict: dict[str, np.typing.NDArray[typing.Any]]) -> 
     "Flattening" each matrix from data_dict by distributing its columns into
     new keys.
     
-    One new (key, value) for each column of a 2d matrix, for each 2d matrix
-    where the value is a vector.
+    One new (key, value) for each column of a 2d matrix (value is a vector),
+    for each 2d matrix.
     """
     keys = [k for k in data_dict.keys()]
     for key in keys:
@@ -83,6 +94,25 @@ def flatten_dict_arrays(data_dict: dict[str, np.typing.NDArray[typing.Any]]) -> 
                 del data_dict[key]   
     del keys
 
+def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, None, None]:
+    # Generate expressions that can be evaluated from the raw_expressions
+    for raw_expr in raw_expressions:
+        # Match a column name of the form:
+        # - column_64_name[some number]
+        # or
+        # - column_64_name
+        operands = re.finditer('[\w]+[\[][0-9]*[\]]|[a-zA-Z][\w]*', raw_expr)
+        expression = raw_expr
+        incr = 0
+        for op in operands:
+            start_idx, end_idx = op.span()
+            before = expression[:start_idx+incr]
+            after = expression[end_idx+incr:]
+            expression = before + f"data_df['{op.group()}'].values" + after
+            incr += len("data_df[''].values")
+        
+        yield expression
+
 def create_new_columns(data_df: pd.DataFrame,
                        new_columns: list[str] = [],
                        verbose: bool = True) -> None:
@@ -93,24 +123,66 @@ def create_new_columns(data_df: pd.DataFrame,
     Warning: careful with "silent" errors related to the operations on existing
     columns (e.g division by 0)
     """
-    if len(new_columns) != 0:
-        for col in new_columns:
-            operands = re.finditer('[\w]+[\[][0-9]*[\]]|[\w]+', col)
-            expression = col
-            incr = 0
-            for op in operands:
-                start_idx, end_idx = op.span()
-                before = expression[:start_idx+incr]
-                after = expression[end_idx+incr:]
-                expression = before + f"data_df['{op.group()}']" + after
-                incr += len("data_df['']")
-            if verbose: print(f"Expr to eval for col {col}: {expression}")
-            # Add new column with evaluated expression
-            data_df[col] = eval(expression)
-            
+
+    if len(new_columns) == 0:
+        return None
+    
+    expressions = generator_expressions(new_columns)
+
+    for col, expression in zip(new_columns, expressions):
+        if verbose: print(f"\nExpr to eval for col {col}: {expression}")
+        # Add new column with evaluated expression
+        eval(expression)  # just to show any warnings or errors
+        data_df[col] = eval(expression.replace(".values", ""))
+        
+        n_examples_old = data_df.shape[0]
+        # Filter out the rows having at least a NaN or missing value
+        data_df.dropna(inplace=True)
+        
+        if verbose:
+            print("Number of examples before filtering: ", n_examples_old)
+            print("Number of examples after filtering (if happened): ", data_df.shape[0])
+    
+def filter_examples(data_df: pd.DataFrame,
+                    filter_conditions: list[str] = [],
+                    verbose: bool = True) -> None:
+    """
+    Filter based on existing columns (incl. new columns after their
+    creation via new_columns).
+    The filters are specified as a list of string where each string must contain
+    operations over existing dataframe column names.
+
+    They should be expressions that, when evaluated, return some boolean value
+    (after replacing the column names by the corresponding array/dataframe)
+    
+    Order on these filters matters.
+    """
+
+    if len(filter_conditions) == 0:
+        return None
+
+    expressions = generator_expressions(filter_conditions)
+
+    for cond, expression in zip(filter_conditions, expressions):
+        if verbose: print(f"\nExpr to eval for cond {cond}: {expression}")
+        eval(expression)  # just to show any warnings or errors
+        n_examples_old = data_df.shape[0]
+
+        # Filter examples based on the condition, if true -> keep
+        index_to_keep = data_df.loc[eval(expression.replace(".values", "")), :].index
+        data_df.drop(index=data_df.index.difference(index_to_keep),
+                        inplace=True)
+        # Filter out the rows having at least a NaN or missing value
+        data_df.dropna(inplace=True)
+        
+        if verbose:
+            print("Number of examples before filtering: ", n_examples_old)
+            print("Number of examples after filtering (if happened): ", data_df.shape[0])
+
 def df_save_format(data_df: pd.DataFrame,
                    filename_no_extension: str = "fmrate",
                    save_format: Optional[str] = None) -> None:
+    print(f"Saving dataset in {save_format} format")
     os.makedirs('data', exist_ok=True)
     match save_format:
         case "csv":

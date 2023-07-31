@@ -13,8 +13,7 @@ dataset:
   filename: data/nf1rate.root
   save_format: null  # won't save in .pkl nor .csv
   # new_columns: []
-  new_columns:  # not necessarily used in the features or targets
-    - rate_err[0]
+  new_columns:
     - rate[0]/rate_err[0]
   feature_names:
     - unix_time
@@ -65,12 +64,9 @@ dataset:
     - (unix_time < 1489062302.0) | (unix_time > 1489062502.0)  # GRB_170309A
     - (unix_time < 1489586173.0) | (unix_time > 1489586373.0)  # GRB_170315A
     - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
-  split:
-    type: periodical
-    periodicity: 200  # # of samples for the periodicity, for type periodical
   train:
     size: 0.6
-    batch_size: 200  # similar to sklearn 'auto', might be better a power of 2
+    batch_size: 200  # similar to sklearn 'auto'
     shuffle: True
   val:
     size: 0.2

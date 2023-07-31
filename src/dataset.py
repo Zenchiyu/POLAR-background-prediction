@@ -1,12 +1,10 @@
 import pandas as pd
 import torch
-import torchvision
-import typing
 
 from create_dataset import create_dataset
 from pathlib import Path
 from torch.utils.data import Dataset
-from typing import Optional, TypeAlias
+from typing import Optional
 
 
 class PolarDataset(Dataset):
@@ -18,7 +16,8 @@ class PolarDataset(Dataset):
                  transform: Optional[torch.nn.Module]=None,
                  target_transform: Optional[torch.nn.Module]=None,
                  new_columns: list[str] = [],
-                 save_format: Optional[str] = None) -> None:
+                 save_format: Optional[str] = None,
+                 filter_conditions: list[str] = []) -> None:
         
         super(PolarDataset, self).__init__()
         
@@ -28,9 +27,10 @@ class PolarDataset(Dataset):
                 # Create dataset file if cfg.dataset.target_format is not None
                 self.data_df = create_dataset(filename, 
                                               new_columns=new_columns,
-                                              save_format=save_format)
+                                              save_format=save_format,
+                                              filter_conditions=filter_conditions)
             case ".pkl":
-                self.data_df = pd.read_pkl(filename)
+                self.data_df = pd.read_pickle(filename)
             case ".csv":
                 self.data_df = pd.read_csv(filename)
             case _:
