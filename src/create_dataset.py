@@ -4,15 +4,15 @@ import pandas as pd
 import re
 import typing
 
-from utils import load_data_as_dict
 from pathlib import Path
-from typing import Optional, Generator
+from typing import Generator, Optional
+from utils import load_data_as_dict
 
 
 def create_dataset(root_filename: str = "data/fmrate.root",
                    new_columns: list[str] = [],
-                   save_format: Optional[str] = None,
-                   filter_conditions: list[str] = []) -> pd.DataFrame:
+                   filter_conditions: list[str] = [],
+                   save_format: Optional[str] = None) -> pd.DataFrame:
     """
     - Create pandas dataframe containing the whole dataset (features & target) from
     a .root file.
@@ -52,10 +52,8 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     # Create pandas dataframe from dictionary
     data_df = pd.DataFrame.from_dict(data_dict)
     
-    # We don't bin the data anymore
-    
-    ### XXX: Apply some further preprocessing
-    # Create new columns of data_df and evaluate expressions
+    # Further preprocessing
+    # Create new columns of data_df
     create_new_columns(data_df, new_columns=new_columns)
     # Filter some examples based on "filter" (true -> keep)
     filter_examples(data_df, filter_conditions=filter_conditions)
@@ -131,11 +129,12 @@ def create_new_columns(data_df: pd.DataFrame,
 
     for col, expression in zip(new_columns, expressions):
         if verbose: print(f"\nExpr to eval for col {col}: {expression}")
-        # Add new column with evaluated expression
         eval(expression)  # just to show any warnings or errors
+
+        # Add new column with evaluated expression
         data_df[col] = eval(expression.replace(".values", ""))
-        
         n_examples_old = data_df.shape[0]
+        
         # Filter out the rows having at least a NaN or missing value
         data_df.dropna(inplace=True)
         
@@ -172,6 +171,7 @@ def filter_examples(data_df: pd.DataFrame,
         index_to_keep = data_df.loc[eval(expression.replace(".values", "")), :].index
         data_df.drop(index=data_df.index.difference(index_to_keep),
                         inplace=True)
+        
         # Filter out the rows having at least a NaN or missing value
         data_df.dropna(inplace=True)
         

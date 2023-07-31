@@ -15,6 +15,7 @@ from typing import Optional
 from tqdm import tqdm
 from utils import periodical_split
 
+
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
         print("Config:")
@@ -62,7 +63,7 @@ class Trainer:
         Train the model using the training set.
 
         Note: the losses per epoch that we log are biased,
-        especially train loss as the model changes in between. 
+        especially train loss as the model changes in between.
 
         Link(s):
         - https://stats.stackexchange.com/questions/436154/is-it-better-to-accumulate-accuracy-and-loss-during-an-epoch-or-recompute-all-of/608648#608648
@@ -81,7 +82,7 @@ class Trainer:
         
         # TODO: add second end_condition related to stagnation of training loss
         for epoch in tqdm(range(self.n_epochs)):
-            ## Updating model with one pass through training set
+            ## Updating model using training set
             self.model.train()
             train_epoch_loss = 0
             for batch in self.train_loader:
@@ -142,14 +143,14 @@ class Trainer:
                                     self.cfg.dataset.target_names,
                                     self.device,
                                     new_columns=self.cfg.dataset.new_columns,
-                                    save_format=self.cfg.dataset.save_format,
-                                    filter_conditions=self.cfg.dataset.filter_conditions)
+                                    filter_conditions=self.cfg.dataset.filter_conditions,
+                                    save_format=self.cfg.dataset.save_format)
         
         ### Split train, validation, test
         split_percentages = [self.cfg.dataset.train.size,
                              self.cfg.dataset.val.size,
                              self.cfg.dataset.test.size]
-        # TODO: use something else instead of random split
+        
         match self.cfg.dataset.split.type:
             case "periodical":
                 datasets = periodical_split(self.dataset_full,
@@ -157,6 +158,7 @@ class Trainer:
                                             self.cfg.dataset.split.periodicity)
             case _:
                 datasets = random_split(self.dataset_full, split_percentages)
+
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
         
         ### Process features by applying centering and reducing
@@ -216,13 +218,13 @@ class Trainer:
             
             torch.save(general_checkpoint, path + "/general_checkpoint.pth")
 
-
     def lowercase(self, txt: Optional[str]) -> Optional[str]:
         return txt.lower() if txt else None
     
     def create_model(self) -> nn.Module:
         """
-        Create model based on self.cfg.model.type, e.g Multi Layer Perceptron 
+        Create model based on self.cfg.model.type (e.g Multi Layer Perceptron)
+        and other hyperparameters.
         """
         match self.lowercase(self.cfg.model.type):
             case "mlp":

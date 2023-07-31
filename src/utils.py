@@ -4,9 +4,9 @@ import torch
 import typing
 import uproot as ur
 
+from numpy.typing import NDArray
 from torch.utils.data import Dataset, Subset
 from typing import Optional
-from numpy.typing import NDArray
 
 
 def load_TTree(root_filename: str = "../data/Allaux_Bfield.root",
@@ -54,7 +54,7 @@ def train_val_test_split(X: pd.DataFrame,
                          random_state: Optional[int] =42,
                          shuffle: bool = True) -> tuple[pd.DataFrame, ...]:
     """
-    Split the dataset into train, validation and test sets.
+    Split the dataset into train, validation and test sets using sklearn.
     X and y are pandas dataframes
     """
     import sklearn
@@ -81,13 +81,30 @@ def train_val_test_split(X: pd.DataFrame,
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 def periodical_split(dataset: Dataset,
-                     lengths: list[float],
+                     percentages: list[float],
                      periodicity: int) -> tuple[Subset, ...]:
+    """
+    Periodically split a dataset into non-overlapping new datasets.
+
+    Example:
+    If we use it to obtain a train, validation and test set,
+    the resulting split from the dataset would look like:
+    train, val, test, train, val, test, train, val, test etc.
+
+    So, if we have:
+    percentages = [0.6, 0.2, 0.2] (for train, val, test sets)
+    periodicity = 10
+
+    then the different PyTorch Subsets contain data points
+    from these ranges:
+    - 0:6,  10:16, 20:26 etc. (train)
+    - 6:8,  16:18, 26:28 etc. (val)
+    - 8:10, 18:20, 28:30 etc. (test)
+    """
+    assert sum(percentages) == 1, "lengths should sum to 1"
+
     all_indices = np.arange(len(dataset))
-    
-    assert sum(lengths) == 1, "lengths should sum to 1"
-    ns = [int(l*periodicity) for l in lengths]
-    assert sum(ns) == periodicity, "ns should sum to periodicity"  # TODO: remove this
+    ns = [int(l*periodicity) for l in percentages]
     cumsum = np.cumsum([0] + ns)
 
     indices = [np.nonzero(np.isin((all_indices % periodicity),
