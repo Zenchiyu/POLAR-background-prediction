@@ -113,7 +113,7 @@ def periodical_split(dataset: Dataset,
     subsets = tuple([Subset(dataset, idxs) for idxs in indices])
     return subsets
 
-def merge_torch_subsets(subsets: list[torch.utils.data.Subset]):
+def merge_torch_subsets(subsets: list[torch.utils.data.Subset]) -> Subset:
     """
     Merge PyTorch Subsets assuming the underlying dataset is the same.
     Will merge indices
