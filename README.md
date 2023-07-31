@@ -32,4 +32,4 @@ You can change the `config/trainer.yaml` if you want a different model architect
 
 ## Credits
 
-A part of the code was inspired from https://github.com/eloialonso/iris
+- Code and project structure: https://github.com/eloialonso/iris
