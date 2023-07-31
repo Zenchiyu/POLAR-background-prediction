@@ -313,15 +313,15 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 - And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
 
-
 | | |
 |:-------------------------:|:-------------------------:|
-|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/74501fd8-2a5f-4953-b7c3-ab83a00572f5">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/b99af059-a9f2-4e62-87bc-cfac49483514">|
-<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/d407e4c5-381b-47d5-8bf2-373feddfa132"> 44553 red dots|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/33c330d8-eb03-46aa-9f18-68623ef26a0e">|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/13f43dbe-9551-4a64-aeb5-1f08e9882fb5">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0d4b8857-fa19-4379-bf27-d79e5efe5d7e">|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f8f22ef2-941f-4060-8246-307a3c66f089"> 44553 red dots|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f613704c-d6c3-4d6e-98cd-11f4be0acda7">|
 
 #### Investigating whether I showed the correct 25 GRBs
 
 - TODO: I maybe showed some wrong intervals, or we maybe need to predict a different target as a few of them are "flat" and look more like background than GRB.. We can compare with https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170112B)
+- TODO: start report, clean logbook, readme. add unit tests ?
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
