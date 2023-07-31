@@ -282,3 +282,61 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To learn more about W&B sweeps and add more logs information.
 - To add a "stagnation end condition" to my training loop
 - Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
+
+## Week 4: 31.07.23 - 06.08.23
+
+### Summary
+
+- Discovered that all this time, I sorted time in descending order.. By fixing it, it fixed the issue with `GRB_170114A` that was not detected with thresholding the residuals. Note that this fix didn't affect the trained model, it only affects the visualized results.
+
+#### Plots with target: `rate[0]` and with correct time sorting:
+
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4d17bb6f-5bb9-4d0e-8bf5-657bb14e1e90"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/22e4c5e0-3861-4bb2-bbb1-faf2f9e2a2c3"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cb38a62f-35db-4f3d-82f5-576e14d0cae2"> Prediction over train + val, closer look|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/edd18c95-419f-4c27-be63-5c9952b6da42"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/329e7144-a314-49ff-9078-60b445961026"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/da6267bd-cd97-42fb-b094-a53b89f09260"> Losses (average mini-batch MSE loss)|
+
+- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+
+
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/74501fd8-2a5f-4953-b7c3-ab83a00572f5">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/b99af059-a9f2-4e62-87bc-cfac49483514">|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/d407e4c5-381b-47d5-8bf2-373feddfa132"> 44553 red dots|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/33c330d8-eb03-46aa-9f18-68623ef26a0e">|
+
+#### Plots with target: `rate[0]/rate_err[0]` and with correct time sorting:
+
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/343899fc-2bfe-4b03-ad97-685b3df9839d"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/8a259a57-1a45-4997-8a52-5c16f04f47f2"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/452cea78-e06f-4eee-ab4e-a1ce96b09746"> Prediction over train + val, closer look|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/96aaa31f-98ac-4a0e-91b8-4b859632d84f"> `(rate[0]/rate_err[0]-pred)`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ff0bf20d-3671-41f3-a7c5-a66c0fce95cb"> `(rate[0]/rate_err[0]-pred)` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/b2355931-537f-4f9e-ba61-1ec0b5a29f16"> Losses (average mini-batch MSE loss)|
+
+- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+
+| | |
+|:-------------------------:|:-------------------------:|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/13f43dbe-9551-4a64-aeb5-1f08e9882fb5">|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0d4b8857-fa19-4379-bf27-d79e5efe5d7e">|
+<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f8f22ef2-941f-4060-8246-307a3c66f089"> 38887 red dots|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f613704c-d6c3-4d6e-98cd-11f4be0acda7">|
+
+#### Investigating whether I showed the correct 25 GRBs
+
+- TODO: I maybe showed some wrong intervals, or we maybe need to predict a different target as a few of them are "flat" and look more like background than GRB.. We can compare with https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170112B)
+- TODO: start report, clean logbook, readme. add unit tests ?
+
+### (Future) Goals:
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+temporal relationships. There's maybe something called "overfitting in feature space".
+
+- Some links on splitting but our goal is not to forecast but to do predict the "present" from the "present" (or maybe even past but not yet):
+	- https://stats.stackexchange.com/questions/346907/splitting-time-series-data-into-train-test-validation-sets
+	- https://datascience.stackexchange.com/questions/91162/why-is-shuffling-timeseries-a-bad-thing
+- To read more about predicting a time series or sequence using multiple time series or sequences (something to explore) (and correlated residuals):
+	- https://otexts.com/fpp2/regression.html
+	- https://ethz.ch/content/dam/ethz/special-interest/math/statistics/sfs/Education/Advanced%20Studies%20in%20Applied%20Statistics/course-material-1921/Zeitreihen/ATSA_Script_v200504.pdf (from page 133)
+- To better understand Adam optimizer, different parts of what I've used in general.
+- To better understand or to learn more about Hydra
+- To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
+- To learn more about regularization, dropout, batch normalization
+- To learn more about W&B sweeps and add more logs information.
+- To add a "stagnation end condition" to my training loop
+- Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
