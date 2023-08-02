@@ -70,14 +70,14 @@ dataset:
     periodicity: 200  # # of samples for the periodicity, for type periodical
   train:
     size: 0.6
-    batch_size: 200  # similar to sklearn 'auto', might be better a power of 2
+    batch_size: 512  # if 200 -> similar to sklearn 'auto', might be better a power of 2
     shuffle: True
   val:
     size: 0.2
-    batch_size: 200
+    batch_size: 512
   test:
     size: 0.2
-    batch_size: 200
+    batch_size: 512
 
 model:
   type: MLP
