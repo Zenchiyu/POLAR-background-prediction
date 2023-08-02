@@ -4,9 +4,14 @@
 
 The idea of the project is to first predict the background part of a light curve (y axis being the number of photons arriving into the POLAR detector per second) or transformed light curve. After fitting the curve, we would like to subtract it from the original curve and use the resulting curve to detect gamma ray bursts (GRBs).
 
+| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c0c55ee5-6663-4b6f-9092-81f2406604f2" width=300> |
+|:--:| 
+| *Trying to detect 25 known GRBs: red dot: above threshold, red vertical line: trigger time GRB, blue curve: original curve (e.g. `rate[0]`), orange curve: predicted curve* |
+
+
 Related links:
 - https://www.astro.unige.ch/polar/
-- https://www.unige.ch/dpnc/fr/groups/xin-wu/experiences/polar/
+- https://www.unige.ch/dpnc/fr/grups/xin-wu/experiences/polar/
 
 ---
 
@@ -33,3 +38,4 @@ You can change the `config/trainer.yaml` if you want a different model architect
 ## Credits
 
 - Code and project structure: https://github.com/eloialonso/iris
+- 55 GRBs: https://www.researchgate.net/publication/326811280_Overview_of_the_GRB_observation_by_POLAR
