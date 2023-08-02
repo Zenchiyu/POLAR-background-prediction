@@ -3,6 +3,8 @@
 
 ## Week 1: 03.07.23 - 09.07.23
 
+<details>
+
 I transformed the dataset in the `.root` format into other formats which can be manipulated inside Python. I also preprocessed the dataset in a certain way (not necessarily final). I visualized the dataset and what we wanted to predict.
 
 We used a particular dataset with 6 million entries and is over 1 gb in size. We are in a regression problem and want to predict photon rates from other measurements (magnetic field, latitude, longitude, cosmic rates etc.).
@@ -39,8 +41,11 @@ due to GRBs (Gamma Ray Bursts) which could cause visible spikes:
 - To try some simple model to predict `sum_fe_rate` from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
 we're predicting a time series or sequence using multiple time series or sequences.
 
+</details>
 
 ## Week 2: 10.07.23 - 16.07.23
+
+<details>
 
 - `fe_rate` contains $25$ values representing photon rates from different modules but `rate` contains $12$ values representing photon rates for different "energies" (but I don't know what they are as I'm not the expert).
 - We used linear regression for two datasets, the one from last week as well as a new one `fm_rate`. Therefore we also loaded `fm_rate`, preprocessed it etc.
@@ -95,8 +100,12 @@ was suggested by Nicolas Produit to ignore the "outliers" in the "pull histogram
 - To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if we're predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To try using PyTorch and GPUs
 
+</details>
+
+
 ## Week 3: 18.07.23 - 23.07.23
 
+<details>
 
 ### Summary
 
@@ -139,9 +148,11 @@ to run the training phase without logging information into Weights and Biases.
 - To learn more about regularization, dropout, batch normalization
 - To learn more about W&B sweeps and add more log information.
 
+</details>
 
 ## Week 4: 24.07.23 - 30.07.23
 
+<details>
 
 ### Summary
 
@@ -291,7 +302,11 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To add a "stagnation end condition" to my training loop
 - Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
 
+</details>
+
 ## Week 5: 31.07.23 - 06.08.23
+
+<details>
 
 ### Summary
 
@@ -356,3 +371,5 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To add a "stagnation end condition" to my training loop
 - Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them? (and what if we apply unsupervised learning outlier detection over the residuals ?)
 - ACF of residuals, report, legends in my plots, feature importance, better threshold.
+
+</details>
