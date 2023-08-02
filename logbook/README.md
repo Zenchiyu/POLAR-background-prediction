@@ -101,18 +101,18 @@ was suggested by Nicolas Produit to ignore the "outliers" in the "pull histogram
 ### Summary
 
 - Started writing logbook
-- Connected to GPU (Quadro RTX 4000) of POLAR group. Can run my python scripts remotely (and used tmux in order to run my codes without the need for my computer to be on).
-- Started learning about weights and biases and using it for the first time ([Project's weights and biases](https://wandb.ai/stephane-nguyen/POLAR-background-prediction?workspace=user-stephane-nguyen)). 
-Here's an example of [run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/1j329ps1?workspace=user-stephane-nguyen).
-- Started writing the PyTorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using hydra for first time too).
-- Added code to save models, criterions and more
+- Connected to GPU (Quadro RTX 4000) of POLAR group. Can run my Python scripts remotely (and used tmux to run my codes without the need for my computer to be on).
+- Started learning about "weights and biases" tool and using it for the first time ([Project's weights and biases](https://wandb.ai/stephane-nguyen/POLAR-background-prediction?workspace=user-stephane-nguyen)). 
+Here's an example of a [run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/1j329ps1?workspace=user-stephane-nguyen).
+- Started writing the PyTorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using Hydra for the first time too).
+- Added code to save models, criteria and more
 - Applied model on validation set and visualized prediction (over whole validation set)
-- Further cleaning of code and added python type hints (not for all files though)
-- Can now save a general checkpoint at two different places; one as last checkpoint and the other is attached to a date and run id (see checkpoints folder)
-- Can now specify the number of neurons for each hidden layers directly inside the yaml config file.
+- Further cleaning of code and added Python type hints (not for all files though)
+- Can now save a general checkpoint at two different places; one as the last checkpoint and the other is attached to a date and run id (see checkpoints folder)
+- Can now specify the number of neurons for each hidden layer directly inside the yaml config file.
 - Removed pipenv, we no longer use pipenv. Modified README in consequence.
 - Trained model again but on `nf1rate` (taking about 3 hours for training) with as target `rate[0]` (using all training examples, no additional filtering based on `rate_err[0]`) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3zdzy861?workspace=user-stephane-nguyen)).
-- Trained model again on "same" dataset but with as target `rate[0]/rate_err[0]` (filtered examples when cannot do the division) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3hevg2jy/overview?workspace=user-stephane-nguyen))
+- Trained model again on "same" dataset but with as target `rate[0]/rate_err[0]` (filtered examples when cannot divide) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3hevg2jy/overview?workspace=user-stephane-nguyen))
 - Added more plots in `src/visualizer` where we can now plot the residual plot with its histogram.
 
 ### Comments
@@ -131,13 +131,13 @@ to run the training phase without logging information into Weights and Biases.
 
 
 ### (Future) Goals:
-- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account temporal relationships.
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account temporal relationships.
 - To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
-- To learn more about W&B sweeps and add more logs information.
+- To learn more about W&B sweeps and add more log information.
 
 
 ## Week 4: 24.07.23 - 30.07.23
@@ -184,7 +184,7 @@ We also showed in blue the full dataset (train + validation + test) even though 
 </p>
 
 - Fixed create_columns where it could try to create, for instance, a column based on a `data_df["<numerical value>"]` which was not intended.
-- Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
+- Added `filter_conditions` to the YAML and modified Python code to filter examples based on `filter_conditions`
 - Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
 
 <p align="center">
