@@ -58,7 +58,7 @@ we're predicting a time series or sequence using multiple time series or sequenc
 - We then started using another dataset `fm_rate` and applied similar steps as the dataset from previous week. Note however that this dataset comprises only about 60k examples, with intervals of about 60 seconds
 between them (except for missing data or 'holes'). The `m` comes from "m"inute.
 
-- Using that dataset (splitting it 60/20/20 for train, validation, test after shuffling), we tried applying a simple fully connected neural network from sklearn using the base MLPRegressor but with 100 neurons in the hidden layer.
+- Using that dataset (splitting it 60/20/20 for train, validation, and test after shuffling), we tried applying a simple fully connected neural network from sklearn using the base MLPRegressor but with 100 neurons in the hidden layer.
 We moved on to two hidden layers with 100 neurons each (see this [notebook](https://github.com/Zenchiyu/POLAR-background-prediction/blob/develop/notebooks/fmrate_prediction.ipynb)). Instead of predicting the sum of rates obtained from each module, we try to predict each rate from "each energy" (`rate[i]` instead of `sum_fe_rate`)
 - With a similar data split, we tried applying linear regression to predict `rate[0]` only using `sum_fe_cosmic`
 - Even though **it's incorrect** to use the whole dataset, we used our trained model to predict over the whole dataset, the photon rates `rate[0]`.
@@ -91,7 +91,7 @@ was suggested by Nicolas Produit to ignore the "outliers" in the "pull histogram
 - Modified README.md by adding information about how to use pipenv and how to install it.
 
 ### (Future) Goals:
-- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account temporal relationships.
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account temporal relationships.
 - To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if we're predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To try using PyTorch and GPUs
 
@@ -151,7 +151,7 @@ to run the training phase without logging information into Weights and Biases.
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cd6024cc-37ed-4a7b-a8a2-774cd53c8a99" width=300>
 </p>
 
-We can observe that there are GRBs (in red) outside the time range (both to the left and to the right) of our dataset (in blue)
+We can observe that there are GRBs (in red) outside the time range (both to the left and the right) of our dataset (in blue)
 
 - Only restricting to our time range, we're left with 25 GRBs:
 
@@ -159,7 +159,7 @@ We can observe that there are GRBs (in red) outside the time range (both to the 
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d" width=300>
 </p>
 
-Closer look (+- 50 seconds windows):
+A closer look (+- 50 seconds windows):
 
 <p align="center">
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33" width=300>
@@ -167,7 +167,7 @@ Closer look (+- 50 seconds windows):
 
 Note that the one at the bottom-mid was within the period with no data.
 
-- From the residual histogram (from applying our model to the validation set) and modified gaussian fit, we highlighted the data points from the validation set having
+- From the residual histogram (from applying our model to the validation set) and modified Gaussian fit, we highlighted the data points from the validation set having
 their residual above 5 standard deviation:
 
 <p align="center">
@@ -185,16 +185,16 @@ We also showed in blue the full dataset (train + validation + test) even though 
 
 - Fixed create_columns where it could try to create, for instance, a column based on a `data_df["<numerical value>"]` which was not intended.
 - Added `filter_conditions` to the YAML and modified Python code to filter examples based on `filter_conditions`
-- Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
+- Ran the training phase with a filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
 
 <p align="center">
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/094c849f-c217-4c35-a15a-df7e7768f6a6" width=300>
 </p>
 
-where again the red points come from the validation set and have residuals > 5 standard deviation (recall that when we say standard deviation, we talk about the modified one based on the modified gaussian fit).
+where again the red points come from the validation set and have residuals > 5 standard deviations (recall that when we say standard deviation, we talk about the modified one based on the modified Gaussian fit).
 
-- Ran the training phase again but ignoring +-100 seconds around the 25 GRBs. Also ignored them in validation and test set but maybe shouldn't because we
-no longer can compare the prediction for these +-100 seconds around the 25 GRBs with the real curve. We can't plot anymore the plot we've shown above. However, here's a zoomed-in version of what our model predicts into 4 arbitrary intervals of the validation set:
+- Ran the training phase again but ignored +-100 seconds around the 25 GRBs. Also ignored them in the validation and test set but maybe shouldn't because we
+no longer can compare the prediction for these +-100 seconds around the 25 GRBs with the real curve. We can't plot anymore the plot we've shown above. However, here's a zoomed-in version of what our model predicts in 4 arbitrary intervals of the validation set:
 
 <p align="center">
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d" width=300>
@@ -202,22 +202,22 @@ no longer can compare the prediction for these +-100 seconds around the 25 GRBs 
 
 `l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). In red we have the prediction, and in green, the validation set.
 
-- By cleaning the code, I discovered that I was training on the validation set unintentionally, I fixed it then ran the training phase again. I show below
-the previous plot but with fixed code:
+- By cleaning the code, I discovered that I was training on the validation set unintentionally, I fixed it and then ran the training phase again. I show below
+the previous plot but with the fixed code:
 
 <p align="center">
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf" width=300>
 </p>
 
-- Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green we have the validation set
+- Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green, we have the validation set
 
 <p align="center">
 <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e" width=300>
 </p>
 
-We can observe that it doesn't overfit severely but it might still overfit..
+We can observe that it doesn't overfit severely but it might still overfit...
 
-- Started reading a bit about unsupervised learning anomaly detection with auto encoders and using the reconstruction error to detect anomalies:
+- Started reading a bit about unsupervised learning anomaly detection with autoencoders and using the reconstruction error to detect anomalies:
 	- https://keras.io/examples/timeseries/timeseries_anomaly_detection/
    	- https://towardsdatascience.com/using-lstm-autoencoders-on-multidimensional-time-series-data-f5a7a51b29a1
 	- https://youtu.be/6S2v7G-OupA
@@ -226,13 +226,13 @@ We can observe that it doesn't overfit severely but it might still overfit..
 	- https://arxiv.org/pdf/1906.02694.pdf
 	- https://en.wikipedia.org/wiki/Anomaly_detection
 > Semi-supervised anomaly detection techniques assume that some portion of the data is labelled. This may be any combination of the normal or anomalous data, but more often than not the techniques construct a model representing normal behavior from a given normal training data set, and then test the likelihood of a test instance to be generated by the model.
-- Started reading a bit about time series regression. We need to analyze the auto correlation function of residuals to see if there are correlated errors.
-- Ran training for a different target; `rate[0]`. We also, instead of plotting the residuals, we plot the residuals divided by `rate_err[0]`. Filtering is the same as before and the plots have comparable/similar meanings to before (except for residuals and the target):
+- Started reading a bit about time series regression. We need to analyze the auto-correlation function of residuals to see if there are correlated errors.
+- Ran training for a different target; `rate[0]`. Also, instead of plotting the residuals, we plot the residuals divided by `rate_err[0]`. Filtering is the same as before and the plots have comparable/similar meanings to before (except for residuals and the target):
 
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0c1d6735-97d0-4cc8-936c-b7cbe0e75e36"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aaa0b2cb-029a-4209-9a62-605441d86c02"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/370f9273-84df-4054-ab96-421b6d1d14ea"> Prediction over train + val, closer look|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0c1d6735-97d0-4cc8-936c-b7cbe0e75e36"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aaa0b2cb-029a-4209-9a62-605441d86c02"> A closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/370f9273-84df-4054-ab96-421b6d1d14ea"> Prediction over train + val, closer look|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/7e32e010-39e7-48d7-bfe7-c03212fcc5cf"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/78dbae85-7772-4ef1-ae54-c29258476c9c"> `(rate[0]-pred)/rate_err[0]` hist*|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf6ee699-6720-49de-8d3b-c29805222a37"> zoomed-in version|
 
 \*: x-axis label should be "pull".
@@ -248,7 +248,7 @@ We can observe that it doesn't overfit severely but it might still overfit..
 
 \*: x-axis label should be "pull".
 
-- Splitted differently the data in a periodical manner: train, validation, test (120, 40, 40 datapoints) then train, validation, test again (do it until no more data left) (this time, the splitting is no longer random but there's still shuffling=True in the train loader and we still have 60 %, 20 %, 20 % split ratios):
+- Split differently the data in a periodical manner: train, validation, and test (120, 40, 40 data points) then train, validation, and test again (do it until no more data is left) (this time, the splitting is no longer random but there's still shuffling=True in the train loader and we still have 60 %, 20 %, 20 % split ratios):
 
 
 
@@ -265,7 +265,7 @@ We can observe that it doesn't overfit severely but it might still overfit..
 
 And it shows more clearly the gap between train and validation losses.
 
-- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+- And if we use our trained model with this "periodical split" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
 
 
 | | |
@@ -275,10 +275,10 @@ And it shows more clearly the gap between train and validation losses.
 
 
 ### (Future) Goals:
-- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account
 temporal relationships. There's maybe something called "overfitting in feature space".
 
-- Some links on splitting but our goal is not to forecast but to do predict the "present" from the "present" (or maybe even past but not yet):
+- Some links on splitting but our goal is not to forecast but to predict the "present" from the "present" (or maybe even past but not yet):
 	- https://stats.stackexchange.com/questions/346907/splitting-time-series-data-into-train-test-validation-sets
 	- https://datascience.stackexchange.com/questions/91162/why-is-shuffling-timeseries-a-bad-thing
 - To read more about predicting a time series or sequence using multiple time series or sequences (something to explore) (and correlated residuals):
@@ -288,7 +288,6 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
-- To learn more about W&B sweeps and add more logs information.
 - To add a "stagnation end condition" to my training loop
 - Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
 
@@ -305,7 +304,7 @@ temporal relationships. There's maybe something called "overfitting in feature s
 |<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4d17bb6f-5bb9-4d0e-8bf5-657bb14e1e90"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/22e4c5e0-3861-4bb2-bbb1-faf2f9e2a2c3"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cb38a62f-35db-4f3d-82f5-576e14d0cae2"> Prediction over train + val, closer look|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/edd18c95-419f-4c27-be63-5c9952b6da42"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/329e7144-a314-49ff-9078-60b445961026"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/da6267bd-cd97-42fb-b094-a53b89f09260"> Losses (average mini-batch MSE loss)|
 
-- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+- And if we use our trained model with this "periodical split" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
 
 
 | | |
@@ -320,7 +319,7 @@ temporal relationships. There's maybe something called "overfitting in feature s
 |<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/343899fc-2bfe-4b03-ad97-685b3df9839d"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/8a259a57-1a45-4997-8a52-5c16f04f47f2"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/452cea78-e06f-4eee-ab4e-a1ce96b09746"> Prediction over train + val, closer look|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/96aaa31f-98ac-4a0e-91b8-4b859632d84f"> `(rate[0]/rate_err[0]-pred)`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ff0bf20d-3671-41f3-a7c5-a66c0fce95cb"> `(rate[0]/rate_err[0]-pred)` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/b2355931-537f-4f9e-ba61-1ec0b5a29f16"> Losses (average mini-batch MSE loss)|
 
-- And if we use our trained model with this "periodical splitted" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
+- And if we use our trained model with this "periodical split" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
 
 | | |
 |:-------------------------:|:-------------------------:|
