@@ -328,8 +328,15 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 #### Investigating whether I showed the correct 25 GRBs
 
-- TODO: I maybe showed some wrong intervals, or we maybe need to predict a different target as a few of them are "flat" and look more like background than GRB.. We can compare with https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170112B)
-- TODO: start report, clean logbook, readme. add unit tests ?
+- Started investigating whether I showed the correct 25 GRBs, whether the conversion from UTC to `unix_time` wasn't wrong. This is because a few my plots of the 25 GRBs are "flat" and look more like background than GRB.. We can compare with GRBs from https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170114B)
+
+- Checked manually through a few GRBs whether I showed wrong intervals, it seemed that the `unix_time` conversion from UTC was correct (I even checked by downloading one root file and compared its `unix_time`'s to what I obtained and they matched)
+
+- Via this manual check, I discovered that the target might be different than what is shown on the website, I'm maybe training using the wrong targets.. where GRBs are sometimes not visible, therefore, detection based on residual thresholding wouldn't be successful for them.
+
+#### Documentation
+- Started cleaning a bit the logbook
+- TODO: start report, clean further the logbook, readme. add unit tests ?
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account
