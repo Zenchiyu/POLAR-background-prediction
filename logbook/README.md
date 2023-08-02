@@ -292,7 +292,7 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To add a "stagnation end condition" to my training loop
 - Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
 
-## Week 4: 31.07.23 - 06.08.23
+## Week 5: 31.07.23 - 06.08.23
 
 ### Summary
 
