@@ -254,7 +254,7 @@ We can observe that it doesn't overfit severely but it might still overfit...
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0bf32195-3438-4531-8e9f-06c4e42e2869"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aa2a6095-8394-42ee-bf2e-c34abf399326"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ca7ba5a9-c478-426f-9b86-9984db41f205"> Prediction over train + val, closer look|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0bf32195-3438-4531-8e9f-06c4e42e2869"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/aa2a6095-8394-42ee-bf2e-c34abf399326"> A closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ca7ba5a9-c478-426f-9b86-9984db41f205"> Prediction over train + val, a closer look|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/a2f37eaa-8b74-4bb7-99ad-f6652328ffb1"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/9b82a87c-3dbc-4fc6-83ad-678234592213"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/da6267bd-cd97-42fb-b094-a53b89f09260"> Losses (average mini-batch MSE loss)|
 
 - We can show how the losses behave compared to before (violet: `periodical_split`, yellow: `random_split`):
@@ -295,13 +295,13 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 ### Summary
 
-- Discovered that all this time, I sorted time in descending order.. By fixing it, it fixed the issue with `GRB_170114A` that was not detected with thresholding the residuals. Note that this fix didn't affect the trained model, it only affects the visualized results.
+- Discovered that all this time, I sorted time in descending order... By fixing it, it fixed the issue with `GRB_170114A` that was not detected by thresholding the residuals. Note that this fix didn't affect the trained model, it only affects the visualized results.
 
 #### Plots with target: `rate[0]` and with correct time sorting:
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4d17bb6f-5bb9-4d0e-8bf5-657bb14e1e90"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/22e4c5e0-3861-4bb2-bbb1-faf2f9e2a2c3"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cb38a62f-35db-4f3d-82f5-576e14d0cae2"> Prediction over train + val, closer look|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4d17bb6f-5bb9-4d0e-8bf5-657bb14e1e90"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/22e4c5e0-3861-4bb2-bbb1-faf2f9e2a2c3"> A closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cb38a62f-35db-4f3d-82f5-576e14d0cae2"> Prediction over train + val, a closer look|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/edd18c95-419f-4c27-be63-5c9952b6da42"> `(rate[0]-pred)/rate_err[0]`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/329e7144-a314-49ff-9078-60b445961026"> `(rate[0]-pred)/rate_err[0]` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/da6267bd-cd97-42fb-b094-a53b89f09260"> Losses (average mini-batch MSE loss)|
 
 - And if we use our trained model with this "periodical split" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
@@ -316,7 +316,7 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 | | | |
 |:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/343899fc-2bfe-4b03-ad97-685b3df9839d"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/8a259a57-1a45-4997-8a52-5c16f04f47f2"> Closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/452cea78-e06f-4eee-ab4e-a1ce96b09746"> Prediction over train + val, closer look|
+|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/343899fc-2bfe-4b03-ad97-685b3df9839d"> Prediction over validation set in red|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/8a259a57-1a45-4997-8a52-5c16f04f47f2"> A closer look at 4 intervals|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/452cea78-e06f-4eee-ab4e-a1ce96b09746"> Prediction over train + val, a closer look|
 <img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/96aaa31f-98ac-4a0e-91b8-4b859632d84f"> `(rate[0]/rate_err[0]-pred)`|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ff0bf20d-3671-41f3-a7c5-a66c0fce95cb"> `(rate[0]/rate_err[0]-pred)` hist|<img width="1604" src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/b2355931-537f-4f9e-ba61-1ec0b5a29f16"> Losses (average mini-batch MSE loss)|
 
 - And if we use our trained model with this "periodical split" dataset and apply it to the full dataset (train + val + test) including the 25 GRBs we removed, we can observe these:
@@ -328,21 +328,21 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 #### Investigating whether I showed the correct 25 GRBs
 
-- Started investigating whether I showed the correct 25 GRBs, whether the conversion from UTC to `unix_time` wasn't wrong. This is because a few my plots of the 25 GRBs are "flat" and look more like background than GRB.. We can compare with GRBs from https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170114B)
+- Started investigating whether I showed the correct 25 GRBs and whether the conversion from UTC to `unix_time` wasn't wrong. This is because a few of my plots of the 25 GRBs are "flat" and look more like background than GRB... We can compare with GRBs from https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170114B)
 
-- Checked manually through a few GRBs whether I showed wrong intervals, it seemed that the `unix_time` conversion from UTC was correct (I even checked by downloading one root file and compared its `unix_time`'s to what I obtained and they matched)
+- Checked manually through a few GRBs whether I showed wrong intervals, and it seemed that the `unix_time` conversion from UTC was correct (I even checked by downloading one root file and compared its `unix_time`'s to what I obtained and they matched)
 
 - Via this manual check, I discovered that the target might be different than what is shown on the website, I'm maybe training using the wrong targets.. where GRBs are sometimes not visible, therefore, detection based on residual thresholding wouldn't be successful for them.
 
 #### Documentation
 - Started cleaning a bit the logbook
-- TODO: start report, clean further the logbook, readme. add unit tests ?
+- TODO: start report, clean further the logbook, and readme. add unit tests?
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account
 temporal relationships. There's maybe something called "overfitting in feature space".
 
-- Some links on splitting but our goal is not to forecast but to do predict the "present" from the "present" (or maybe even past but not yet):
+- Some links on splitting but our goal is not to forecast but to predict the "present" from the "present" (or maybe even past but not yet):
 	- https://stats.stackexchange.com/questions/346907/splitting-time-series-data-into-train-test-validation-sets
 	- https://datascience.stackexchange.com/questions/91162/why-is-shuffling-timeseries-a-bad-thing
 - To read more about predicting a time series or sequence using multiple time series or sequences (something to explore) (and correlated residuals):
@@ -352,6 +352,7 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To better understand or to learn more about Hydra
 - To use W&B artifacts for datasets. Need to version datasets as I can work with different datasets
 - To learn more about regularization, dropout, batch normalization
-- To learn more about W&B sweeps and add more logs information.
+- To learn more about W&B sweeps and add more log information.
 - To add a "stagnation end condition" to my training loop
-- Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them ? (and what if we apply unsupervised learning outlier detection over the residuals ?)
+- Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them? (and what if we apply unsupervised learning outlier detection over the residuals ?)
+- ACF of residuals, report, legends in my plots, feature importance, better threshold.
