@@ -3,29 +3,25 @@
 
 ## Week 1: 03.07.23 - 09.07.23
 
-I transformed the dataset in the `.root` format into other formats which can be manipulated inside Python. I also preprocessed
-the dataset in a certain way (not necessarily final). I visualized the dataset and what we wanted to predict.
+I transformed the dataset in the `.root` format into other formats which can be manipulated inside Python. I also preprocessed the dataset in a certain way (not necessarily final). I visualized the dataset and what we wanted to predict.
 
-We used a particular dataset with 6 million entries and is over 1 gb in size. We are in a regression problem and want to predict
-photon rates from other measurements (magnetic field, latitude, longitude, cosmic rates etc.).
+We used a particular dataset with 6 million entries and is over 1 gb in size. We are in a regression problem and want to predict photon rates from other measurements (magnetic field, latitude, longitude, cosmic rates etc.).
 
 ### Summary
-- Getting started [ROOT CERN](https://root.cern/) because the data `Allaux_Bfield.root` is in `.root` format:
+- Getting started with [ROOT CERN](https://root.cern/) because the data `Allaux_Bfield.root` is in `.root` format:
 	- A few keywords related to ROOT: profile histogram, colz, TTree.
 - Tried reproducing in ROOT, different plots Nicolas Produit showed me (profile histograms,
 sum of cosmic rates over the whole mission for different latitude, longitude etc.).
 - Tried using FFT in ROOT but had errors (even when using their [example](https://root.cern/doc/master/FFT_8C.html)).
 - Tried to install missing dependencies (e.g FFTW3) but it didn't solve the errors
-- Therefore, started to look at python libraries: [uproot](https://uproot.readthedocs.io/en/latest/basic.html), [ROOT or PyROOT](https://root.cern/manual/python/), 
-and [root_numpy](http://scikit-hep.org/root_numpy/start.html).
-- As they were other errors with PyROOT and root\_numpy, I chose to continue with uproot.
+- Therefore, started to look at python libraries: [uproot](https://uproot.readthedocs.io/en/latest/basic.html), [ROOT or PyROOT](https://root.cern/manual/python/), and [root_numpy](http://scikit-hep.org/root_numpy/start.html).
+- As they were complications with PyROOT and root\_numpy, I chose to continue with uproot.
 
 - Created functions to import `.root` files into pandas dataframes.
 - Preprocessed the data `Allaux_Bfield.root` (dataset not in the github but see [this notebook for more information](https://github.com/Zenchiyu/POLAR-background-prediction/blob/develop/notebooks/exploring_polar_data.ipynb) and [this notebook](https://github.com/Zenchiyu/POLAR-background-prediction/blob/develop/notebooks/dataset.ipynb)) where I, for instance:
 	- "quantized" the data so that the examples are at round seconds (each two seconds). Note that there are missing data so examples are not necessarily at equidistant times.
 	- ignored/removed part of the data so that we work with a subset (e.g keep data after the period in which astronauts went onboard the space lab)
-- Applied FFT on the time series: `sum_fe_rate`against "quantized" time (this is called the light curve). Note that because there can be some missing data,
-it's not completely correct to use FFT. However, due to the [orbital period of Tiangong-2 space lab](https://en.wikipedia.org/wiki/Tiangong-2), Earth's rotation, etc., there are seasonalities involved and we could still observe a spike around "per 1 hour 30" frequency in the magnitude spectrum of the light curve.
+- Applied FFT on the time series: `sum_fe_rate` against "quantized" time (this is called the light curve). Note that because there can be some missing data, it's not completely correct to use FFT. However, due to the [orbital period of Tiangong-2 space lab](https://en.wikipedia.org/wiki/Tiangong-2), Earth's rotation, etc., there are seasonalities involved and we could still observe a spike around "per 1 hour 30" frequency in the magnitude spectrum of the light curve.
 
 - Using the results of FFT, we want to perform some operations in Fourier domain before reconstructing the light curve and using it as a target in our regression problem:
 	- Started to code something in order to kill the spikes in the magnitude spectrum using two methods:
@@ -52,8 +48,7 @@ we're predicting a time series or sequence using multiple time series or sequenc
 - For the data `fm_rate` inputted to the neural network, we tried with different features (e.g all measurements except targets and `unix_time`).
 
 ### Summary:
-- Visualized the Pearson correlation coefficient between the measurements (magnetic field, latitude, longitude, cosmic rates etc.) as well as
-with our target. Found that cosmic rates have quiet some linearly correlation with our photon rates (target) even though it's not sufficient !
+- Visualized the Pearson correlation coefficient between the measurements (magnetic field, latitude, longitude, cosmic rates etc.) as well as with our target. Found that cosmic rates have quiet some linear correlation with our photon rates (target) even though it's not sufficient !
 
 - Applied linear regression (see this [notebook](https://github.com/Zenchiyu/POLAR-background-prediction/blob/develop/notebooks/linear_regression.ipynb)) using only cosmic rates in order to predict photon rates and found that, depending on how we split the dataset:
 	- Take the whole dataset as training set: We observe very good predictions (visually) except for some huge spikes (no validation, test set so it was already a bad thing to do)
@@ -68,7 +63,7 @@ We moved on to two hidden layers with 100 neurons each (see this [notebook](http
 - With similar data split, we tried applying a linear regression to predict `rate[0]` only using `sum_fe_cosmic`
 - Even though **it's incorrect** to use the whole dataset, we used our trained model to predict over the whole dataset, the photon rates `rate[0]`.
 - From them, we computed the residual plots (target-prediction), showed their histograms, gaussian fits of residuals.
-- We also showed rescaled residual plots (target-prediction)/sqrt(target) ("pull" plot), their histograms and modified gaussian fits of "pulls". The modified gaussian fit:
+- We also showed rescaled residual plots (target-prediction)/sqrt(target) ("pull" plot (particle physics jargon)), their histograms and modified gaussian fits of "pulls". The modified gaussian fit:
 
 ```
 def find_std(data):
@@ -96,11 +91,8 @@ was suggested by Nicolas Produit in order to ignore the "outliers" in the "pull 
 - Modified README.md by adding information about how to use pipenv and how to install.
 
 ### (Future) Goals:
-- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
-and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
-temporal relationships.
-- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if
-we're predicting a time series or sequence using multiple time series or sequences (something to explore).
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account temporal relationships.
+- To try using more complex models to predict photon rates from all the other measurements (magnetic field, latitude, longitude, etc.). It's as if we're predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To try using pytorch and GPUs
 
 ## Week 3: 18.07.23 - 23.07.23
@@ -109,18 +101,17 @@ we're predicting a time series or sequence using multiple time series or sequenc
 ### Summary
 
 - Started writing logbook
-- Connected to GPU (Quadro RTX 4000) of POLAR group. Can run my python scripts remotely.
+- Connected to GPU (Quadro RTX 4000) of POLAR group. Can run my python scripts remotely (and used tmux in order to run my codes without the need for my computer to be on).
 - Started learning about weights and biases and using it for the first time ([Project's weights and biases](https://wandb.ai/stephane-nguyen/POLAR-background-prediction?workspace=user-stephane-nguyen)). 
 Here's an example of [run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/1j329ps1?workspace=user-stephane-nguyen).
-- Started writing the pytorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using hydra
-for first time too).
+- Started writing the pytorch code with GPU support (device) taking inspiration from https://github.com/eloialonso/iris project (started using hydra for first time too).
 - Added code to save models, criterions and more
 - Applied model on validation set and visualized prediction (over whole validation set)
 - Further cleaning of code and added python type hints (not for all files though)
 - Can now save a general checkpoint at two different places; one as last checkpoint and the other is attached to a date and run id (see checkpoints folder)
 - Can now specify the number of neurons for each hidden layers directly inside the yaml config file.
 - Removed pipenv, we no longer use pipenv. Modified README in consequence.
-- Trained model again but on `nf1rate` (taking about 3 hours for training) with as target `rate[0]` (using all examples, no additional filtering based on `rate_err[0]`) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3zdzy861?workspace=user-stephane-nguyen)).
+- Trained model again but on `nf1rate` (taking about 3 hours for training) with as target `rate[0]` (using all training examples, no additional filtering based on `rate_err[0]`) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3zdzy861?workspace=user-stephane-nguyen)).
 - Trained model again on "same" dataset but with as target `rate[0]/rate_err[0]` (filtered examples when cannot do the division) ([see wandb run](https://wandb.ai/stephane-nguyen/POLAR-background-prediction/runs/3hevg2jy/overview?workspace=user-stephane-nguyen))
 - Added more plots in `src/visualizer` where we can now plot the residual plot with its histogram.
 
@@ -140,9 +131,7 @@ to run the training phase without logging information into Weights and Biases.
 
 
 ### (Future) Goals:
-- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data
-and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account
-temporal relationships.
+- To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, test set where examples can be close to each others in time (or other measurements). We maybe want to also take into account temporal relationships.
 - To read more about predicting a time series or sequence using multiple time series or sequences (something to explore).
 - To better understand Adam optimizer, different parts of what I've used in general.
 - To better understand or to learn more about Hydra
