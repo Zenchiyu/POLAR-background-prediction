@@ -147,57 +147,73 @@ to run the training phase without logging information into Weights and Biases.
 
 - Exploring the 55 GRBs (from [Overview_of_the_GRB_observation_by_POLAR's paper](https://www.researchgate.net/profile/Yuanhao-Wang-8/publication/326811280_Overview_of_the_GRB_observation_by_POLAR/links/5cfe12c0a6fdccd1308f8b32/Overview-of-the-GRB-observation-by-POLAR.pdf), after converting UTC to Unix time) and comparing them to our dataset:
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cd6024cc-37ed-4a7b-a8a2-774cd53c8a99)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cd6024cc-37ed-4a7b-a8a2-774cd53c8a99" width=300>
+</p>
 
 We can observe that there are GRBs (in red) outside the time range (both to the left and to the right) of our dataset (in blue)
 
 - Only restricting to our time range, we're left with 25 GRBs:
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/4013d962-4b2f-48ec-8bdc-09595a1a195d" width=300>
+</p>
 
 Closer look (+- 50 seconds windows):
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/cf89a4da-2484-40db-bcdb-3b1e6400bf33" width=300>
+</p>
 
 Note that the one at the bottom-mid was within the period with no data.
 
 - From the residual histogram (from applying our model to the validation set) and modified gaussian fit, we highlighted the data points from the validation set having
 their residual above 5 standard deviation:
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36a33a27-afde-4c81-9c8c-18b2d6b59ac9)
-
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/666e62c7-1f41-455a-a65a-bba77cbf6365)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36a33a27-afde-4c81-9c8c-18b2d6b59ac9" width=300>
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/666e62c7-1f41-455a-a65a-bba77cbf6365" width=300>
+</p>
 
 We also showed in blue the full dataset (train + validation + test) even though we "shouldn't". There are 9980 red points.
 
 - If we compare the red points with the 25 GRBs, we can only see $5$ red points. Moreover, we must remember the fact that we're showing red points that are from the validation set, not the full dataset.
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/5890e455-8e5c-46c8-967c-8200274d9635)
-
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/5890e455-8e5c-46c8-967c-8200274d9635" width=300>
+</p>
 
 - Fixed create_columns where it could try to create, for instance, a column based on a `data_df["<numerical value>"]` which was not intended.
 - Added `filter_conditions` to the YAML and modified python code to filter examples based on `filter_conditions`
 - Ran the training phase with filtered dataset where we only keep examples having `rate[0]/rate_err[0]` greater than 20. It gives this:
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/094c849f-c217-4c35-a15a-df7e7768f6a6)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/094c849f-c217-4c35-a15a-df7e7768f6a6" width=300>
+</p>
 
 where again the red points come from the validation set and have residuals > 5 standard deviation (recall that when we say standard deviation, we talk about the modified one based on the modified gaussian fit).
 
 - Ran the training phase again but ignoring +-100 seconds around the 25 GRBs. Also ignored them in validation and test set but maybe shouldn't because we
 no longer can compare the prediction for these +-100 seconds around the 25 GRBs with the real curve. We can't plot anymore the plot we've shown above. However, here's a zoomed-in version of what our model predicts into 4 arbitrary intervals of the validation set:
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/af0b8810-d791-48cd-b480-175d0430049d" width=300>
+</p>
 
 `l` and `h` are indices. For instance, if `l=0`, then it means we show `h` first validation set examples (ordered by ascending time). In red we have the prediction, and in green, the validation set.
 
 - By cleaning the code, I discovered that I was training on the validation set unintentionally, I fixed it then ran the training phase again. I show below
 the previous plot but with fixed code:
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c01d11ab-cb09-494b-848e-ee38de9a73cf" width=300>
+</p>
 
 - Plotting prediction over train + validation set in red. In blue/cyan we have the training set and in green we have the validation set
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c03301bb-a31f-40ea-8b93-ad6c9082882e" width=300>
+</p>
 
 We can observe that it doesn't overfit severely but it might still overfit..
 
@@ -243,7 +259,9 @@ We can observe that it doesn't overfit severely but it might still overfit..
 
 - We can show how the losses behave compared to before (violet: `periodical_split`, yellow: `random_split`):
 
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/6d056ebd-b38a-4a0f-8db5-31d7236bc5a8)
+<p align="center">
+<img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/6d056ebd-b38a-4a0f-8db5-31d7236bc5a8" width=300>
+</p>
 
 And it shows more clearly the gap between train and validation losses.
 
