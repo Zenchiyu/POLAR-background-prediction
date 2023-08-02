@@ -33,3 +33,4 @@ You can change the `config/trainer.yaml` if you want a different model architect
 ## Credits
 
 - Code and project structure: https://github.com/eloialonso/iris
+- 55 GRBs: https://www.researchgate.net/publication/326811280_Overview_of_the_GRB_observation_by_POLAR
