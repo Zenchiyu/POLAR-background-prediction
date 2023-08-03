@@ -1,4 +1,6 @@
+import numpy as np
 import os
+import random
 import shutil
 import torch
 import wandb
@@ -26,7 +28,7 @@ class Trainer:
         
         self.cfg = cfg
         self.seed = self.cfg.common.seed
-        torch.manual_seed(self.seed)  # TODO: careful about numpy or random libraries
+        self.set_seed()
         
         self.n_epochs = self.cfg.common.n_epochs
         
@@ -221,6 +223,11 @@ class Trainer:
     def lowercase(self, txt: Optional[str]) -> Optional[str]:
         return txt.lower() if txt else None
     
+    def set_seed(self):
+        np.random.seed(self.seed)
+        random.seed(self.seed)
+        torch.manual_seed(self.seed)
+
     def create_model(self) -> nn.Module:
         """
         Create model based on self.cfg.model.type (e.g Multi Layer Perceptron)
