@@ -351,7 +351,8 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 #### Documentation
 - Started cleaning a bit the logbook
-- TODO: start report, clean further the logbook, and readme. add unit tests?
+- Started writing one of the two report: Industrial report
+- TODO: continue report, clean further the logbook, and readme. add unit tests?
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account
