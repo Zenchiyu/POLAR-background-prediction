@@ -349,7 +349,7 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 - Via this manual check, I discovered that the target might be different than what is shown on the website, I'm maybe training using the wrong targets.. where GRBs are sometimes not visible, therefore, detection based on residual thresholding wouldn't be successful for them.
 
-- Actually, it might be also due to the binning, the website shows a much much more precise light curves. The binning maybe caused some GRBs to lose in amplitude compared to the background ?
+- Actually, it might be also due to the binning, the website shows much much more precise light curves. The binning maybe caused some GRBs to lose in amplitude compared to the background ?
 
 #### Documentation
 - Started cleaning a bit the logbook
