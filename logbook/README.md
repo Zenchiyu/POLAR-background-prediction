@@ -345,9 +345,11 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 - Started investigating whether I showed the correct 25 GRBs and whether the conversion from UTC to `unix_time` wasn't wrong. This is because a few of my plots of the 25 GRBs are "flat" and look more like background than GRB... We can compare with GRBs from https://www.astro.unige.ch/polar/grb-light-curves?page=2 (for example with GRB 170114B)
 
-- Checked manually through a few GRBs whether I showed wrong intervals, and it seemed that the `unix_time` conversion from UTC was correct (I even checked by downloading one root file and compared its `unix_time`'s to what I obtained and they matched)
+- Checked manually through a few GRBs whether I showed wrong intervals, and it seemed that the `unix_time` conversion from UTC was correct (I even checked by downloading a few root files and compared their `unix_time`'s to what I obtained and they matched)
 
 - Via this manual check, I discovered that the target might be different than what is shown on the website, I'm maybe training using the wrong targets.. where GRBs are sometimes not visible, therefore, detection based on residual thresholding wouldn't be successful for them.
+
+- Actually, it might be also due to the binning, the website shows a much much more precise light curves. The binning maybe caused some GRBs to lose in amplitude compared to the background ?
 
 #### Documentation
 - Started cleaning a bit the logbook
