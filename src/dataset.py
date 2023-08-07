@@ -45,6 +45,12 @@ class PolarDataset(Dataset):
         #                       device=device)
         self.X_np = self.data_df[feature_names].values.astype(float)
         self.y_np = self.data_df[target_names].values.astype(float)
+        self.X_cpu = torch.tensor(self.X_np,
+                                  dtype=torch.float,
+                                  device="cpu")
+        self.y_cpu = torch.tensor(self.y_np,
+                                  dtype=torch.float,
+                                  device="cpu")
         
         self.n_examples: int = self.X_np.shape[0]
         self.n_features: int = self.X_np.shape[1]
@@ -67,12 +73,15 @@ class PolarDataset(Dataset):
         return self.n_examples
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        features = torch.tensor(self.X_np[idx],
-                                dtype=torch.float,
-                                device=self.device)
-        targets = torch.tensor(self.y_np[idx],
-                                dtype=torch.float,
-                                device=self.device)
+        # features = torch.tensor(self.X_np[idx],
+        #                         dtype=torch.float,
+        #                         device=self.device)
+        # targets = torch.tensor(self.y_np[idx],
+        #                         dtype=torch.float,
+        #                         device=self.device)
+        features = self.X_cpu[idx].to(device=self.device)
+        targets = self.y_cpu[idx].to(device=self.device)
+
         # XXX: or is it better in the loop of the batch when I put things in cuda ?
         if self.transform:
             features = self.transform(features)
