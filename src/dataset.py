@@ -79,8 +79,8 @@ class PolarDataset(Dataset):
         # targets = torch.tensor(self.y_np[idx],
         #                         dtype=torch.float,
         #                         device=self.device)
-        features = self.X_cpu[idx].to(device=self.device)
-        targets = self.y_cpu[idx].to(device=self.device)
+        features = self.X_cpu[idx]  #.to(device=self.device)
+        targets = self.y_cpu[idx]  #.to(device=self.device)
 
         # XXX: or is it better in the loop of the batch when I put things in cuda ?
         if self.transform:

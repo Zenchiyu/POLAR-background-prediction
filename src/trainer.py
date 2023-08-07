@@ -51,7 +51,7 @@ class Trainer:
         ### Optimizer
         self.optimizer = Adam(model.parameters(), **cfg.optimizer.hyperparams)
         
-        ### Move to device (e.g "cuda"). Data was already on device
+        ### Move to device (e.g "cuda")
         self.model = model.to(device=self.device)
         self.criterion = criterion.to(device=self.device)
         
@@ -89,6 +89,8 @@ class Trainer:
             train_epoch_loss = 0
             for batch in self.train_loader:
                 x, y = batch
+                x = x.to(device=self.device)
+                y = y.to(device=self.device)
                 y_hat = self.model(x)
                 
                 loss = self.criterion(y_hat, y)
@@ -108,6 +110,8 @@ class Trainer:
                 val_epoch_loss = 0
                 for batch in self.val_loader:
                     x, y = batch
+                    x = x.to(device=self.device)
+                    y = y.to(device=self.device)
                     y_hat = self.model(x)
                     
                     loss = self.criterion(y_hat, y)
@@ -166,7 +170,7 @@ class Trainer:
         ### Process features by applying centering and reducing
         X = torch.tensor(self.dataset_train.dataset.X_np,
                          dtype=torch.float,
-                         device=self.cfg.common.device)
+                         device="cpu")
         data_train_tensor = X[self.dataset_train.indices]
         mean_train = data_train_tensor.mean(dim=0)
         std_train = data_train_tensor.std(dim=0)
