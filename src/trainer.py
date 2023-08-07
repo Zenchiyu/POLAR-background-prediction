@@ -175,7 +175,7 @@ class Trainer:
         mean_train = data_train_tensor.mean(dim=0)
         std_train = data_train_tensor.std(dim=0)
         
-        self.dataset_full.transform =  Lambda(lambda x: (x-mean_train)/std_train)
+        self.dataset_full.transform =  Lambda(lambda x: (x.to(device="cpu")-mean_train)/std_train)
         
         # XXX: be careful when evaluating on train or test set, we need to be sure
         # that we're using the same transform !

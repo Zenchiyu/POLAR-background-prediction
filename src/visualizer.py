@@ -410,7 +410,7 @@ def main(cfg: DictConfig):
         print("before val_tensor", torch.cuda.memory_allocated(device="cuda"))
         
         val_tensor = X[trainer.dataset_val.indices]
-        val_tensor = dataset_full.transform(val_tensor)
+        val_tensor = dataset_full.transform(val_tensor).to(cfg.common.device)
         
         print("before pred", torch.cuda.memory_allocated(device="cuda"))
         
@@ -453,7 +453,7 @@ def main(cfg: DictConfig):
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
                                                 trainer.dataset_val])
         train_val_tensor = X[dataset_train_val.indices]
-        train_val_tensor = dataset_full.transform(train_val_tensor)
+        train_val_tensor = dataset_full.transform(train_val_tensor).to(cfg.common.device)
 
         pred_train_val = trainer.model(train_val_tensor)
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))

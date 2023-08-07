@@ -37,12 +37,6 @@ class PolarDataset(Dataset):
                 raise NotImplementedError(f"Extension {Path(filename).suffix} of {filename} not supported."+\
                                           "Only supporting csv, pkl or root")
         
-        # self.X = torch.tensor(self.data_df[feature_names].values.astype(float),
-        #                       dtype=torch.float,
-        #                       device=device)
-        # self.y = torch.tensor(self.data_df[target_names].values.astype(float),
-        #                       dtype=torch.float,
-        #                       device=device)
         self.X_np = self.data_df[feature_names].values.astype(float)
         self.y_np = self.data_df[target_names].values.astype(float)
         self.X_cpu = torch.tensor(self.X_np,
@@ -73,16 +67,10 @@ class PolarDataset(Dataset):
         return self.n_examples
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        # features = torch.tensor(self.X_np[idx],
-        #                         dtype=torch.float,
-        #                         device=self.device)
-        # targets = torch.tensor(self.y_np[idx],
-        #                         dtype=torch.float,
-        #                         device=self.device)
-        features = self.X_cpu[idx]  #.to(device=self.device)
-        targets = self.y_cpu[idx]  #.to(device=self.device)
+        # Data on CPU
+        features = self.X_cpu[idx]
+        targets = self.y_cpu[idx]
 
-        # XXX: or is it better in the loop of the batch when I put things in cuda ?
         if self.transform:
             features = self.transform(features)
         if self.target_transform:
