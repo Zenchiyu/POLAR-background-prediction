@@ -69,10 +69,10 @@ class PolarDataset(Dataset):
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         features = torch.tensor(self.X_np[idx],
                                 dtype=torch.float,
-                                device=self.device).squeeze()
+                                device=self.device)
         targets = torch.tensor(self.y_np[idx],
                                 dtype=torch.float,
-                                device=self.device).squeeze()
+                                device=self.device)
         # XXX: or is it better in the loop of the batch when I put things in cuda ?
         if self.transform:
             features = self.transform(features)
