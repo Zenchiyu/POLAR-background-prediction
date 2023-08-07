@@ -164,7 +164,10 @@ class Trainer:
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
         
         ### Process features by applying centering and reducing
-        data_train_tensor = self.dataset_train.dataset.X[self.dataset_train.indices]
+        X = torch.tensor(self.dataset_train.dataset.X_np,
+                         dtype=torch.float,
+                         device=self.cfg.common.device)
+        data_train_tensor = X[self.dataset_train.indices]
         mean_train = data_train_tensor.mean(dim=0)
         std_train = data_train_tensor.std(dim=0)
         

@@ -359,20 +359,18 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     
     
-    cfg.dataset.save_format = "pkl"
+    # cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    # p = Path(cfg.dataset.filename)
-    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    # if Path(filename).is_file():  # if exists and is a file
-    #     cfg.dataset.filename = filename
-    # else:
-    #     cfg.dataset.save_format = "pkl"  # to save dataset
+    p = Path(cfg.dataset.filename)
+    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    if Path(filename).is_file():  # if exists and is a file
+        cfg.dataset.filename = filename
+    else:
+        cfg.dataset.save_format = "pkl"  # to save dataset
     
-
-
     trainer = Trainer(cfg)
     
     ### Loading checkpoint
@@ -384,64 +382,96 @@ def main(cfg: DictConfig):
     trainer.train_loss = general_checkpoint["train_loss"].cpu()
     trainer.val_loss = general_checkpoint["val_loss"].cpu()
     
-    trainer.model.eval()
-    
+    del general_checkpoint
+
     ### Plotting
-    ## targets wrt unix_time for validation set
-    for target_name in cfg.dataset.target_names:
-        plot_val_target_against_time(trainer.dataset_val,
-                                 target_name=target_name)
-    
-    ## Loss
-    plot_loss(trainer.train_loss, trainer.val_loss)
-    
-    ## Prediction on validation set (e.g rate[0])
-    # Need to transform before inputting the whole validation set into
-    # the model
-    dataset_full = trainer.dataset_full
-    val_tensor = dataset_full.X[trainer.dataset_val.indices]
-    val_tensor = dataset_full.transform(val_tensor)
-
-    pred = trainer.model(val_tensor)
-
-    ## Prediction on both train + val set
-    dataset_train_val = merge_torch_subsets([trainer.dataset_train,
-                                             trainer.dataset_val])
-    train_val_tensor = dataset_full.X[dataset_train_val.indices]
-    train_val_tensor = dataset_full.transform(train_val_tensor)
-
-    pred_train_val = trainer.model(train_val_tensor)
-    
-    for target_name in cfg.dataset.target_names:
-        plot_val_prediction_target(trainer.dataset_val,
-                                   pred,
-                                   target_name=target_name)
-        # Closer look/zoomed in for some regions
-        plot_prediction_target_zoom(trainer.dataset_val,
+    trainer.model.eval()
+    with torch.no_grad():
+        # https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
+        ## targets wrt unix_time for validation set
+        for target_name in cfg.dataset.target_names:
+            plot_val_target_against_time(trainer.dataset_val,
+                                    target_name=target_name)
+        
+        ## Loss
+        plot_loss(trainer.train_loss, trainer.val_loss)
+        
+        print(torch.cuda.memory_allocated(device="cuda"))
+        print(torch.cuda.memory_summary(device="cuda", abbreviated=False))
+        ## Prediction on validation set (e.g rate[0])
+        # Need to transform before inputting the whole validation set into
+        # the model
+        dataset_full = trainer.dataset_full
+        print("before X", torch.cuda.memory_allocated(device="cuda"))
+        
+        X = torch.tensor(dataset_full.X_np,
+                        dtype=torch.float,
+                        device=cfg.common.device)
+        print("before val_tensor", torch.cuda.memory_allocated(device="cuda"))
+        
+        val_tensor = X[trainer.dataset_val.indices]
+        val_tensor = dataset_full.transform(val_tensor)
+        
+        print("before pred", torch.cuda.memory_allocated(device="cuda"))
+        
+        pred = trainer.model(val_tensor)
+        print("after first pred", torch.cuda.memory_allocated(device="cuda"))
+        
+        for target_name in cfg.dataset.target_names:
+            plot_val_prediction_target(trainer.dataset_val,
                                     pred,
                                     target_name=target_name)
-        # using both + train
-        # plot_prediction_target_zoom(dataset_train_val,
-        #                             pred_train_val,
-        #                             target_name=target_name,
-        #                             save_path="results/images/pred_target_zoom_train_val.png")
-
-        plot_train_val_prediction_target_zoom(trainer,
-                                              dataset_train_val,
-                                              pred_train_val,
-                                              target_name=target_name)
-    ## Residuals + hist + gaussian fit
-    for target_name in cfg.dataset.target_names:
-        if target_name != "rate[0]":
-            plot_val_residual(trainer.dataset_val,
+            # Closer look/zoomed in for some regions
+            plot_prediction_target_zoom(trainer.dataset_val,
+                                        pred,
+                                        target_name=target_name)
+            
+        ## Residuals + hist + gaussian fit
+        for target_name in cfg.dataset.target_names:
+            if target_name != "rate[0]":
+                plot_val_residual(trainer.dataset_val,
+                                pred,
+                                target_name=target_name)
+            else:
+                plot_val_pull(trainer.dataset_val,
                             pred,
                             target_name=target_name)
-        else:
-            plot_val_pull(trainer.dataset_val,
-                          pred,
-                          target_name=target_name)
-    ## Comment this line below if don't want to show
-    plt.show()
+        
+        print("before moving pred and val_tensor to cpu", torch.cuda.memory_allocated(device="cuda"))
+        ## Prediction on both train + val set
+        pred = pred.to(device="cpu")
+        val_tensor = val_tensor.to(device="cpu")
+        print("after moving pred and val_tensor to cpu", torch.cuda.memory_allocated(device="cuda"))
+        del pred
+        del val_tensor
+        torch.cuda.empty_cache()
+        print("after del", torch.cuda.memory_allocated(device="cuda"))
+        
+        import gc
+        gc.collect()
+
+        dataset_train_val = merge_torch_subsets([trainer.dataset_train,
+                                                trainer.dataset_val])
+        train_val_tensor = X[dataset_train_val.indices]
+        train_val_tensor = dataset_full.transform(train_val_tensor)
+
+        pred_train_val = trainer.model(train_val_tensor)
+        print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
+
+        for target_name in cfg.dataset.target_names:
+            # using both + train
+            # plot_prediction_target_zoom(dataset_train_val,
+            #                             pred_train_val,
+            #                             target_name=target_name,
+            #                             save_path="results/images/pred_target_zoom_train_val.png")
+
+            plot_train_val_prediction_target_zoom(trainer,
+                                                dataset_train_val,
+                                                pred_train_val,
+                                                target_name=target_name)
+            
+        ## Comment this line below if don't want to show
+        plt.show()
 
 
 if __name__ == "__main__":

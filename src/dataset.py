@@ -37,16 +37,18 @@ class PolarDataset(Dataset):
                 raise NotImplementedError(f"Extension {Path(filename).suffix} of {filename} not supported."+\
                                           "Only supporting csv, pkl or root")
         
-        self.X = torch.tensor(self.data_df[feature_names].values.astype(float),
-                              dtype=torch.float,
-                              device=device)
-        self.y = torch.tensor(self.data_df[target_names].values.astype(float),
-                              dtype=torch.float,
-                              device=device)
+        # self.X = torch.tensor(self.data_df[feature_names].values.astype(float),
+        #                       dtype=torch.float,
+        #                       device=device)
+        # self.y = torch.tensor(self.data_df[target_names].values.astype(float),
+        #                       dtype=torch.float,
+        #                       device=device)
+        self.X_np = self.data_df[feature_names].values.astype(float)
+        self.y_np = self.data_df[target_names].values.astype(float)
         
-        self.n_examples: int = self.X.shape[0]
-        self.n_features: int = self.X.shape[1]
-        self.n_targets: int = self.y.shape[1] if self.y.dim() > 1 else 1
+        self.n_examples: int = self.X_np.shape[0]
+        self.n_features: int = self.X_np.shape[1]
+        self.n_targets: int = len(target_names)
         
         self.feature_names = feature_names
         self.id2feature_names = self.feature_names
@@ -58,13 +60,20 @@ class PolarDataset(Dataset):
         
         self.transform = transform
         self.target_transform = target_transform
+
+        self.device = device
     
     def __len__(self) -> int:
         return self.n_examples
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        features = self.X[idx]
-        targets = self.y[idx]
+        features = torch.tensor(self.X_np[idx],
+                                dtype=torch.float,
+                                device=self.device).squeeze()
+        targets = torch.tensor(self.y_np[idx],
+                                dtype=torch.float,
+                                device=self.device).squeeze()
+        # XXX: or is it better in the loop of the batch when I put things in cuda ?
         if self.transform:
             features = self.transform(features)
         if self.target_transform:
