@@ -12,7 +12,6 @@ class PolarDataset(Dataset):
                  filename: str, 
                  feature_names: list[str],
                  target_names: list[str],
-                 device: str = "cpu",
                  transform: Optional[torch.nn.Module]=None,
                  target_transform: Optional[torch.nn.Module]=None,
                  new_columns: list[str] = [],
@@ -60,8 +59,6 @@ class PolarDataset(Dataset):
         
         self.transform = transform
         self.target_transform = target_transform
-
-        self.device = device
     
     def __len__(self) -> int:
         return self.n_examples

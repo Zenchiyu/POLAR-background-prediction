@@ -51,7 +51,8 @@ class Trainer:
         ### Optimizer
         self.optimizer = Adam(model.parameters(), **cfg.optimizer.hyperparams)
         
-        ### Move to device (e.g "cuda")
+        ### Move to device (e.g "cuda").
+        # Data will be later moved one batch at a time
         self.model = model.to(device=self.device)
         self.criterion = criterion.to(device=self.device)
         
@@ -147,7 +148,6 @@ class Trainer:
         self.dataset_full = PolarDataset(self.cfg.dataset.filename,
                                     self.cfg.dataset.feature_names,
                                     self.cfg.dataset.target_names,
-                                    self.device,
                                     new_columns=self.cfg.dataset.new_columns,
                                     filter_conditions=self.cfg.dataset.filter_conditions,
                                     save_format=self.cfg.dataset.save_format)

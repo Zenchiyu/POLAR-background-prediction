@@ -1,3 +1,4 @@
+import gc
 import hydra
 import matplotlib.pyplot as plt
 import numpy as np
@@ -396,26 +397,16 @@ def main(cfg: DictConfig):
         ## Loss
         plot_loss(trainer.train_loss, trainer.val_loss)
         
-        print(torch.cuda.memory_allocated(device="cuda"))
-        print(torch.cuda.memory_summary(device="cuda", abbreviated=False))
         ## Prediction on validation set (e.g rate[0])
         # Need to transform before inputting the whole validation set into
         # the model
         dataset_full = trainer.dataset_full
-        print("before X", torch.cuda.memory_allocated(device="cuda"))
-        
         X = torch.tensor(dataset_full.X_np,
                         dtype=torch.float,
-                        device=cfg.common.device)
-        print("before val_tensor", torch.cuda.memory_allocated(device="cuda"))
-        
+                        device="cpu")
         val_tensor = X[trainer.dataset_val.indices]
         val_tensor = dataset_full.transform(val_tensor).to(cfg.common.device)
-        
-        print("before pred", torch.cuda.memory_allocated(device="cuda"))
-        
         pred = trainer.model(val_tensor)
-        print("after first pred", torch.cuda.memory_allocated(device="cuda"))
         
         for target_name in cfg.dataset.target_names:
             plot_val_prediction_target(trainer.dataset_val,
@@ -437,17 +428,13 @@ def main(cfg: DictConfig):
                             pred,
                             target_name=target_name)
         
-        print("before moving pred and val_tensor to cpu", torch.cuda.memory_allocated(device="cuda"))
         ## Prediction on both train + val set
         pred = pred.to(device="cpu")
         val_tensor = val_tensor.to(device="cpu")
-        print("after moving pred and val_tensor to cpu", torch.cuda.memory_allocated(device="cuda"))
+        
         del pred
         del val_tensor
         torch.cuda.empty_cache()
-        print("after del", torch.cuda.memory_allocated(device="cuda"))
-        
-        import gc
         gc.collect()
 
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
@@ -459,12 +446,6 @@ def main(cfg: DictConfig):
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
 
         for target_name in cfg.dataset.target_names:
-            # using both + train
-            # plot_prediction_target_zoom(dataset_train_val,
-            #                             pred_train_val,
-            #                             target_name=target_name,
-            #                             save_path="results/images/pred_target_zoom_train_val.png")
-
             plot_train_val_prediction_target_zoom(trainer,
                                                 dataset_train_val,
                                                 pred_train_val,
