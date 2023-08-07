@@ -354,7 +354,6 @@ temporal relationships. There's maybe something called "overfitting in feature s
 #### Documentation
 - Started cleaning a bit the logbook
 - Started writing one of the two report: Industrial report
-- TODO: continue report, clean further the logbook, and readme. add unit tests?
 
 ### (Future) Goals:
 - To better understand how to split the data into train, validation test set for our application as they are maybe some 'issues' related to overfitting when we shuffle our data and pick train, validation, and test set where examples can be close to each other in time (or other measurements). We maybe want to also take into account
@@ -374,5 +373,29 @@ temporal relationships. There's maybe something called "overfitting in feature s
 - To add a "stagnation end condition" to my training loop
 - Is it fine to apply prediction over the whole dataset and threshold residuals to see whether known GRBs are part of them? (and what if we apply unsupervised learning outlier detection over the residuals ?)
 - ACF of residuals, report, legends in my plots, feature importance, better threshold.
+
+</details>
+
+## Week 6: 07.08.23 - 13.08.23
+
+<details>
+
+### Summary
+
+- Fixed CUDA out of memory issue (which happened with my bigger model because it had more parameters on GPU):
+	- Instead of directly loading the whole dataset into GPU (even before `__getitem__` in the PyTorch Dataset), I load it into GPU
+one by one inside the `__getitem__` method (creating tensors on CUDA for each example)
+	- Use `torch.no_grad()` in `visualizer.py` (and `./notebooks/results.ipynb`), which helped a lot. See: https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
+- However, creating a tensor on GPU for each example for every time `__getitem__` was called lead to $+3$ times worse training execution time (from 3 hours ETA to 10 hours ETA).
+- To fix the 10 hours ETA, I no longer create PyTorch tensors in `__getitem__`, I create them at initialization of the PyTorch Dataset . They are created on CPU,
+not GPU but then are then moved to GPU after obtaining a mini-batch from the train/validation/test DataLoader.
+- Checking again [GRB 170219A](https://www.astro.unige.ch/polar/content/170219a). There's something wrong with the spikes and the GRBs in our dataset:
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/2a7e2fa8-e9b6-4780-86b7-423c15dc822e)
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0998659b-2861-4a83-9a7d-85acab370bde)
+
+
+### Some interesting links:
+
+- https://medium.com/syncedreview/how-to-train-a-very-large-and-deep-model-on-one-gpu-7b7edfe2d072
 
 </details>
