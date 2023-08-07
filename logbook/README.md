@@ -382,13 +382,13 @@ temporal relationships. There's maybe something called "overfitting in feature s
 
 ### Summary
 
-- Fixed CUDA out of memory issue (which happened with my bigger model because it had more parameters on GPU):
+- Fixed CUDA out-of-memory issue (which happened with my bigger model because it had more parameters on GPU):
 	- Instead of directly loading the whole dataset into GPU (even before `__getitem__` in the PyTorch Dataset), I load it into GPU
 one by one inside the `__getitem__` method (creating tensors on CUDA for each example)
-	- Use `torch.no_grad()` in `visualizer.py` (and `./notebooks/results.ipynb`), which helped a lot. See: https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
-- However, creating a tensor on GPU for each example for every time `__getitem__` was called lead to $+3$ times worse training execution time (from 3 hours ETA to 10 hours ETA).
-- To fix the 10 hours ETA, I no longer create PyTorch tensors in `__getitem__`, I create them at initialization of the PyTorch Dataset . They are created on CPU,
-not GPU but then are then moved to GPU after obtaining a mini-batch from the train/validation/test DataLoader.
+	- `torch.no_grad()` in `visualizer.py` (and `./notebooks/results.ipynb`) significantly decreased the allocated memory size. See: https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
+- However, creating a tensor on GPU for each example and every time we call `__getitem__` led to $+3$ times worse training execution time (from 3 hours ETA to 10 hours ETA).
+- To fix the 10 hours ETA, I no longer create PyTorch tensors on GPU and in `__getitem__` but create them on CPU and at initialization of the PyTorch Dataset. A subset is moved to GPU when needed (e.g. before a mini-batch is fed to the model). It's now taking 1 hour 40 min instead of 3 or 10 hours to train the model.
+
 - Checking again [GRB 170219A](https://www.astro.unige.ch/polar/content/170219a). There's something wrong with the spikes and the GRBs in our dataset:
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/2a7e2fa8-e9b6-4780-86b7-423c15dc822e)
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0998659b-2861-4a83-9a7d-85acab370bde)
