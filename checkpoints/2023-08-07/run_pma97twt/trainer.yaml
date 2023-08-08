@@ -15,25 +15,9 @@ dataset:
   # new_columns: []
   new_columns:  # not necessarily used in the features or targets
     - rate_err[0]
-    - rate_err[1]
-    - rate_err[5]
-    - rate_err[6]
-    - rate_err[10]
-    - rate_err[12]
     - rate[0]/rate_err[0]
-    - rate[1]/rate_err[1]
-    - rate[5]/rate_err[5]
-    - rate[6]/rate_err[6]
-    - rate[10]/rate_err[10]
-    - rate[12]/rate_err[12]
-    - unix_time
-    # (unix_time_revolution_110-unix_time_revolution_10)/100=5535.4 seconds per revolution
-    # where:
-    # unix_time_revolution_10=1474004181.5460 and
-    # unix_time_revolution_110=1474557721.5460
-    - (unix_time-1474004181.5460)//5535.4+10  # number of revolutions
   feature_names:
-    - (unix_time-1474004181.5460)//5535.4+10  # number of revolutions
+    - unix_time
     - glat
     - glon
     - altitude
@@ -52,12 +36,7 @@ dataset:
     - B_theta
     - B_phi
   target_names:
-    - rate[0]
-    - rate[1]
-    - rate[5]
-    - rate[6]
-    - rate[10]
-    - rate[12]
+    - rate[0]/rate_err[0]  # had to specify in new_columns
   filter_conditions:
     - rate[0]/rate_err[0] > 20
     # Ignoring GRBs +-100 seconds (so keeping the complement)
