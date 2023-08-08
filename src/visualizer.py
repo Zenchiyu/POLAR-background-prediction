@@ -3,6 +3,7 @@ import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import re
 import seaborn as sns
 import torch
 
@@ -17,19 +18,14 @@ def get_time_y(dataset_val,
                target_name="rate[0]"):
     dataset = dataset_val.dataset
 
-    # Pandas dataframes
-    X = dataset.data_df[dataset.feature_names]
-    y = dataset.data_df[dataset.target_names]
+    df_val = dataset.data_df.iloc[dataset_val.indices]
+    df_val.reset_index(drop=True, inplace=True)
     
-    X_val = X.iloc[dataset_val.indices]
-    y_val = y.iloc[dataset_val.indices]
-    
-    X_val.reset_index(drop=True, inplace=True)
+    y_val = df_val[dataset.target_names]
     y_val.reset_index(drop=True, inplace=True)
 
-    print(X_val.columns)
-    argsort = np.argsort(X_val["unix_time"])
-    sorted_time_val = X_val.loc[argsort, "unix_time"]
+    argsort = np.argsort(df_val["unix_time"])
+    sorted_time_val = df_val.loc[argsort, "unix_time"]
     sorted_y_val = y_val.loc[argsort, target_name]
 
     return sorted_time_val, sorted_y_val
@@ -43,23 +39,47 @@ def get_time_y_y_hat(dataset_val,
 
     pred = pred.cpu().detach().numpy()
 
-    # Pandas dataframes
-    X = dataset.data_df[dataset.feature_names]
-    y = dataset.data_df[dataset.target_names]
+    df_val = dataset.data_df.iloc[dataset_val.indices]
+    df_val.reset_index(drop=True, inplace=True)
     
-    X_val = X.iloc[dataset_val.indices]
-    y_val = y.iloc[dataset_val.indices]
-    
-    X_val.reset_index(drop=True, inplace=True)
+    y_val = df_val[dataset.target_names]
     y_val.reset_index(drop=True, inplace=True)
 
-    print(X_val.columns)
-    argsort = np.argsort(X_val["unix_time"])
-    sorted_time_val = X_val.loc[argsort, "unix_time"]
+    argsort = np.argsort(df_val["unix_time"])
+    sorted_time_val = df_val.loc[argsort, "unix_time"]
     sorted_y_val = y_val.loc[argsort, target_name]
     sorted_y_hat_val = pred[argsort, idx_target_name]
 
     return sorted_time_val, sorted_y_val, sorted_y_hat_val
+
+def get_all_time_y_y_hat(dataset_val, pred):
+    dataset = dataset_val.dataset
+    pred = pred.cpu().detach().numpy()
+
+    df_val = dataset.data_df.iloc[dataset_val.indices]
+    df_val.reset_index(drop=True, inplace=True)
+    
+    y_val = df_val[dataset.target_names]
+    y_val.reset_index(drop=True, inplace=True)
+
+    argsort = np.argsort(df_val["unix_time"])
+    sorted_time_val = df_val.loc[argsort, "unix_time"]
+    sorted_y_val = y_val.iloc[argsort, :]
+    sorted_y_hat_val = pred[argsort, :]
+
+    return sorted_time_val, sorted_y_val, sorted_y_hat_val
+
+def get_columns(dataset_subset, column_names):
+    dataset = dataset_subset.dataset
+    df = dataset.data_df
+    # Pandas dataframes
+    X_subset = df.loc[df.index[dataset_subset.indices],
+                      column_names + ["unix_time"]]
+    X_subset.reset_index(drop=True, inplace=True)
+    
+    argsort = np.argsort(X_subset["unix_time"])
+    sorted_columns = X_subset.loc[argsort, column_names]
+    return sorted_columns
 
 def get_column(dataset_subset, column_name):
     dataset = dataset_subset.dataset
@@ -70,21 +90,26 @@ def get_column(dataset_subset, column_name):
     X_subset.reset_index(drop=True, inplace=True)
     
     argsort = np.argsort(X_subset["unix_time"])
-    sorted_column = X_subset.loc[argsort, column_name]
-    return sorted_column
+    sorted_columns = X_subset.loc[argsort, column_name]
+    return sorted_columns
 
 def find_moments(data, verbose=False):
     """
     Find moments, especially std, for gaussian fit
-    'ignoring' outliers
+    'ignoring' outliers.
+
+    If "data" is a 2D array, then the moments are computed
+    using each column (each row is an example).
     """
     low = -np.inf
     high = np.inf
-    prev_std = np.inf
-    std = np.std(data)
-    mean = np.mean(data)
     
-    while ~np.isclose(prev_std, std):
+    std = np.std(data, axis=0)
+    mean = np.mean(data, axis=0)
+    
+    prev_std = np.inf*np.ones_like(std)
+
+    while ~np.any(np.isclose(prev_std, std)):
         # Update interval
         low = -3*std + mean
         high = 3*std + mean
@@ -235,6 +260,7 @@ def plot_val_residual(dataset_val,
 def plot_val_pull(dataset_val,
                       pred,
                       target_name="rate[0]",
+                      rate_err_name="rate_err[0]",
                       save_path="results/images/pull_plot.png",
                       save_path_hist="results/images/pull_hist.png"):
     # TODO: is it really a pull ? to do residual/rate_err
@@ -256,7 +282,7 @@ def plot_val_pull(dataset_val,
     ax_histy.set_title("Normalized Histogram (Density)")
 
     residuals = sorted_y_val-sorted_y_hat_val
-    rate_err = get_column(dataset_val, "rate_err[0]")
+    rate_err = get_column(dataset_val, rate_err_name)
     pulls = residuals/rate_err
     new_mean, new_std = find_moments(pulls)
     
@@ -282,7 +308,7 @@ def plot_val_pull(dataset_val,
     plot_normalized_hist(pulls,
                          new_mean,
                          new_std,
-                         xlabel="Residuals/rate_err[0]",
+                         xlabel=f"Residuals/{rate_err_name}",
                          save_path=save_path_hist)
 
 def plot_prediction_target_zoom(dataset,
@@ -390,9 +416,10 @@ def main(cfg: DictConfig):
     with torch.no_grad():
         # https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
         ## targets wrt unix_time for validation set
-        for target_name in cfg.dataset.target_names:
+        for i, target_name in enumerate(cfg.dataset.target_names):
             plot_val_target_against_time(trainer.dataset_val,
-                                    target_name=target_name)
+                                         target_name=target_name,
+                                         save_path=f"results/images/target_{i}.png")
         
         ## Loss
         plot_loss(trainer.train_loss, trainer.val_loss)
@@ -408,25 +435,33 @@ def main(cfg: DictConfig):
         val_tensor = dataset_full.transform(val_tensor).to(cfg.common.device)
         pred = trainer.model(val_tensor)
         
-        for target_name in cfg.dataset.target_names:
+        for i, target_name in enumerate(cfg.dataset.target_names):
             plot_val_prediction_target(trainer.dataset_val,
-                                    pred,
-                                    target_name=target_name)
+                                       pred,
+                                       target_name=target_name,
+                                       save_path=f"results/images/pred_target_{i}.png")
             # Closer look/zoomed in for some regions
             plot_prediction_target_zoom(trainer.dataset_val,
                                         pred,
-                                        target_name=target_name)
+                                        target_name=target_name,
+                                        save_path=f"results/images/pred_target_zoom_{i}.png")
             
         ## Residuals + hist + gaussian fit
-        for target_name in cfg.dataset.target_names:
-            if target_name != "rate[0]":
+        for i, target_name in enumerate(cfg.dataset.target_names):
+            if target_name not in [f"rate[{i}]" for i in range(13)]:
                 plot_val_residual(trainer.dataset_val,
-                                pred,
-                                target_name=target_name)
+                                  pred,
+                                  target_name=target_name,
+                                  save_path=f"results/images/residual_plot_{i}.png",
+                                  save_path_hist=f"results/images/residual_hist_{i}.png")
             else:
+                j = re.findall("[0-9]+", target_name)[0]
                 plot_val_pull(trainer.dataset_val,
-                            pred,
-                            target_name=target_name)
+                              pred,
+                              target_name=target_name,
+                              rate_err_name=f"rate_err[{j}]",
+                              save_path=f"results/images/pull_plot_{i}.png",
+                              save_path_hist=f"results/images/pull_hist_{i}.png")
         
         ## Prediction on both train + val set
         pred = pred.to(device="cpu")
@@ -445,11 +480,12 @@ def main(cfg: DictConfig):
         pred_train_val = trainer.model(train_val_tensor)
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
 
-        for target_name in cfg.dataset.target_names:
+        for i, target_name in enumerate(cfg.dataset.target_names):
             plot_train_val_prediction_target_zoom(trainer,
                                                 dataset_train_val,
                                                 pred_train_val,
-                                                target_name=target_name)
+                                                target_name=target_name,
+                                                save_path=f"results/images/pred_target_zoom_train_val_{i}.png")
             
         ## Comment this line below if don't want to show
         plt.show()
