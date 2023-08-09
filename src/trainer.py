@@ -56,6 +56,10 @@ class Trainer:
         ## Criterion + to device
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":
+                self.mask_weights = torch.tensor(np.isin(self.dataset_full.data_df.columns,
+                                                        self.cfg.common.loss.weights),
+                                                        dtype=torch.bool)
+                
                 self.criterion = self.weighted_mse_loss
             case _:
                 criterion = nn.MSELoss()
@@ -246,23 +250,15 @@ class Trainer:
         np.random.seed(self.seed)
         random.seed(self.seed)
         torch.manual_seed(self.seed)
-
-    def get_weights(self, idxs: torch.Tensor) -> torch.Tensor:
-        # We suppose that self.cfg.common.loss.weights were already
-        # in the columns of self.dataset_full.data_df
-        df = self.dataset_full.data_df.iloc[idxs, :][self.cfg.common.loss.weights]
-
-        return torch.tensor(df.values,
-                            dtype=torch.float,
-                            device=self.device)**2
-
         
     def weighted_mse_loss(self,
                           input: torch.Tensor,
                           target: torch.Tensor,
                           idxs: torch.Tensor) -> torch.Tensor:
         # input, target and weight tensors are of same shape
-        weight = self.get_weights(idxs)
+        # We suppose that self.cfg.common.loss.weights were already
+        # in the columns of self.dataset_full.data_df
+        weight = self.dataset_full.data_cpu[idxs][:, self.mask_weights].to(device=self.device)
         return (weight*(input - target)**2).sum()/weight.sum()
 
     def create_model(self) -> nn.Module:

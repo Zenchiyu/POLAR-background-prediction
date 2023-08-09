@@ -36,8 +36,13 @@ class PolarDataset(Dataset):
                 raise NotImplementedError(f"Extension {Path(filename).suffix} of {filename} not supported."+\
                                           "Only supporting csv, pkl or root")
         
+        self.data_np = self.data_df.values.astype(float)
         self.X_np = self.data_df[feature_names].values.astype(float)
         self.y_np = self.data_df[target_names].values.astype(float)
+        
+        self.data_cpu = torch.tensor(self.data_np,
+                                     dtype=torch.float,
+                                     device="cpu")
         self.X_cpu = torch.tensor(self.X_np,
                                   dtype=torch.float,
                                   device="cpu")

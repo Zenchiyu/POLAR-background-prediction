@@ -97,19 +97,14 @@ def find_moments(data, verbose=False):
     """
     Find moments, especially std, for gaussian fit
     'ignoring' outliers.
-
-    If "data" is a 2D array, then the moments are computed
-    using each column (each row is an example).
     """
     low = -np.inf
     high = np.inf
+    prev_std = np.inf
+    std = np.std(data)
+    mean = np.mean(data)
     
-    std = np.std(data, axis=0)
-    mean = np.mean(data, axis=0)
-    
-    prev_std = np.inf*np.ones_like(std)
-
-    while ~np.any(np.isclose(prev_std, std)):
+    while ~np.isclose(prev_std, std):
         # Update interval
         low = -3*std + mean
         high = 3*std + mean
@@ -386,17 +381,17 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     
     
-    # cfg.dataset.save_format = "pkl"
+    cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    p = Path(cfg.dataset.filename)
-    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    if Path(filename).is_file():  # if exists and is a file
-        cfg.dataset.filename = filename
-    else:
-        cfg.dataset.save_format = "pkl"  # to save dataset
+    # p = Path(cfg.dataset.filename)
+    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    # if Path(filename).is_file():  # if exists and is a file
+    #     cfg.dataset.filename = filename
+    # else:
+    #     cfg.dataset.save_format = "pkl"  # to save dataset
     
     trainer = Trainer(cfg)
     
