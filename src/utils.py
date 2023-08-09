@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
+import re
 import torch
 import typing
 import uproot as ur
 
 from numpy.typing import NDArray
 from torch.utils.data import Dataset, Subset
-from typing import Optional
+from typing import Generator, Optional
 
 
 def load_TTree(root_filename: str = "../data/Allaux_Bfield.root",
@@ -120,3 +121,22 @@ def merge_torch_subsets(subsets: list[torch.utils.data.Subset]) -> Subset:
     """
     indices = list(set().union(*[subset.indices for subset in subsets]))
     return Subset(subsets[0].dataset, indices)
+
+def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, None, None]:
+    # Generate expressions that can be evaluated from the raw_expressions
+    for raw_expr in raw_expressions:
+        # Match a column name of the form:
+        # - column_64_name[some number]
+        # or
+        # - column_64_name
+        operands = re.finditer('[\w]+[\[][0-9]*[\]]|[a-zA-Z][\w]*', raw_expr)
+        expression = raw_expr
+        incr = 0
+        for op in operands:
+            start_idx, end_idx = op.span()
+            before = expression[:start_idx+incr]
+            after = expression[end_idx+incr:]
+            expression = before + f"data_df['{op.group()}'].values" + after
+            incr += len("data_df[''].values")
+        
+        yield expression

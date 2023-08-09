@@ -5,8 +5,8 @@ import re
 import typing
 
 from pathlib import Path
-from typing import Generator, Optional
-from utils import load_data_as_dict
+from typing import Optional
+from utils import generator_expressions, load_data_as_dict
 
 
 def create_dataset(root_filename: str = "data/fmrate.root",
@@ -91,25 +91,6 @@ def flatten_dict_arrays(data_dict: dict[str, np.typing.NDArray[typing.Any]]) -> 
                 
                 del data_dict[key]   
     del keys
-
-def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, None, None]:
-    # Generate expressions that can be evaluated from the raw_expressions
-    for raw_expr in raw_expressions:
-        # Match a column name of the form:
-        # - column_64_name[some number]
-        # or
-        # - column_64_name
-        operands = re.finditer('[\w]+[\[][0-9]*[\]]|[a-zA-Z][\w]*', raw_expr)
-        expression = raw_expr
-        incr = 0
-        for op in operands:
-            start_idx, end_idx = op.span()
-            before = expression[:start_idx+incr]
-            after = expression[end_idx+incr:]
-            expression = before + f"data_df['{op.group()}'].values" + after
-            incr += len("data_df[''].values")
-        
-        yield expression
 
 def create_new_columns(data_df: pd.DataFrame,
                        new_columns: list[str] = [],

@@ -45,16 +45,22 @@ class Trainer:
         ### Model
         model = self.create_model()
         
-        ### Criterion
-        criterion = nn.MSELoss()
-        
         ### Optimizer
         self.optimizer = Adam(model.parameters(), **cfg.optimizer.hyperparams)
         
-        ### Move to device (e.g "cuda").
+        ### Model & Criterion: Move to device
         # Data will be later moved one batch at a time
+        ## Model to device
         self.model = model.to(device=self.device)
-        self.criterion = criterion.to(device=self.device)
+
+        ## Criterion + to device
+        match self.lowercase(self.cfg.common.loss.name):
+            case "weighted_mse_loss":
+                self.criterion = self.weighted_mse_loss
+            case _:
+                criterion = nn.MSELoss()
+                self.criterion = criterion.to(device=self.device)
+        print(f"Using {self.lowercase(self.cfg.common.loss.name)}")
         
         ### Logging more info into wandb (e.g model architecture with log_graph)
         if self.cfg.wandb_watch:
@@ -88,13 +94,16 @@ class Trainer:
             ## Updating model using training set
             self.model.train()
             train_epoch_loss = 0
-            for batch in self.train_loader:
-                x, y = batch
+            for (x, y, idxs) in self.train_loader:
                 x = x.to(device=self.device)
                 y = y.to(device=self.device)
                 y_hat = self.model(x)
                 
-                loss = self.criterion(y_hat, y)
+                try:
+                    loss = self.criterion(y_hat, y, idxs=idxs)
+                except:
+                    loss = self.criterion(y_hat, y)
+
                 loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
@@ -109,13 +118,16 @@ class Trainer:
             self.model.eval()
             with torch.no_grad():
                 val_epoch_loss = 0
-                for batch in self.val_loader:
-                    x, y = batch
+                for (x, y, idxs) in self.val_loader:
                     x = x.to(device=self.device)
                     y = y.to(device=self.device)
+                    
                     y_hat = self.model(x)
                     
-                    loss = self.criterion(y_hat, y)
+                    try:
+                        loss = self.criterion(y_hat, y, idxs=idxs)
+                    except:
+                        loss = self.criterion(y_hat, y)
                     val_epoch_loss += loss.item()
                 
             val_loss[epoch] = val_epoch_loss/len(self.val_loader)
@@ -234,6 +246,24 @@ class Trainer:
         np.random.seed(self.seed)
         random.seed(self.seed)
         torch.manual_seed(self.seed)
+
+    def get_weights(self, idxs: torch.Tensor) -> torch.Tensor:
+        # We suppose that self.cfg.common.loss.weights were already
+        # in the columns of self.dataset_full.data_df
+        df = self.dataset_full.data_df.iloc[idxs, :][self.cfg.common.loss.weights]
+
+        return torch.tensor(df.values,
+                            dtype=torch.float,
+                            device=self.device)**2
+
+        
+    def weighted_mse_loss(self,
+                          input: torch.Tensor,
+                          target: torch.Tensor,
+                          idxs: torch.Tensor) -> torch.Tensor:
+        # input, target and weight tensors are of same shape
+        weight = self.get_weights(idxs)
+        return (weight*(input - target)**2).sum()/weight.sum()
 
     def create_model(self) -> nn.Module:
         """

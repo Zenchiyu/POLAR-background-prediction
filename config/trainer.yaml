@@ -7,6 +7,15 @@ wandb_watch: True  # log in w&b model & criterion
 common:
   seed: 42
   n_epochs: 200
+  loss:
+    name: weighted_mse_loss  # by default nn.MSELoss
+    weights:  # for each different target
+      - 1/rate_err[0]
+      - 1/rate_err[1]
+      - 1/rate_err[5]
+      - 1/rate_err[6]
+      - 1/rate_err[10]
+      - 1/rate_err[12]
   device: cuda
 
 dataset:
@@ -20,6 +29,12 @@ dataset:
     - rate_err[6]
     - rate_err[10]
     - rate_err[12]
+    - 1/rate_err[0]
+    - 1/rate_err[1]
+    - 1/rate_err[5]
+    - 1/rate_err[6]
+    - 1/rate_err[10]
+    - 1/rate_err[12]
     - rate[0]/rate_err[0]
     - rate[1]/rate_err[1]
     - rate[5]/rate_err[5]

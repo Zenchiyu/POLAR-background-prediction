@@ -63,7 +63,7 @@ class PolarDataset(Dataset):
     def __len__(self) -> int:
         return self.n_examples
 
-    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, ...]:
         # Data on CPU
         features = self.X_cpu[idx]
         targets = self.y_cpu[idx]
@@ -73,5 +73,5 @@ class PolarDataset(Dataset):
         if self.target_transform:
             targets = self.target_transform(targets)
 
-        return features, targets
+        return features, targets, idx
     
