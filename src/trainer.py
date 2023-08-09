@@ -246,7 +246,7 @@ class Trainer:
     def lowercase(self, txt: Optional[str]) -> Optional[str]:
         return txt.lower() if txt else None
     
-    def set_seed(self):
+    def set_seed(self) -> None:
         np.random.seed(self.seed)
         random.seed(self.seed)
         torch.manual_seed(self.seed)
