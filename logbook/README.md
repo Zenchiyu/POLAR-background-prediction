@@ -393,9 +393,20 @@ one by one inside the `__getitem__` method (creating tensors on CUDA for each ex
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/2a7e2fa8-e9b6-4780-86b7-423c15dc822e)
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/0998659b-2861-4a83-9a7d-85acab370bde)
 
+- Added custom loss (weighted MSE where weights are like `1/rate_err**2`) (it takes longer to train our model due to the parts where we retrieve the weights,
+the `1/rate_err**2`, 
+- `__getitem__` now also returns the idx, therefore, I could obtain the indices of the data from the mini-batch and use them to retrieve the correct weights as said previously.
+- Added multiple targets (not just `rate[0]`) (did not try if old config yaml still works..)
+- Tried to change `find_moments` in `./src/visualizer.py` to deal with 2D arrays instead of 1D arrays but had some complications, so I went back
+to how it was before the change. I use loops to go through the different targets and independently obtain the `new_std`...
 
 ### Some interesting links:
 
 - https://medium.com/syncedreview/how-to-train-a-very-large-and-deep-model-on-one-gpu-7b7edfe2d072
+
+### (Future) goals:
+- Group the data above threshold (my red points) into groups/clusters (instead of looking at them individually, point by point)
+- Clean code (especially `src/visualizer.py` and `notebooks/results.ipynb`), clean logebook, fix documentation with the config file
+- Check that old config file still work with current code (e.g. when we had only one target and used MSELoss as criterion).
 
 </details>
