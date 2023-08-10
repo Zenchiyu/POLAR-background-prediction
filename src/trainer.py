@@ -1,3 +1,4 @@
+import inspect
 import numpy as np
 import os
 import random
@@ -33,7 +34,7 @@ class Trainer:
         self.n_epochs = self.cfg.common.n_epochs
         
         if self.cfg.common.device is None:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu" 
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = self.cfg.common.device
         
@@ -56,10 +57,9 @@ class Trainer:
         ## Criterion + to device
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":
-                self.mask_weights = torch.tensor(np.isin(self.dataset_full.data_df.columns,
-                                                        self.cfg.common.loss.weights),
-                                                        dtype=torch.bool)
-                
+                self.mask_weights = torch.tensor(np.isin(self.column_names,
+                                                         self.cfg.common.loss.weights),
+                                                         dtype=torch.bool)
                 self.criterion = self.weighted_mse_loss
             case _:
                 criterion = nn.MSELoss()
@@ -103,10 +103,15 @@ class Trainer:
                 y = y.to(device=self.device)
                 y_hat = self.model(x)
                 
-                try:
-                    loss = self.criterion(y_hat, y, idxs=idxs)
-                except:
-                    loss = self.criterion(y_hat, y)
+                # try:
+                #     loss = self.criterion(y_hat, y, idxs=idxs)
+                # except:
+                #     loss = self.criterion(y_hat, y)
+                if type(self.criterion) == type(lambda x: x):
+                    args = inspect.getfullargspec(self.criterion).args
+                else:  # assumes as PyTorch Loss
+                    args = inspect.getfullargspec(self.criterion.forward).args
+                loss = self.criterion(y_hat, y, idxs=idxs) if "idxs" in args else self.criterion(y_hat, y)
 
                 loss.backward()
                 self.optimizer.step()
@@ -125,7 +130,6 @@ class Trainer:
                 for (x, y, idxs) in self.val_loader:
                     x = x.to(device=self.device)
                     y = y.to(device=self.device)
-                    
                     y_hat = self.model(x)
                     
                     try:
@@ -184,10 +188,7 @@ class Trainer:
         self.dataset_train, self.dataset_val, self.dataset_test = datasets
         
         ### Process features by applying centering and reducing
-        X = torch.tensor(self.dataset_train.dataset.X_np,
-                         dtype=torch.float,
-                         device="cpu")
-        data_train_tensor = X[self.dataset_train.indices]
+        data_train_tensor = self.dataset_full.X_cpu[self.dataset_train.indices]
         mean_train = data_train_tensor.mean(dim=0)
         std_train = data_train_tensor.std(dim=0)
         
@@ -257,7 +258,7 @@ class Trainer:
                           idxs: torch.Tensor) -> torch.Tensor:
         # input, target and weight tensors are of same shape
         # We suppose that self.cfg.common.loss.weights were already
-        # in the columns of self.dataset_full.data_df
+        # in the column names of self.dataset_full.data_cpu
         weight = self.dataset_full.data_cpu[idxs][:, self.mask_weights].to(device=self.device)
         return (weight*(input - target)**2).sum()/weight.sum()
 

@@ -23,45 +23,54 @@ class PolarDataset(Dataset):
         # Full dataset including targets
         match Path(filename).suffix:
             case ".root":
-                # Create dataset file if cfg.dataset.target_format is not None
-                self.data_df = create_dataset(filename, 
+                # Save dataset file if cfg.dataset.save_format is not None
+                data_df = create_dataset(filename, 
                                               new_columns=new_columns,
                                               filter_conditions=filter_conditions,
                                               save_format=save_format)
             case ".pkl":
-                self.data_df = pd.read_pickle(filename)
+                data_df = pd.read_pickle(filename)
             case ".csv":
-                self.data_df = pd.read_csv(filename)
+                data_df = pd.read_csv(filename)
             case _:
                 raise NotImplementedError(f"Extension {Path(filename).suffix} of {filename} not supported."+\
                                           "Only supporting csv, pkl or root")
+        data_np = data_df.values.astype(float)
+        X_np = data_df[feature_names].values.astype(float)
+        y_np = data_df[target_names].values.astype(float)
         
-        self.data_np = self.data_df.values.astype(float)
-        self.X_np = self.data_df[feature_names].values.astype(float)
-        self.y_np = self.data_df[target_names].values.astype(float)
-        
-        self.data_cpu = torch.tensor(self.data_np,
+        # Tensors
+        self.data_cpu = torch.tensor(data_np,
                                      dtype=torch.float,
                                      device="cpu")
-        self.X_cpu = torch.tensor(self.X_np,
+        self.X_cpu = torch.tensor(X_np,
                                   dtype=torch.float,
                                   device="cpu")
-        self.y_cpu = torch.tensor(self.y_np,
+        self.y_cpu = torch.tensor(y_np,
                                   dtype=torch.float,
                                   device="cpu")
         
-        self.n_examples: int = self.X_np.shape[0]
-        self.n_features: int = self.X_np.shape[1]
+        # Shapes/sizes
+        self.n_examples: int = X_np.shape[0]
+        self.n_features: int = X_np.shape[1]
         self.n_targets: int = len(target_names)
+
+        # Column names of data_cpu
+        self.column_names = list(data_df.columns)
+        self.id2column_names = self.column_names
+        self.column_names2id = {c: i for i, c in enumerate(data_df.columns)}
         
+        # Features
         self.feature_names = feature_names
         self.id2feature_names = self.feature_names
         self.feature_names2id = {f: i for i, f in enumerate(feature_names)}
         
+        # Targets
         self.target_names = target_names
         self.id2target_names = self.target_names
         self.target_names2id = {t: i for i, t in enumerate(target_names)}
         
+        # Transforms
         self.transform = transform
         self.target_transform = target_transform
     

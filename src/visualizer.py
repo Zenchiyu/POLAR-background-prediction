@@ -374,6 +374,8 @@ def plot_train_val_prediction_target_zoom(trainer,
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
     
+def get_start_length_intensity_clusters():
+    pass
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
 def main(cfg: DictConfig):
@@ -423,10 +425,7 @@ def main(cfg: DictConfig):
         # Need to transform before inputting the whole validation set into
         # the model
         dataset_full = trainer.dataset_full
-        X = torch.tensor(dataset_full.X_np,
-                        dtype=torch.float,
-                        device="cpu")
-        val_tensor = X[trainer.dataset_val.indices]
+        val_tensor = dataset_full.X_cpu[trainer.dataset_val.indices]
         val_tensor = dataset_full.transform(val_tensor).to(cfg.common.device)
         pred = trainer.model(val_tensor)
         

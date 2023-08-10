@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import pandas as pd
-import re
 import typing
 
 from pathlib import Path
@@ -14,8 +13,8 @@ def create_dataset(root_filename: str = "data/fmrate.root",
                    filter_conditions: list[str] = [],
                    save_format: Optional[str] = None) -> pd.DataFrame:
     """
-    - Create pandas dataframe containing the whole dataset (features & target) from
-    a .root file.
+    - Create pandas dataframe containing the whole dataset (features & target & more)
+    from a .root file.
     
     - Optionally save dataframe into specified format among these:
         - "pkl"
@@ -30,8 +29,8 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     based on a new column).
 
     - Can also filter based on existing columns (incl. new columns after their
-    creation via new_columns).
-    The filters are specified as a list of string where each string must contain
+    creations via new_columns).
+    The filters are specified as a list of strings where each string must contain
     operations over existing dataframe column names.
 
     They should be expressions that, when evaluated, return some boolean value
@@ -128,8 +127,8 @@ def filter_examples(data_df: pd.DataFrame,
                     verbose: bool = True) -> None:
     """
     Filter based on existing columns (incl. new columns after their
-    creation via new_columns).
-    The filters are specified as a list of string where each string must contain
+    creations via new_columns).
+    The filters are specified as a list of strings where each string must contain
     operations over existing dataframe column names.
 
     They should be expressions that, when evaluated, return some boolean value
@@ -151,7 +150,7 @@ def filter_examples(data_df: pd.DataFrame,
         # Filter examples based on the condition, if true -> keep
         index_to_keep = data_df.loc[eval(expression.replace(".values", "")), :].index
         data_df.drop(index=data_df.index.difference(index_to_keep),
-                        inplace=True)
+                     inplace=True)
         
         # Filter out the rows having at least a NaN or missing value
         data_df.dropna(inplace=True)

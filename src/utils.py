@@ -42,7 +42,8 @@ def load_data_as_dict(root_filename: str = "../data/Allaux_Bfield.root",
     data_dict: dict[str, NDArray[typing.Any]] = {}
     for TTree_name, features_name in TTree_features_dict.items():
         data = load_TTree(root_filename=root_filename,
-			  TTree_name=TTree_name)
+                          TTree_name=TTree_name,
+                          verbose=verbose)
         data_dict |= data.arrays(features_name, library="np")
     return data_dict
     
