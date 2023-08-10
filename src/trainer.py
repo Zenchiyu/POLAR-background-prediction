@@ -43,29 +43,19 @@ class Trainer:
         ### Datasets: train, validation, test sets
         self.init_datasets()
 
-        ### Model
-        model = self.create_model()
+        ### Model (+ to device)
+        self.model = self.create_model()
         
-        ### Optimizer
-        self.optimizer = Adam(model.parameters(), **cfg.optimizer.hyperparams)
+        ### Optimizer 
+        self.optimizer = Adam(self.model.parameters(), **cfg.optimizer.hyperparams)
         
-        ### Model & Criterion: Move to device
-        # Data will be later moved one batch at a time
-        ## Model to device
-        self.model = model.to(device=self.device)
-
-        ## Criterion + to device
-        match self.lowercase(self.cfg.common.loss.name):
-            case "weighted_mse_loss":
-                self.mask_weights = torch.tensor(np.isin(self.column_names,
-                                                         self.cfg.common.loss.weights),
-                                                         dtype=torch.bool)
-                self.criterion = self.weighted_mse_loss
-            case _:
-                criterion = nn.MSELoss()
-                self.criterion = criterion.to(device=self.device)
+        ## Criterion (+ to device)
+        self.criterion = self.create_criterion()
+        self.criterion_args = self.get_criterion_args()
         print(f"Using {self.lowercase(self.cfg.common.loss.name)}")
         
+        # Note: Data will be later moved to device, one batch at a time
+
         ### Logging more info into wandb (e.g model architecture with log_graph)
         if self.cfg.wandb_watch:
             self.run.watch(self.model, self.criterion,
@@ -103,15 +93,7 @@ class Trainer:
                 y = y.to(device=self.device)
                 y_hat = self.model(x)
                 
-                # try:
-                #     loss = self.criterion(y_hat, y, idxs=idxs)
-                # except:
-                #     loss = self.criterion(y_hat, y)
-                if type(self.criterion) == type(lambda x: x):
-                    args = inspect.getfullargspec(self.criterion).args
-                else:  # assumes as PyTorch Loss
-                    args = inspect.getfullargspec(self.criterion.forward).args
-                loss = self.criterion(y_hat, y, idxs=idxs) if "idxs" in args else self.criterion(y_hat, y)
+                loss = self.criterion(y_hat, y, idxs=idxs) if "idxs" in self.criterion_args else self.criterion(y_hat, y)
 
                 loss.backward()
                 self.optimizer.step()
@@ -132,10 +114,8 @@ class Trainer:
                     y = y.to(device=self.device)
                     y_hat = self.model(x)
                     
-                    try:
-                        loss = self.criterion(y_hat, y, idxs=idxs)
-                    except:
-                        loss = self.criterion(y_hat, y)
+                    loss = self.criterion(y_hat, y, idxs=idxs) if "idxs" in self.criterion_args else self.criterion(y_hat, y)
+
                     val_epoch_loss += loss.item()
                 
             val_loss[epoch] = val_epoch_loss/len(self.val_loader)
@@ -298,4 +278,26 @@ class Trainer:
                 model = nn.Sequential(*layers)
             case _:
                 raise NotImplementedError(f"Model type {self.cfg.model.type} not recognized")
+        # Move model to device
+        model = model.to(device=self.device)
         return model
+    
+    def create_criterion(self):
+        # Create criterion as well as other useful variables
+        match self.lowercase(self.cfg.common.loss.name):
+            case "weighted_mse_loss":
+                self.mask_weights = torch.tensor(np.isin(self.dataset_full.column_names,
+                                                         self.cfg.common.loss.weights),
+                                                         dtype=torch.bool)
+                criterion = self.weighted_mse_loss
+            case _:
+                criterion = nn.MSELoss()
+                criterion = criterion.to(device=self.device)
+        return criterion
+    
+    def get_criterion_args(self):
+        if isinstance(self.criterion, torch.nn.modules.loss._Loss):
+            criterion_args = inspect.getfullargspec(self.criterion.forward).args
+        else:
+            criterion_args = inspect.getfullargspec(self.criterion).args
+        return criterion_args

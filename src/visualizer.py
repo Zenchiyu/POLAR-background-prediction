@@ -15,83 +15,73 @@ from utils import merge_torch_subsets
 
 
 def get_time_y(dataset_val,
-               target_name="rate[0]"):
+               target_name="rate[0]",
+               return_argsort=False):
     dataset = dataset_val.dataset
+    # Column indices
+    idx = dataset.column_names2id
 
-    df_val = dataset.data_df.iloc[dataset_val.indices]
-    df_val.reset_index(drop=True, inplace=True)
+    idx_unix_time = idx["unix_time"]
+    idx_target_name = idx[target_name]
+
+    # Subset of dataset but could be in wrong order 
+    val = dataset.data_cpu[dataset_val.indices]
+    time_val = val[:, idx_unix_time]
+    y_val = val[:, idx_target_name]
     
-    y_val = df_val[dataset.target_names]
-    y_val.reset_index(drop=True, inplace=True)
-
-    argsort = np.argsort(df_val["unix_time"])
-    sorted_time_val = df_val.loc[argsort, "unix_time"]
-    sorted_y_val = y_val.loc[argsort, target_name]
-
-    return sorted_time_val, sorted_y_val
+    # Sort by ascending time
+    argsort = np.argsort(time_val)
+    if not(return_argsort):
+        return time_val[argsort], y_val[argsort]
+    return argsort, time_val[argsort], y_val[argsort]
 
 def get_time_y_y_hat(dataset_val,
                      pred,
                      target_name="rate[0]"):
     dataset = dataset_val.dataset
-    target_names = dataset.target_names
-    idx_target_name = target_names.index(target_name)
-
-    pred = pred.cpu().detach().numpy()
-
-    df_val = dataset.data_df.iloc[dataset_val.indices]
-    df_val.reset_index(drop=True, inplace=True)
+    tmp = get_time_y(dataset_val, pred, target_name=target_name, return_argsort=True)
+    argsort, sorted_time_val, sorted_y_val = tmp
+    del tmp
     
-    y_val = df_val[dataset.target_names]
-    y_val.reset_index(drop=True, inplace=True)
-
-    argsort = np.argsort(df_val["unix_time"])
-    sorted_time_val = df_val.loc[argsort, "unix_time"]
-    sorted_y_val = y_val.loc[argsort, target_name]
-    sorted_y_hat_val = pred[argsort, idx_target_name]
-
+    sorted_y_hat_val = pred[:, dataset.target_names2id[target_name]][argsort]
     return sorted_time_val, sorted_y_val, sorted_y_hat_val
 
 def get_all_time_y_y_hat(dataset_val, pred):
     dataset = dataset_val.dataset
-    pred = pred.cpu().detach().numpy()
+    # Column indices
+    idx = dataset.column_names2id
 
-    df_val = dataset.data_df.iloc[dataset_val.indices]
-    df_val.reset_index(drop=True, inplace=True)
+    idx_unix_time = idx["unix_time"]
+    idx_target_names = [idx[t] for t in dataset.target_names]
+
+    # Subset of dataset but could be in wrong order 
+    val = dataset.data_cpu[dataset_val.indices]
+    time_val = val[:, idx_unix_time]
+    y_val = val[:, idx_target_names]
     
-    y_val = df_val[dataset.target_names]
-    y_val.reset_index(drop=True, inplace=True)
-
-    argsort = np.argsort(df_val["unix_time"])
-    sorted_time_val = df_val.loc[argsort, "unix_time"]
-    sorted_y_val = y_val.iloc[argsort, :]
-    sorted_y_hat_val = pred[argsort, :]
-
-    return sorted_time_val, sorted_y_val, sorted_y_hat_val
+    # Sort by ascending time
+    argsort = np.argsort(time_val)
+    return time_val[argsort], y_val[argsort], pred[argsort]
 
 def get_columns(dataset_subset, column_names):
     dataset = dataset_subset.dataset
-    df = dataset.data_df
-    # Pandas dataframes
-    X_subset = df.loc[df.index[dataset_subset.indices],
-                      column_names + ["unix_time"]]
-    X_subset.reset_index(drop=True, inplace=True)
-    
-    argsort = np.argsort(X_subset["unix_time"])
-    sorted_columns = X_subset.loc[argsort, column_names]
-    return sorted_columns
+    # Column indices
+    idx = dataset.column_names2id
+
+    idx_unix_time = idx["unix_time"]
+    idx_column_names = [idx[c] for c in column_names]
+
+    # Subset of dataset but could be in wrong order
+    subset = dataset.data_cpu[dataset_subset.indices]
+    time = subset[:, idx_unix_time]
+    columns = subset[:, idx_column_names]
+
+    # Sort by ascending time
+    argsort = np.argsort(time)
+    return columns[argsort]
 
 def get_column(dataset_subset, column_name):
-    dataset = dataset_subset.dataset
-    df = dataset.data_df
-    # Pandas dataframes
-    X_subset = df.loc[df.index[dataset_subset.indices],
-                      [column_name, "unix_time"]]
-    X_subset.reset_index(drop=True, inplace=True)
-    
-    argsort = np.argsort(X_subset["unix_time"])
-    sorted_columns = X_subset.loc[argsort, column_name]
-    return sorted_columns
+    return get_columns(dataset_subset, [column_name])
 
 def find_moments(data, verbose=False):
     """
@@ -468,7 +458,7 @@ def main(cfg: DictConfig):
 
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
                                                 trainer.dataset_val])
-        train_val_tensor = X[dataset_train_val.indices]
+        train_val_tensor = dataset_full.X_cpu[dataset_train_val.indices]
         train_val_tensor = dataset_full.transform(train_val_tensor).to(cfg.common.device)
 
         pred_train_val = trainer.model(train_val_tensor)
