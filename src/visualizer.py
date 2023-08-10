@@ -3,7 +3,6 @@ import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import re
 import seaborn as sns
 import torch
 
@@ -39,10 +38,12 @@ def get_time_y_y_hat(dataset_val,
                      pred,
                      target_name="rate[0]"):
     dataset = dataset_val.dataset
-    tmp = get_time_y(dataset_val, pred, target_name=target_name, return_argsort=True)
+    tmp = get_time_y(dataset_val, target_name=target_name, return_argsort=True)
     argsort, sorted_time_val, sorted_y_val = tmp
     del tmp
     
+    pred = pred.detach().cpu()
+
     sorted_y_hat_val = pred[:, dataset.target_names2id[target_name]][argsort]
     return sorted_time_val, sorted_y_val, sorted_y_hat_val
 
@@ -58,9 +59,13 @@ def get_all_time_y_y_hat(dataset_val, pred):
     val = dataset.data_cpu[dataset_val.indices]
     time_val = val[:, idx_unix_time]
     y_val = val[:, idx_target_names]
+    pred = pred.detach().cpu()
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
+    print(time_val[:200])
+    print("AAAAA")
+    print(time_val[argsort][:200])
     return time_val[argsort], y_val[argsort], pred[argsort]
 
 def get_columns(dataset_subset, column_names):
@@ -373,17 +378,17 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     
     
-    cfg.dataset.save_format = "pkl"
+    # cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    # p = Path(cfg.dataset.filename)
-    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    # if Path(filename).is_file():  # if exists and is a file
-    #     cfg.dataset.filename = filename
-    # else:
-    #     cfg.dataset.save_format = "pkl"  # to save dataset
+    p = Path(cfg.dataset.filename)
+    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    if Path(filename).is_file():  # if exists and is a file
+        cfg.dataset.filename = filename
+    else:
+        cfg.dataset.save_format = "pkl"  # to save dataset
     
     trainer = Trainer(cfg)
     
@@ -403,13 +408,13 @@ def main(cfg: DictConfig):
     with torch.no_grad():
         # https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
         ## targets wrt unix_time for validation set
-        for i, target_name in enumerate(cfg.dataset.target_names):
-            plot_val_target_against_time(trainer.dataset_val,
-                                         target_name=target_name,
-                                         save_path=f"results/images/target_{i}.png")
+        # for i, target_name in enumerate(cfg.dataset.target_names):
+        #     plot_val_target_against_time(trainer.dataset_val,
+        #                                  target_name=target_name,
+        #                                  save_path=f"results/images/target_{i}.png")
         
-        ## Loss
-        plot_loss(trainer.train_loss, trainer.val_loss)
+        # ## Loss
+        # plot_loss(trainer.train_loss, trainer.val_loss)
         
         ## Prediction on validation set (e.g rate[0])
         # Need to transform before inputting the whole validation set into
@@ -431,21 +436,21 @@ def main(cfg: DictConfig):
                                         save_path=f"results/images/pred_target_zoom_{i}.png")
             
         ## Residuals + hist + gaussian fit
-        for i, target_name in enumerate(cfg.dataset.target_names):
-            if target_name not in [f"rate[{i}]" for i in range(13)]:
-                plot_val_residual(trainer.dataset_val,
-                                  pred,
-                                  target_name=target_name,
-                                  save_path=f"results/images/residual_plot_{i}.png",
-                                  save_path_hist=f"results/images/residual_hist_{i}.png")
-            else:
-                j = re.findall("[0-9]+", target_name)[0]
-                plot_val_pull(trainer.dataset_val,
-                              pred,
-                              target_name=target_name,
-                              rate_err_name=f"rate_err[{j}]",
-                              save_path=f"results/images/pull_plot_{i}.png",
-                              save_path_hist=f"results/images/pull_hist_{i}.png")
+        # for i, target_name in enumerate(cfg.dataset.target_names):
+        #     if target_name not in [f"rate[{i}]" for i in range(13)]:
+        #         plot_val_residual(trainer.dataset_val,
+        #                           pred,
+        #                           target_name=target_name,
+        #                           save_path=f"results/images/residual_plot_{i}.png",
+        #                           save_path_hist=f"results/images/residual_hist_{i}.png")
+        #     else:
+        #         j = re.findall("[0-9]+", target_name)[0]
+        #         plot_val_pull(trainer.dataset_val,
+        #                       pred,
+        #                       target_name=target_name,
+        #                       rate_err_name=f"rate_err[{j}]",
+        #                       save_path=f"results/images/pull_plot_{i}.png",
+        #                       save_path_hist=f"results/images/pull_hist_{i}.png")
         
         ## Prediction on both train + val set
         pred = pred.to(device="cpu")
