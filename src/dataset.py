@@ -24,20 +24,20 @@ class PolarDataset(Dataset):
         match Path(filename).suffix:
             case ".root":
                 # Save dataset file if cfg.dataset.save_format is not None
-                data_df = create_dataset(filename, 
+                self.data_df = create_dataset(filename,
                                               new_columns=new_columns,
                                               filter_conditions=filter_conditions,
                                               save_format=save_format)
             case ".pkl":
-                data_df = pd.read_pickle(filename)
+                self.data_df = pd.read_pickle(filename)
             case ".csv":
-                data_df = pd.read_csv(filename)
+                self.data_df = pd.read_csv(filename)
             case _:
                 raise NotImplementedError(f"Extension {Path(filename).suffix} of {filename} not supported."+\
                                           "Only supporting csv, pkl or root")
-        data_np = data_df.values.astype(float)
-        X_np = data_df[feature_names].values.astype(float)
-        y_np = data_df[target_names].values.astype(float)
+        data_np = self.data_df.values.astype(float)
+        X_np = self.data_df[feature_names].values.astype(float)
+        y_np = self.data_df[target_names].values.astype(float)
         
         # Tensors
         self.data_cpu = torch.tensor(data_np,
@@ -56,9 +56,9 @@ class PolarDataset(Dataset):
         self.n_targets: int = len(target_names)
 
         # Column names of data_cpu
-        self.column_names = list(data_df.columns)
+        self.column_names = list(self.data_df.columns)
         self.id2column_names = self.column_names
-        self.column_names2id = {c: i for i, c in enumerate(data_df.columns)}
+        self.column_names2id = {c: i for i, c in enumerate(self.data_df.columns)}
         
         # Features
         self.feature_names = feature_names

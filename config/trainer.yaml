@@ -41,7 +41,6 @@ dataset:
     - rate[6]/rate_err[6]
     - rate[10]/rate_err[10]
     - rate[12]/rate_err[12]
-    - unix_time
     # (unix_time_revolution_110-unix_time_revolution_10)/100=5535.4 seconds per revolution
     # where:
     # unix_time_revolution_10=1474004181.5460 and

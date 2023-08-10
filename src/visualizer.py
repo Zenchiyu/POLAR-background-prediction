@@ -17,19 +17,19 @@ def get_time_y(dataset_val,
                target_name="rate[0]",
                return_argsort=False):
     dataset = dataset_val.dataset
+    df = dataset.data_df
     # Column indices
     idx = dataset.column_names2id
 
-    idx_unix_time = idx["unix_time"]
     idx_target_name = idx[target_name]
-
     # Subset of dataset but could be in wrong order 
     val = dataset.data_cpu[dataset_val.indices]
-    time_val = val[:, idx_unix_time]
+    time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
     y_val = val[:, idx_target_name]
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
+    
     if not(return_argsort):
         return time_val[argsort], y_val[argsort]
     return argsort, time_val[argsort], y_val[argsort]
@@ -49,36 +49,33 @@ def get_time_y_y_hat(dataset_val,
 
 def get_all_time_y_y_hat(dataset_val, pred):
     dataset = dataset_val.dataset
+    df = dataset.data_df
     # Column indices
     idx = dataset.column_names2id
 
-    idx_unix_time = idx["unix_time"]
     idx_target_names = [idx[t] for t in dataset.target_names]
 
     # Subset of dataset but could be in wrong order 
     val = dataset.data_cpu[dataset_val.indices]
-    time_val = val[:, idx_unix_time]
+    time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
     y_val = val[:, idx_target_names]
     pred = pred.detach().cpu()
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
-    print(time_val[:200])
-    print("AAAAA")
-    print(time_val[argsort][:200])
     return time_val[argsort], y_val[argsort], pred[argsort]
 
 def get_columns(dataset_subset, column_names):
     dataset = dataset_subset.dataset
+    df = dataset.data_df
     # Column indices
     idx = dataset.column_names2id
 
-    idx_unix_time = idx["unix_time"]
     idx_column_names = [idx[c] for c in column_names]
 
     # Subset of dataset but could be in wrong order
     subset = dataset.data_cpu[dataset_subset.indices]
-    time = subset[:, idx_unix_time]
+    time = df.loc[df.index[dataset_subset.indices], "unix_time"].values
     columns = subset[:, idx_column_names]
 
     # Sort by ascending time
@@ -352,7 +349,7 @@ def plot_train_val_prediction_target_zoom(trainer,
         # low_n and high_n: related to validation set, not train + val
         time_val = sorted_time_val[low_n:high_n]
         min_time, max_time = time_val.min(), time_val.max()
-        mask_time = ((sorted_time >= min_time) & (sorted_time <= max_time))
+        mask_time = np.array(((sorted_time >= min_time) & (sorted_time <= max_time)))
         
         # Train
         axs[i//2, i%2].plot(sorted_time[mask_time & mask_train],
@@ -378,17 +375,17 @@ def main(cfg: DictConfig):
     cfg.wandb.mode = "disabled"
     
     
-    # cfg.dataset.save_format = "pkl"
+    cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    p = Path(cfg.dataset.filename)
-    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    if Path(filename).is_file():  # if exists and is a file
-        cfg.dataset.filename = filename
-    else:
-        cfg.dataset.save_format = "pkl"  # to save dataset
+    # p = Path(cfg.dataset.filename)
+    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    # if Path(filename).is_file():  # if exists and is a file
+    #     cfg.dataset.filename = filename
+    # else:
+    #     cfg.dataset.save_format = "pkl"  # to save dataset
     
     trainer = Trainer(cfg)
     
