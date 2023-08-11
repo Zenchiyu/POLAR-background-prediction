@@ -7,7 +7,7 @@ import uproot as ur
 
 from numpy.typing import NDArray
 from torch.utils.data import Dataset, Subset
-from typing import Generator, Optional
+from typing import Generator, Optional, Callable, Any
 
 
 def load_TTree(root_filename: str = "../data/Allaux_Bfield.root",
@@ -141,3 +141,18 @@ def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, Non
             incr += len("data_df[''].values")
         
         yield expression
+    
+# decorator to convert tensors into numpy arrays
+def numpy_output(func: Callable[[Any], NDArray[Any]|torch.Tensor|
+    tuple[NDArray[Any]|torch.Tensor, ...]]) -> Callable[[Any], NDArray[Any]|tuple[NDArray[Any], ...]]:
+    
+    def wrapper_numpy(*args, **kwargs):
+        res = func(*args, **kwargs)
+    
+        if type(res) == type(tuple()):
+            return tuple([el.numpy()
+                          if not(isinstance(el, np.ndarray))
+                          else el
+                          for el in res])
+        return res.numpy() if not(isinstance(res, np.ndarray)) else res
+    return wrapper_numpy

@@ -11,9 +11,10 @@ from matplotlib.scale import FuncScale
 from omegaconf import DictConfig
 from pathlib import Path
 from trainer import Trainer
-from utils import merge_torch_subsets
+from utils import merge_torch_subsets, numpy_output
 
 
+@numpy_output
 def get_time_y(dataset_val,
                target_name="rate[0]",
                return_argsort=False):
@@ -35,6 +36,7 @@ def get_time_y(dataset_val,
         return time_val[argsort], y_val[argsort]
     return argsort, time_val[argsort], y_val[argsort]
 
+@numpy_output
 def get_time_y_y_hat(dataset_val,
                      pred,
                      target_name="rate[0]"):
@@ -48,6 +50,7 @@ def get_time_y_y_hat(dataset_val,
     sorted_y_hat_val = pred[:, dataset.target_names2id[target_name]][argsort]
     return sorted_time_val, sorted_y_val, sorted_y_hat_val
 
+@numpy_output
 def get_all_time_y_y_hat(dataset_val, pred):
     dataset = dataset_val.dataset
     df = dataset.data_df
@@ -66,6 +69,7 @@ def get_all_time_y_y_hat(dataset_val, pred):
     argsort = np.argsort(time_val)
     return time_val[argsort], y_val[argsort], pred[argsort]
 
+@numpy_output
 def get_columns(dataset_subset, column_names):
     dataset = dataset_subset.dataset
     df = dataset.data_df
@@ -83,6 +87,7 @@ def get_columns(dataset_subset, column_names):
     argsort = np.argsort(time)
     return columns[argsort]
 
+@numpy_output
 def get_column(dataset_subset, column_name):
     return get_columns(dataset_subset, [column_name])
 
@@ -94,8 +99,8 @@ def find_moments(data, verbose=False):
     low = -np.inf
     high = np.inf
     prev_std = np.inf
-    std = np.std(data)
-    mean = np.mean(data)
+    std = data.std()
+    mean = data.mean()
     
     while ~np.isclose(prev_std, std):
         # Update interval
@@ -103,7 +108,7 @@ def find_moments(data, verbose=False):
         high = 3*std + mean
         
         prev_std = std
-        std = np.std(data[(data>low) & (data<high)])
+        std = (data[(data>low) & (data<high)]).std()
         if verbose: print(mean, std, low, high)
     return mean, std
 
@@ -119,7 +124,6 @@ def plot_normalized_hist(data,
     The histogram can be visualized with different yscale specified by 'transform',
     e.g sqrt transform.
     """
-
     # Gaussian
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     
@@ -218,8 +222,7 @@ def plot_val_residual(dataset_val,
     ax_histy.tick_params(axis="y", labelleft=False)
     ax_histy.set_title("Normalized Histogram (Density)")
 
-    residuals = sorted_y_val-sorted_y_hat_val
-    print("res shape", residuals.shape)
+    residuals = (sorted_y_val-sorted_y_hat_val).flatten()
     new_mean, new_std = find_moments(residuals)
     
     # Residuals
@@ -233,8 +236,7 @@ def plot_val_residual(dataset_val,
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
     # Histogram residuals
-    _ = sns.histplot(data=residuals.to_frame(target_name),
-                     y=target_name,
+    _ = sns.histplot(data=residuals,
                      stat="density",
                      ax=ax_histy)
     if save_path: plt.savefig(save_path)
@@ -270,12 +272,9 @@ def plot_val_pull(dataset_val,
     ax_histy.tick_params(axis="y", labelleft=False)
     ax_histy.set_title("Normalized Histogram (Density)")
 
-    residuals = sorted_y_val-sorted_y_hat_val
-    rate_err = get_column(dataset_val, rate_err_name)
-    print("res shape", residuals.shape)
-    print("rate_err shape", rate_err.shape)
+    residuals = (sorted_y_val-sorted_y_hat_val).flatten()
+    rate_err = get_column(dataset_val, rate_err_name).flatten()
     
-
     pulls = residuals/rate_err
     new_mean, new_std = find_moments(pulls)
     
@@ -290,8 +289,7 @@ def plot_val_pull(dataset_val,
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
     # Histogram pull
-    _ = sns.histplot(data=pulls.to_frame(target_name),
-                     y=target_name,
+    _ = sns.histplot(data=pulls,
                      stat="density",
                      ax=ax_histy)
     if save_path: plt.savefig(save_path)
@@ -344,10 +342,6 @@ def plot_train_val_prediction_target_zoom(trainer,
     sorted_time_val, sorted_y_val = tmp
     del tmp
 
-    # mask_val = np.zeros(dataset_full.n_examples)
-    # mask_val[dataset_full.dataset_val.indices] = 1
-    
-
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
 
     for i, (low_n, high_n) in enumerate([(1000, 1200), (2000, 2200),
@@ -380,18 +374,17 @@ def main(cfg: DictConfig):
     ## Don't start a wandb run
     cfg.wandb.mode = "disabled"
     
-    
-    cfg.dataset.save_format = "pkl"
+    # cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
     
     ## Save dataset or load it
-    # p = Path(cfg.dataset.filename)
-    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    # if Path(filename).is_file():  # if exists and is a file
-    #     cfg.dataset.filename = filename
-    # else:
-    #     cfg.dataset.save_format = "pkl"  # to save dataset
+    p = Path(cfg.dataset.filename)
+    filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
+    if Path(filename).is_file():  # if exists and is a file
+        cfg.dataset.filename = filename
+    else:
+        cfg.dataset.save_format = "pkl"  # to save dataset
     
     trainer = Trainer(cfg)
     
@@ -411,13 +404,13 @@ def main(cfg: DictConfig):
     with torch.no_grad():
         # https://discuss.pytorch.org/t/how-to-delete-a-tensor-in-gpu-to-free-up-memory/48879/15
         ## targets wrt unix_time for validation set
-        # for i, target_name in enumerate(cfg.dataset.target_names):
-        #     plot_val_target_against_time(trainer.dataset_val,
-        #                                  target_name=target_name,
-        #                                  save_path=f"results/images/target_{i}.png")
+        for i, target_name in enumerate(cfg.dataset.target_names):
+            plot_val_target_against_time(trainer.dataset_val,
+                                         target_name=target_name,
+                                         save_path=f"results/images/target_{i}.png")
         
-        # ## Loss
-        # plot_loss(trainer.train_loss, trainer.val_loss)
+        ## Loss
+        plot_loss(trainer.train_loss, trainer.val_loss)
         
         ## Prediction on validation set (e.g rate[0])
         # Need to transform before inputting the whole validation set into
