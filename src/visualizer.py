@@ -236,7 +236,9 @@ def plot_val_residual(dataset_val,
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
     # Histogram residuals
-    _ = sns.histplot(data=residuals,
+    _ = sns.histplot(data=pd.DataFrame(residuals,
+                                       columns=[target_name]),
+                     y=target_name,
                      stat="density",
                      ax=ax_histy)
     if save_path: plt.savefig(save_path)
@@ -289,7 +291,9 @@ def plot_val_pull(dataset_val,
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
     # Histogram pull
-    _ = sns.histplot(data=pulls,
+    _ = sns.histplot(data=pd.DataFrame(pulls,
+                                       columns=[target_name]),
+                     y=target_name,
                      stat="density",
                      ax=ax_histy)
     if save_path: plt.savefig(save_path)

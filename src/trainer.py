@@ -14,7 +14,7 @@ from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import Lambda
-from typing import Optional
+from typing import Optional, Callable, Any
 from tqdm import tqdm
 from utils import periodical_split
 
@@ -288,7 +288,7 @@ class Trainer:
         model = model.to(device=self.device)
         return model
     
-    def create_criterion(self):
+    def create_criterion(self) -> Callable:
         # Create criterion as well as other useful variables
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":
@@ -301,7 +301,7 @@ class Trainer:
                 criterion = criterion.to(device=self.device)
         return criterion
     
-    def get_criterion_args(self):
+    def get_criterion_args(self) -> list[str]:
         if isinstance(self.criterion, torch.nn.modules.loss._Loss):
             criterion_args = inspect.getfullargspec(self.criterion.forward).args
         else:
