@@ -397,12 +397,21 @@ one by one inside the `__getitem__` method (creating tensors on CUDA for each ex
 the `1/rate_err**2`, 
 - `__getitem__` now also returns the idx, therefore, I could obtain the indices of the data from the mini-batch and use them to retrieve the correct weights as said previously.
 - Added multiple targets (not just `rate[0]`) (did not try if old config yaml still works..)
-- Tried to change `find_moments` in `./src/visualizer.py` to deal with 2D arrays instead of 1D arrays but had some complications, so I went back
-to how it was before the change. I use loops to go through the different targets and independently obtain the `new_std`...
+- Tried to change `find_moments` in `./src/visualizer.py` to deal with 2D arrays instead of 1D arrays but had some complications, so I went back to how it was before the change. I use loops to go through the different targets and independently obtain the `new_std`...
+- Tried to clean the code and tried to not usI e the `data_df` Pandas DataFrame inside `PolarDataset` but couldn't completely. See next.
+- Discovered that the `unix_time` feature, which was in double precision, was quantized when stored inside a PyTorch Tensor. This is because the default precision of a PyTorch FloatTensor is single precision, 32 bits. It implies that some features/inputs maybe lost some precision
+when going from the Pandas DataFrame to the PyTorch Tensor.
+- I therefore, kept the `data_df` Pandas DataFrame attribute in order to retrieve the `unix_time` when visualizing the results but I must remember about the single vs double precision as it can affect the predictions.
+- I did not change the PyTorch tensors datatypes to float64 because of memory usage and training speed.
+- I added `num_workers=4` and `pin_memory` in the arguments of my PyTorch DataLoaders (thanks to Eloi Alonso) and my training time went from about 2 hours 15 min to 1 hour 30 min.
+
 
 ### Some interesting links:
 
 - https://medium.com/syncedreview/how-to-train-a-very-large-and-deep-model-on-one-gpu-7b7edfe2d072
+- https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html#enable-asynchronous-data-loading-and-augmentation
+- https://androidkt.com/pytorch-dataloader-set-pin_memory-to-true/
+- https://discuss.pytorch.org/t/should-we-set-non-blocking-to-true/38234
 
 ### (Future) goals:
 - Group the data above threshold (my red points) into groups/clusters (instead of looking at them individually, point by point)
