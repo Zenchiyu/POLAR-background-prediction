@@ -288,7 +288,7 @@ class Trainer:
         model = model.to(device=self.device)
         return model
     
-    def create_criterion(self) -> Callable:
+    def create_criterion(self) -> Callable[..., torch.Tensor]:
         # Create criterion as well as other useful variables
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":

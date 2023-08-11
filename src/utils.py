@@ -143,16 +143,26 @@ def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, Non
         yield expression
     
 # decorator to convert tensors into numpy arrays
-def numpy_output(func: Callable[[Any], NDArray[Any]|torch.Tensor|
-    tuple[NDArray[Any]|torch.Tensor, ...]]) -> Callable[[Any], NDArray[Any]|tuple[NDArray[Any], ...]]:
-    
-    def wrapper_numpy(*args, **kwargs):
+def numpy_output(func: Callable[..., NDArray[Any]|torch.Tensor|
+    tuple[NDArray[Any]|torch.Tensor, ...]]) -> Callable[..., NDArray[Any]|tuple[NDArray[Any], ...]]:
+
+    def wrapper_numpy(*args: Any, **kwargs: Any) -> NDArray[Any]|tuple[NDArray[Any], ...]:
         res = func(*args, **kwargs)
-    
         if type(res) == type(tuple()):
-            return tuple([el.numpy()
-                          if not(isinstance(el, np.ndarray))
-                          else el
-                          for el in res])
-        return res.numpy() if not(isinstance(res, np.ndarray)) else res
+            return tuple(map(np.array, res))
+        return np.array(res)
     return wrapper_numpy
+# # decorator to convert tensors into numpy arrays
+# def numpy_output(func: Callable[[Any], NDArray[Any]|torch.Tensor|
+#     tuple[NDArray[Any]|torch.Tensor, ...]]) -> Callable[[Any], NDArray[Any]|tuple[NDArray[Any], ...]]:
+    
+#     def wrapper_numpy(*args: Any, **kwargs: Any) -> NDArray[Any]|tuple[NDArray[Any], ...]:
+#         res = func(*args, **kwargs)
+    
+#         if type(res) == type(tuple()):
+#             return tuple([el.numpy()
+#                           if not(isinstance(el, np.ndarray))
+#                           else el
+#                           for el in res])
+#         return res.numpy() if not(isinstance(res, np.ndarray)) else res
+#     return wrapper_numpy
