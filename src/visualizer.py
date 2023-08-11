@@ -3,6 +3,7 @@ import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import re
 import seaborn as sns
 import torch
 
@@ -218,6 +219,7 @@ def plot_val_residual(dataset_val,
     ax_histy.set_title("Normalized Histogram (Density)")
 
     residuals = sorted_y_val-sorted_y_hat_val
+    print("res shape", residuals.shape)
     new_mean, new_std = find_moments(residuals)
     
     # Residuals
@@ -270,6 +272,10 @@ def plot_val_pull(dataset_val,
 
     residuals = sorted_y_val-sorted_y_hat_val
     rate_err = get_column(dataset_val, rate_err_name)
+    print("res shape", residuals.shape)
+    print("rate_err shape", rate_err.shape)
+    
+
     pulls = residuals/rate_err
     new_mean, new_std = find_moments(pulls)
     
@@ -433,21 +439,21 @@ def main(cfg: DictConfig):
                                         save_path=f"results/images/pred_target_zoom_{i}.png")
             
         ## Residuals + hist + gaussian fit
-        # for i, target_name in enumerate(cfg.dataset.target_names):
-        #     if target_name not in [f"rate[{i}]" for i in range(13)]:
-        #         plot_val_residual(trainer.dataset_val,
-        #                           pred,
-        #                           target_name=target_name,
-        #                           save_path=f"results/images/residual_plot_{i}.png",
-        #                           save_path_hist=f"results/images/residual_hist_{i}.png")
-        #     else:
-        #         j = re.findall("[0-9]+", target_name)[0]
-        #         plot_val_pull(trainer.dataset_val,
-        #                       pred,
-        #                       target_name=target_name,
-        #                       rate_err_name=f"rate_err[{j}]",
-        #                       save_path=f"results/images/pull_plot_{i}.png",
-        #                       save_path_hist=f"results/images/pull_hist_{i}.png")
+        for i, target_name in enumerate(cfg.dataset.target_names):
+            if target_name not in [f"rate[{i}]" for i in range(13)]:
+                plot_val_residual(trainer.dataset_val,
+                                  pred,
+                                  target_name=target_name,
+                                  save_path=f"results/images/residual_plot_{i}.png",
+                                  save_path_hist=f"results/images/residual_hist_{i}.png")
+            else:
+                j = re.findall("[0-9]+", target_name)[0]
+                plot_val_pull(trainer.dataset_val,
+                              pred,
+                              target_name=target_name,
+                              rate_err_name=f"rate_err[{j}]",
+                              save_path=f"results/images/pull_plot_{i}.png",
+                              save_path_hist=f"results/images/pull_hist_{i}.png")
         
         ## Prediction on both train + val set
         pred = pred.to(device="cpu")

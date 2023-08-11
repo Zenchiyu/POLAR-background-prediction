@@ -88,10 +88,10 @@ class Trainer:
             ## Updating model using training set
             self.model.train()
             train_epoch_loss = 0
-            for (x, y, idxs) in self.train_loader:
-                x = x.to(device=self.device)
+            for (X, y, idxs) in self.train_loader:
+                X = X.to(device=self.device)
                 y = y.to(device=self.device)
-                y_hat = self.model(x)
+                y_hat = self.model(X)
                 
                 loss = self.criterion(y_hat, y, idxs=idxs) if "idxs" in self.criterion_args else self.criterion(y_hat, y)
 
@@ -109,10 +109,10 @@ class Trainer:
             self.model.eval()
             with torch.no_grad():
                 val_epoch_loss = 0
-                for (x, y, idxs) in self.val_loader:
-                    x = x.to(device=self.device)
+                for (X, y, idxs) in self.val_loader:
+                    X = X.to(device=self.device)
                     y = y.to(device=self.device)
-                    y_hat = self.model(x)
+                    y_hat = self.model(X)
                     
                     loss = self.criterion(y_hat, y, idxs=idxs) if "idxs" in self.criterion_args else self.criterion(y_hat, y)
 
@@ -180,11 +180,17 @@ class Trainer:
         ### Dataloaders
         self.train_loader = DataLoader(self.dataset_train,
                                   batch_size=self.cfg.dataset.train.batch_size,
-                                  shuffle=self.cfg.dataset.train.shuffle)
+                                  shuffle=self.cfg.dataset.train.shuffle,
+                                  num_workers=4,
+                                  pin_memory=True)
         self.val_loader = DataLoader(self.dataset_val,
-                                  batch_size=self.cfg.dataset.val.batch_size)
+                                  batch_size=self.cfg.dataset.val.batch_size,
+                                  num_workers=4,
+                                  pin_memory=True)
         self.test_loader = DataLoader(self.dataset_test,
-                                  batch_size=self.cfg.dataset.test.batch_size)
+                                  batch_size=self.cfg.dataset.test.batch_size,
+                                  num_workers=4,
+                                  pin_memory=True)
 
         if verbose:
             print(f"Training:\n\t- len: {len(self.dataset_train)}"+\
