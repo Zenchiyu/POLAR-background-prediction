@@ -297,7 +297,7 @@ class Trainer:
                                                          dtype=torch.bool)
                 criterion = self.weighted_mse_loss
             case _:
-                criterion = nn.MSELoss()
+                criterion: torch.nn.modules.loss._Loss = nn.MSELoss()
                 criterion = criterion.to(device=self.device)
         return criterion
     

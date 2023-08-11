@@ -152,17 +152,3 @@ def numpy_output(func: Callable[..., NDArray[Any]|torch.Tensor|
             return tuple(map(np.array, res))
         return np.array(res)
     return wrapper_numpy
-# # decorator to convert tensors into numpy arrays
-# def numpy_output(func: Callable[[Any], NDArray[Any]|torch.Tensor|
-#     tuple[NDArray[Any]|torch.Tensor, ...]]) -> Callable[[Any], NDArray[Any]|tuple[NDArray[Any], ...]]:
-    
-#     def wrapper_numpy(*args: Any, **kwargs: Any) -> NDArray[Any]|tuple[NDArray[Any], ...]:
-#         res = func(*args, **kwargs)
-    
-#         if type(res) == type(tuple()):
-#             return tuple([el.numpy()
-#                           if not(isinstance(el, np.ndarray))
-#                           else el
-#                           for el in res])
-#         return res.numpy() if not(isinstance(res, np.ndarray)) else res
-#     return wrapper_numpy
