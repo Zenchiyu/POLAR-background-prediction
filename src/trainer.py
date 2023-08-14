@@ -24,9 +24,6 @@ class Trainer:
         print("Config:")
         print(OmegaConf.to_yaml(cfg))
         
-        self.run = wandb.init(config=OmegaConf.to_container(cfg, resolve=True),
-                              **cfg.wandb)
-        
         self.cfg = cfg
         self.seed = self.cfg.common.seed
         self.set_seed()
@@ -49,14 +46,18 @@ class Trainer:
         ### Optimizer 
         self.optimizer = Adam(self.model.parameters(), **cfg.optimizer.hyperparams)
         
-        ## Criterion (+ to device)
+        ### Criterion (+ to device)
         self.criterion = self.create_criterion()
         self.criterion_args = self.get_criterion_args()
         print(f"Using {self.lowercase(self.cfg.common.loss.name)}")
         
         # Note: Data will be later moved to device, one batch at a time
 
-        ### Logging more info into wandb (e.g model architecture with log_graph)
+        ### Wandb
+        ## Init
+        self.run = wandb.init(config=OmegaConf.to_container(cfg, resolve=True),
+                              **cfg.wandb)
+        ## Logging more info into wandb (e.g model architecture with log_graph)
         if self.cfg.wandb_watch:
             self.run.watch(self.model, self.criterion,
                            log="all", log_graph=True)
