@@ -448,6 +448,6 @@ We show below, using a point for each cluster, the cluster length versus the clu
 
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/1746aa7c-1dd5-4dd4-8792-ebaa26515d3b)
 
-
+There are still $15068$ clusters but it's still better than looking at $39175$ points.
 
 </details>
