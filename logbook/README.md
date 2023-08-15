@@ -405,6 +405,23 @@ the `1/rate_err**2`,
 - I added `num_workers=4` and `pin_memory` in the arguments of my PyTorch DataLoaders (thanks to Eloi Alonso) and my training time went from about 2 hours 15 min to 1 hour 30 min.
 - Tried training with mini-batch sizes of $256$ and `periodicity` $256$ (reminder: it was in `periodical` split type).
 
+We show in orange the prediction and in blue the $rate[0]$. In red, we have our points above the threshold of 3 std (again, as a reminder, it's actually `new_std` based on a modified gaussian fit).
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/08ef8d27-ee8b-4c5e-91dc-e222c131f7b4)
+
+Residuals/error rate:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/ad2e1508-b8d2-4096-8512-619053ac1c94)
+
+Our model also predicted other rates but we don't show them yet as there would be too many plots. We got:
+```
+Number of red points when thresholding using residuals/rate_errs (pull)
+[39175 37358 74967 73827 64414 64942]
+
+>>> new_std
+array([1.3854719, 1.2320681, 1.3846753, 1.313497 , 1.5823889, 1.5771829],
+      dtype=float32)
+```
 
 ### Some interesting links:
 
@@ -417,5 +434,20 @@ the `1/rate_err**2`,
 - Group the data above threshold (my red points) into groups/clusters (instead of looking at them individually, point by point)
 - Clean code (especially `src/visualizer.py` and `notebooks/results.ipynb`), clean logebook, fix documentation with the config file
 - Check that old config file still work with current code (e.g. when we had only one target and used MSELoss as criterion).
+
+</details>
+
+
+## Week 7: 14.08.23 - 20.08.23
+
+<details>
+
+### Summary
+- Group the data above threshold (my red points) into groups/clusters (instead of looking at them individually, point by point). 
+We show below, using a point for each cluster, the cluster length versus the cluster "integral" (sum of `rate[0]` for data in the cluster) where the threshold was set at $3$ std:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/1746aa7c-1dd5-4dd4-8792-ebaa26515d3b)
+
+There are still $15068$ clusters but it's still better than looking at $39175$ points.
 
 </details>
