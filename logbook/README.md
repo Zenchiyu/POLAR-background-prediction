@@ -454,6 +454,13 @@ There are still $15068$ clusters but it's still better than looking at $39175$ p
 It gave very similar results but they were still different (it might be due to the fact that we want to predict smaller or higher values)
 - Ran training with different `weight_decay` values from the Adam optimizer (L2 regularization). They seem to not help reduce the variance (reduce overfitting). I did not try (inverted) dropout yet. I don't want to try early stopping nor data augmentation. Note that I already normalized the inputs/features. I also did not try to tweak weight initialization (with for example Xavier or He initialization that are good with tanh and ReLU activation functions respectively, see [deep learning specialization on Coursera](https://www.coursera.org/learn/deep-neural-network/home/week/1).)
 
+![W B Chart 8_16_2023, 2 22 05 PM](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/c1a82cf4-e6a9-4f1f-a50f-3cedde1bc46c)
+
+With run names (or ids):
+![W B Chart 8_16_2023, 2 22 05 PM(1)](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/15d56c35-f84f-4bba-98ef-14e21954d9b3)
+
+
+
 - Learned more about Adam optimizer: it's a combination of RMSProp and Momentum (and includes bias correction). Essentially, it's doing two exponentially weighted moving averages, one on the gradients ("momentum" part) and one on the element-wise squared gradients ("RMSProp" part).
 Intuitively, we can think of the "RMSProp" part as estimating the "variance" of the gradients and scale the steps in different directions accordingly.
 
