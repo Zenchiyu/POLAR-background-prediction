@@ -450,4 +450,12 @@ We show below, using a point for each cluster, the cluster length versus the clu
 
 There are still $15068$ clusters but it's still better than looking at $39175$ points.
 
+- Ran training with old config file in which the target was just `rate[0]/rate_err[0]` and the criterion with MSELoss (not weighted MSE Loss).
+It gave very similar results but they were still different (it might be due to the fact that we want to predict smaller or higher values)
+- Ran training with different `weight_decay` values from the Adam optimizer (L2 regularization). They seem to not help reduce the variance (reduce overfitting). I did not try (inverted) dropout yet. I don't want to try early stopping nor data augmentation. Note that I already normalized the inputs/features. I also did not try to tweak weight initialization (with for example Xavier or He initialization that are good with tanh and ReLU activation functions respectively, see [deep learning specialization on Coursera](https://www.coursera.org/learn/deep-neural-network/home/week/1).)
+
+- Learned more about Adam optimizer: it's a combination of RMSProp and Momentum (and includes bias correction). Essentially, it's doing two exponentially weighted moving averages, one on the gradients ("momentum" part) and one on the element-wise squared gradients ("RMSProp" part).
+Intuitively, we can think of the "RMSProp" part as estimating the "variance" of the gradients and scale the steps in different directions accordingly.
+
+
 </details>
