@@ -485,7 +485,7 @@ Intuitively, we can think of the "RMSProp" part as estimating the "variance" of 
 (more training data, it can "reduce" overfitting). However, I still doubt about it.
 - Ran again the training with the old small MLP with 3 hidden layers. Although the losses decrease more slowly than the bigger network, after a few epochs, they are very similar.
 - Even though both losses are similar, clusters can change widely... it indicates us that we need another metric to track properties of these clusters.
-- Learned a bit some basics about convolutional neural networks:
+- Learned a bit some basics about convolutional neural networks: (because they can be used on time series):
 	- convolution operations in CNNs are actually cross-correlations. Implicit ReLU after applying convolution
 	- convolution over volumes (dimension >= 2D tensors)
   	- padding, striding
