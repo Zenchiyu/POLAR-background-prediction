@@ -464,5 +464,40 @@ With run names (or ids):
 - Learned more about Adam optimizer: it's a combination of RMSProp and Momentum (and includes bias correction). Essentially, it's doing two exponentially weighted moving averages, one on the gradients ("momentum" part) and one on the element-wise squared gradients ("RMSProp" part).
 Intuitively, we can think of the "RMSProp" part as estimating the "variance" of the gradients and scale the steps in different directions accordingly.
 
+- Learned that random sampling (not necessarily uniform, it could be uniform in log scale though, for instance for the beta in Momentum or alpha for the learning rate) when trying different hyperparamters can be useful.
+
+- Didn't try batch normalization, it might be something to consider trying.
+
+- Learned that what we're trying to do by plotting the residuals and where the predictions fail can be called "manual error analysis" but Andrew Ng only talks about classification tasks in which we can say whether we misclassified or not. What is usually done in regression ?
+- Learned that I might need a second metric that captures what we want to do with the clusters or red points because the weighted MSE might not be enough.
+- Learned that transfer learning cannot be used for tabular data (it is much more used in Computer Vision). Transfer learning is when we take a pretrained network, reuse the weights (can freeze them or not) and retrain a part of the network (either from the existing structure or new layers). Transfer learning is particularly useful when the task on which the pretrained network was trained has some similarities with the downstream task. Moreover, the upstream task should have used more data than the downstream task and the inputs for both tasks should be similar.
+- Learned that what we're doing could be called "multi-task learning" as we can try to predict multiple output values (different rates).
+
+</details>
+
+
+## Week 8: 21.08.23 - 27.08.23
+
+<details>
+
+### Summary
+- Ran training with a different split percentage: 98, 1, 1 (train, val, test) and it gave much much better validation loss as expected
+(more training data, it can "reduce" overfitting). However, I still doubt about it.
+- Ran again the training with the old small MLP with 3 hidden layers. Although the losses decrease more slowly than the bigger network, after a few epochs, they are very similar.
+- Even though both losses are similar, clusters can change widely... it indicates us that we need another metric to track properties of these clusters.
+- Learned a bit some basics about convolutional neural networks:
+	- convolution operations in CNNs are actually cross-correlations. Implicit ReLU after applying convolution
+	- convolution over volumes (dimension >= 2D tensors)
+  	- padding, striding
+   	- pooling
+   	- 1 x 1 convolution to reduce the depth/number of channel but keep the height and width
+    	- some classical CNN architectures: VGG, AlexNet, LeNet-5, GoogleNet (or Inception network)
+- Learned briefly about ResNets and residual blocks with skip connections. It helps with exploding, vanishing gradients in deep networks.
+it might be useful if we want to create a very deep network for our problem.
+
+### Some interesting links
+
+- https://proclusacademy.com/blog/robust-scaler-outliers/
+
 
 </details>
