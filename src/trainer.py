@@ -105,8 +105,6 @@ class Trainer:
             train_loss[epoch] = train_epoch_loss/len(self.train_loader)
             
             ## Validation set, evaluation using current model
-            # TODO: add toggle whether want evaluation or not and
-            # TODO: update config file where we can choose to toggle or not
             self.model.eval()
             with torch.no_grad():
                 val_epoch_loss = 0
@@ -246,7 +244,7 @@ class Trainer:
         # input, target and weight tensors are of same shape
         # We suppose that self.cfg.common.loss.weights were already
         # in the column names of self.dataset_full.data_cpu
-        weight = self.dataset_full.data_cpu[idxs][:, self.mask_weights].to(device=self.device)
+        weight = self.all_weights[idxs]
         return (weight*(input - target)**2).sum()/weight.sum()
 
     def create_model(self) -> nn.Module:
@@ -275,10 +273,9 @@ class Trainer:
                 
                 ## Last layer
                 layers.append(nn.Linear(in_size, self.dataset_full.n_targets))
-                # No activation function or identity by default (nn.Identity())
+                # No activation function = identity fct by default (nn.Identity())
                 match self.lowercase(output_activation_fct):
                     case _:
-                        # layers.append(nn.Identity())
                         print("Using default identity activation"+\
                               " function for last layer")
 
@@ -295,9 +292,11 @@ class Trainer:
         # Create criterion as well as other useful variables
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":
-                self.mask_weights = torch.tensor(np.isin(self.dataset_full.column_names,
-                                                         self.cfg.common.loss.weights),
-                                                         dtype=torch.bool)
+                mask_weights = torch.tensor(np.isin(self.dataset_full.column_names,
+                                                    self.cfg.common.loss.weights),
+                                                    dtype=torch.bool)
+                self.all_weights = self.dataset_full.data_cpu[:, mask_weights]
+                self.all_weights = self.all_weights.to(device=self.device)
                 criterion = self.weighted_mse_loss
             case _:
                 criterion = nn.MSELoss().to(device=self.device)
