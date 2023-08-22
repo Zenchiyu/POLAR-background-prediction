@@ -494,10 +494,20 @@ Intuitively, we can think of the "RMSProp" part as estimating the "variance" of 
     	- some classical CNN architectures: VGG, AlexNet, LeNet-5, GoogleNet (or Inception network)
 - Learned briefly about ResNets and residual blocks with skip connections. It helps with exploding, vanishing gradients in deep networks.
 it might be useful if we want to create a very deep network for our problem.
+- Cleaned a bit the code, especially the part where we can use different loss functions in `../src/trainer.py`.
+- Completely removed old jupyter notebooks and src files in `../notebooks`.
+- Modified `../notebooks/README.md` with some information on how to get to these old notebooks.
+- Updated documentation with a new description of the notebooks folder and some description how to specify the loss function from `../config/trainer.yaml`
 
 ### Some interesting links
 
 - https://proclusacademy.com/blog/robust-scaler-outliers/
 
+
+### TODO
+- Permutation importance
+- Maybe robust scaler instead of standard scaler for normalizing inputs
+- Interactive way to go through the clusters obtained from the red points
+- Create clusters for points in which the prediction is higher than the target (we did the opposite until now)
 
 </details>
