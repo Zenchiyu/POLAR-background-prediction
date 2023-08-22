@@ -46,41 +46,6 @@ def load_data_as_dict(root_filename: str = "../data/Allaux_Bfield.root",
                           verbose=verbose)
         data_dict |= data.arrays(features_name, library="np")
     return data_dict
-    
-
-
-def train_val_test_split(X: pd.DataFrame,
-                         y: pd.DataFrame,
-                         val_size: float =0.2,
-                         test_size: float =0.2,
-                         random_state: Optional[int] =42,
-                         shuffle: bool = True) -> tuple[pd.DataFrame, ...]:
-    """
-    Split the dataset into train, validation and test sets using sklearn.
-    X and y are pandas dataframes
-    """
-    import sklearn
-    from sklearn.model_selection import train_test_split
-
-    assert val_size + test_size < 1, "There's no training examples, need some training examples" 
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=test_size, 
-                                                        random_state=random_state, 
-                                                        shuffle=shuffle)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, 
-                                                      test_size=val_size/(1-test_size), 
-                                                      random_state=random_state,
-                                                      shuffle=shuffle) 
-    # 1/4 = 20/80 = 0.2/(0.2+0.6)
-    # Reset indices of df:
-    X_train.reset_index(drop=True, inplace=True)
-    X_val.reset_index(drop=True, inplace=True)
-    X_test.reset_index(drop=True, inplace=True)
-    y_train.reset_index(drop=True, inplace=True)
-    y_val.reset_index(drop=True, inplace=True)
-    y_test.reset_index(drop=True, inplace=True)
-    
-    return X_train, X_val, X_test, y_train, y_val, y_test
 
 def periodical_split(dataset: Dataset,
                      percentages: list[float],
@@ -142,10 +107,9 @@ def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, Non
         
         yield expression
     
-# decorator to convert tensors into numpy arrays
 def numpy_output(func: Callable[..., NDArray[Any]|torch.Tensor|
     tuple[NDArray[Any]|torch.Tensor, ...]]) -> Callable[..., NDArray[Any]|tuple[NDArray[Any], ...]]:
-
+    # Used as decorator to convert tensors into numpy arrays
     def wrapper_numpy(*args: Any, **kwargs: Any) -> NDArray[Any]|tuple[NDArray[Any], ...]:
         res = func(*args, **kwargs)
         if type(res) == type(tuple()):

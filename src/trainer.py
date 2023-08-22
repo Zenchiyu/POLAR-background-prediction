@@ -81,10 +81,9 @@ class Trainer:
         self.save_config()
             
         ## Metrics
-        train_loss = torch.zeros(self.n_epochs, device=self.device)
-        val_loss = torch.zeros(self.n_epochs, device=self.device)
+        self.train_loss = torch.zeros(self.n_epochs, device=self.device)
+        self.val_loss = torch.zeros(self.n_epochs, device=self.device)
         
-        # TODO: add second end_condition related to stagnation of training loss
         for epoch in tqdm(range(self.n_epochs)):
             ## Updating model using training set
             self.model.train()
@@ -102,7 +101,7 @@ class Trainer:
                 
                 train_epoch_loss += loss.item()
                 
-            train_loss[epoch] = train_epoch_loss/len(self.train_loader)
+            self.train_loss[epoch] = train_epoch_loss/len(self.train_loader)
             
             ## Validation set, evaluation using current model
             self.model.eval()
@@ -117,15 +116,15 @@ class Trainer:
 
                     val_epoch_loss += loss.item()
                 
-            val_loss[epoch] = val_epoch_loss/len(self.val_loader)
+            self.val_loss[epoch] = val_epoch_loss/len(self.val_loader)
             
             # Wandb log
             self.run.log({"epoch": epoch,
-                          "train/loss": train_loss[epoch],
-                          "val/loss": val_loss[epoch]})
+                          "train/loss": self.train_loss[epoch],
+                          "val/loss": self.val_loss[epoch]})
             
             # Save general checkpoint
-            self.save_checkpoints(epoch, train_loss, val_loss)
+            self.save_checkpoints(epoch)
             
         # Wandb finish
         self.run.finish()
@@ -207,18 +206,15 @@ class Trainer:
             os.makedirs(path, exist_ok=True)
             shutil.copyfile("config/trainer.yaml", path + "/trainer.yaml")
             
-    def save_checkpoints(self,
-                         epoch: int,
-                         train_loss: torch.Tensor,
-                         val_loss: Optional[torch.Tensor] = None) -> None:
+    def save_checkpoints(self, epoch: int) -> None:
         
         # https://pytorch.org/tutorials/recipes/recipes/saving_and_loading_a_general_checkpoint.html
         general_checkpoint = {"model_state_dict": self.model.state_dict(),
                               "optimizer_state_dict": self.optimizer.state_dict(),
                               "epoch": epoch,
-                              "train_loss": train_loss}
-        if val_loss is not None:
-            general_checkpoint["val_loss"] = val_loss
+                              "train_loss": self.train_loss}
+        if self.val_loss is not None:
+            general_checkpoint["val_loss"] = self.val_loss
         
         torch.save(general_checkpoint, "checkpoints/last_general_checkpoint.pth")
         
