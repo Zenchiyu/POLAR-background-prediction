@@ -8,7 +8,14 @@ common:
   seed: 42
   n_epochs: 200
   loss:
-    name: null  # by default nn.MSELoss
+    name: weighted_mse_loss  # by default nn.MSELoss
+    weights:  # for each different target
+      - 1/rate_err[0]**2
+      - 1/rate_err[1]**2
+      - 1/rate_err[5]**2
+      - 1/rate_err[6]**2
+      - 1/rate_err[10]**2
+      - 1/rate_err[12]**2
   device: cuda
 
 dataset:
@@ -96,17 +103,17 @@ dataset:
     - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
   split:
     type: periodical
-    periodicity: 512  # # of samples for the periodicity, for type periodical
+    periodicity: 256  # # of samples for the periodicity, for type periodical
   train:
     size: 0.98
-    batch_size: 512  # if 200 -> similar to sklearn 'auto', might be better a power of 2
+    batch_size: 256  # if 200 -> similar to sklearn 'auto', might be better a power of 2
     shuffle: True
   val:
     size: 0.01
-    batch_size: 512
+    batch_size: 256
   test:
     size: 0.01
-    batch_size: 512
+    batch_size: 256
 
 model:
   type: MLP
