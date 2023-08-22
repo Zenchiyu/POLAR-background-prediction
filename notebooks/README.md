@@ -1,5 +1,16 @@
 ## Structure
 
+This directory contains notebook(s) to explore/visualize the results when we use `nf1rate.root`.
+
+```
+.
+├── README.md
+└── results.ipynb
+
+0 directories, 2 files
+```
+
+
 ## Old structure
 
 To see old notebooks as well as the old README, please git checkout to `5bf385555594e0ad319f9a084e954795c56ad37c`.
