@@ -11,7 +11,8 @@ from utils import generator_expressions, load_data_as_dict
 def create_dataset(root_filename: str = "data/fmrate.root",
                    new_columns: list[str] = [],
                    filter_conditions: list[str] = [],
-                   save_format: Optional[str] = None) -> pd.DataFrame:
+                   save_format: Optional[str] = None,
+                   verbose: bool = True) -> pd.DataFrame:
     """
     - Create pandas dataframe containing the whole dataset (features & target & more)
     from a .root file.
@@ -53,16 +54,18 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     
     # Further preprocessing
     # Create new columns of data_df
-    create_new_columns(data_df, new_columns=new_columns)
+    create_new_columns(data_df, new_columns=new_columns, verbose=verbose)
     # Filter some examples based on "filter" (true -> keep)
-    filter_examples(data_df, filter_conditions=filter_conditions)
+    filter_examples(data_df, filter_conditions=filter_conditions, verbose=verbose)
     
     
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
-    print("Sample spacing (seconds) between examples: ", sample_spacing)
-    print("\nAvailable feature/target names from root file: ", data_dict.keys())
-    print("\nAvailable feature/target names from data_df: ", data_df.columns)
-    print(data_df.dtypes)
+    
+    if verbose:
+        print("Sample spacing (seconds) between examples: ", sample_spacing)
+        print("\nAvailable feature/target names from root file: ", data_dict.keys())
+        print("\nAvailable feature/target names from data_df: ", data_df.columns)
+        print(data_df.dtypes)
     
     if save_format: df_save_format(data_df, filename_no_extension, save_format)
     

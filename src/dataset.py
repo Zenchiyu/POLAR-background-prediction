@@ -16,7 +16,8 @@ class PolarDataset(Dataset):
                  target_transform: Optional[torch.nn.Module]=None,
                  new_columns: list[str] = [],
                  filter_conditions: list[str] = [],
-                 save_format: Optional[str] = None) -> None:
+                 save_format: Optional[str] = None,
+                 verbose: bool = True) -> None:
         
         super(PolarDataset, self).__init__()
         
@@ -27,7 +28,8 @@ class PolarDataset(Dataset):
                 self.data_df = create_dataset(filename,
                                               new_columns=new_columns,
                                               filter_conditions=filter_conditions,
-                                              save_format=save_format)
+                                              save_format=save_format,
+                                              verbose=verbose)
             case ".pkl":
                 self.data_df = pd.read_pickle(filename)
             case ".csv":

@@ -21,21 +21,17 @@ from utils import periodical_split
 
 class Trainer:
     def __init__(self, cfg: DictConfig) -> None:
-        print("Config:")
-        print(OmegaConf.to_yaml(cfg))
-        
         self.cfg = cfg
         self.seed = self.cfg.common.seed
         self.set_seed()
         
         self.n_epochs = self.cfg.common.n_epochs
+        self.verbose = self.cfg.verbose
         
         if self.cfg.common.device is None:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = self.cfg.common.device
-        
-        print(f"Using device: {self.device}")
         
         ### Datasets: train, validation, test sets
         self.init_datasets()
@@ -49,7 +45,6 @@ class Trainer:
         ### Criterion (+ to device)
         self.criterion = self.create_criterion()
         self.criterion_args = self.get_criterion_args()
-        print(f"Using {self.lowercase(self.cfg.common.loss.name)}")
         
         # Note: Data will be later moved to device, one batch at a time
 
@@ -61,7 +56,20 @@ class Trainer:
         if self.cfg.wandb_watch:
             self.run.watch(self.model, self.criterion,
                            log="all", log_graph=True)
-    
+
+        if self.verbose:
+            print("Config:")
+            print(OmegaConf.to_yaml(cfg))
+            print(f"\n\nUsing device: {self.device}")
+            print(f"Using {self.lowercase(self.cfg.common.loss.name)}")
+            
+            print(f"\n\nTraining:\n\t- len: {len(self.dataset_train)}"+\
+                  f"\n\t- # of minibatches: {len(self.train_loader)}")
+            print(f"Validation:\n\t- len: {len(self.dataset_val)}"+\
+                  f"\n\t- # of minibatches: {len(self.val_loader)}")
+            print(f"Test:\n\t- len: {len(self.dataset_test)}"+\
+                  f"\n\t- # of minibatches: {len(self.test_loader)}")
+            
     def fit(self) -> None:
         """
         Train the model using the training set.
@@ -129,7 +137,7 @@ class Trainer:
         # Wandb finish
         self.run.finish()
         
-    def init_datasets(self, verbose: bool = True) -> tuple[DataLoader, ...]:
+    def init_datasets(self) -> tuple[DataLoader, ...]:
         """
         Create:
         - self.dataset_full (Pytorch Dataset) with:
@@ -148,7 +156,8 @@ class Trainer:
                                     self.cfg.dataset.target_names,
                                     new_columns=self.cfg.dataset.new_columns,
                                     filter_conditions=self.cfg.dataset.filter_conditions,
-                                    save_format=self.cfg.dataset.save_format)
+                                    save_format=self.cfg.dataset.save_format,
+                                    verbose=self.verbose)
         
         ### Split train, validation, test
         split_percentages = [self.cfg.dataset.train.size,
@@ -189,15 +198,6 @@ class Trainer:
                                   batch_size=self.cfg.dataset.test.batch_size,
                                   num_workers=4,
                                   pin_memory=True)
-
-        if verbose:
-            print(f"Training:\n\t- len: {len(self.dataset_train)}"+\
-                  f"\n\t- # of minibatches: {len(self.train_loader)}")
-            print(f"Validation:\n\t- len: {len(self.dataset_val)}"+\
-                  f"\n\t- # of minibatches: {len(self.val_loader)}")
-            print(f"Test:\n\t- len: {len(self.dataset_test)}"+\
-                  f"\n\t- # of minibatches: {len(self.test_loader)}")
-
         return self.train_loader, self.val_loader, self.test_loader
     
     def save_config(self) -> None:
@@ -240,7 +240,8 @@ class Trainer:
         # input, target and weight tensors are of same shape
         # We suppose that self.cfg.common.loss.weights were already
         # in the column names of self.dataset_full.data_cpu
-        weight = self.all_weights[idxs]
+        weight = self.dataset_full.data_cpu[idxs][:, self.mask_weights].to(device=self.device)
+        # weight = self.all_weights[idxs].to(device=self.device)
         return (weight*(input - target)**2).sum()/weight.sum()
 
     def create_model(self) -> nn.Module:
@@ -272,8 +273,9 @@ class Trainer:
                 # No activation function = identity fct by default (nn.Identity())
                 match self.lowercase(output_activation_fct):
                     case _:
-                        print("Using default identity activation"+\
-                              " function for last layer")
+                        if self.verbose:
+                            print("Using default identity activation"+\
+                                  " function for last layer")
 
                 model = nn.Sequential(*layers)
             case _:
@@ -288,11 +290,11 @@ class Trainer:
         # Create criterion as well as other useful variables
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":
-                mask_weights = torch.tensor(np.isin(self.dataset_full.column_names,
+                self.mask_weights = torch.tensor(np.isin(self.dataset_full.column_names,
                                                     self.cfg.common.loss.weights),
                                                     dtype=torch.bool)
-                self.all_weights = self.dataset_full.data_cpu[:, mask_weights]
-                self.all_weights = self.all_weights.to(device=self.device)
+                # self.all_weights = self.dataset_full.data_cpu[:, self.mask_weights]
+                # self.all_weights = self.all_weights.to(device=self.device)
                 criterion = self.weighted_mse_loss
             case _:
                 criterion = nn.MSELoss().to(device=self.device)
