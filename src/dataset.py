@@ -60,12 +60,12 @@ class PolarDataset(Dataset):
         self.id2column_names = self.column_names
         self.column_names2id = {c: i for i, c in enumerate(self.data_df.columns)}
         
-        # Features
+        # Features from X_cpu
         self.feature_names = feature_names
         self.id2feature_names = self.feature_names
         self.feature_names2id = {f: i for i, f in enumerate(feature_names)}
         
-        # Targets
+        # Targets from y_cpu
         self.target_names = target_names
         self.id2target_names = self.target_names
         self.target_names2id = {t: i for i, t in enumerate(target_names)}
