@@ -498,6 +498,7 @@ it might be useful if we want to create a very deep network for our problem.
 - Completely removed old jupyter notebooks and src files in `../notebooks`.
 - Modified `../notebooks/README.md` with some information on how to get to these old notebooks.
 - Updated documentation with a new description of the notebooks folder and some description how to specify the loss function from `../config/trainer.yaml`
+- Cleaning `../notebooks/results.ipynb` and added interactive plots using ipywidgets. However, there was an issue with file size going from 1 mb to 1 gb...
 
 ### Some interesting links
 
