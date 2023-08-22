@@ -485,7 +485,7 @@ Intuitively, we can think of the "RMSProp" part as estimating the "variance" of 
 (more training data, it can "reduce" overfitting). However, I still doubt about it.
 - Ran again the training with the old small MLP with 3 hidden layers. Although the losses decrease more slowly than the bigger network, after a few epochs, they are very similar.
 - Even though both losses are similar, clusters can change widely... it indicates us that we need another metric to track properties of these clusters.
-- Learned a bit some basics about convolutional neural networks: (because they can be used on time series):
+- Learned a bit some basics about convolutional neural networks (because they can be used on time series):
 	- convolution operations in CNNs are actually cross-correlations. Implicit ReLU after applying convolution
 	- convolution over volumes (dimension >= 2D tensors)
   	- padding, striding
@@ -509,5 +509,11 @@ it might be useful if we want to create a very deep network for our problem.
 - Maybe robust scaler instead of standard scaler for normalizing inputs
 - Interactive way to go through the clusters obtained from the red points
 - Create clusters for points in which the prediction is higher than the target (we did the opposite until now)
+- Find a single number evaluation metric that can be useful for our clusters in order to compare different models
+- Make it easier to compare different models. Maybe use weights and biases for that
+- Find how we can use CNN for time series ?
+- Learn more about sequential models such as Transformers ?
+- Find a better way to threshold and get red points ? It seems, for the moment, that it's not the most promising directions. The predictions
+or our red points can change widely just because some residuals can be higher or lower for some unknown reasons
 
 </details>
