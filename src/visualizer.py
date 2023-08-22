@@ -44,8 +44,6 @@ def get_time_y_y_hat(dataset_val,
     tmp = get_time_y(dataset_val, target_name=target_name, return_argsort=True)
     argsort, sorted_time_val, sorted_y_val = tmp
     del tmp
-    
-    pred = pred.detach().cpu()
 
     sorted_y_hat_val = pred[:, dataset.target_names2id[target_name]][argsort]
     return sorted_time_val, sorted_y_val, sorted_y_hat_val
@@ -63,7 +61,6 @@ def get_all_time_y_y_hat(dataset_val, pred):
     val = dataset.data_cpu[dataset_val.indices]
     time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
     y_val = val[:, idx_target_names]
-    pred = pred.detach().cpu()
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
@@ -245,10 +242,11 @@ def plot_val_residual(dataset_val,
 
     ######
     
-    plot_normalized_hist(residuals,
+    fig2 = plot_normalized_hist(residuals,
                          new_mean,
                          new_std,
                          save_path=save_path_hist)
+    return (fig, fig2)
     
 def plot_val_pull(dataset_val,
                       pred,
@@ -300,11 +298,12 @@ def plot_val_pull(dataset_val,
 
     ######
     
-    plot_normalized_hist(pulls,
+    fig2 = plot_normalized_hist(pulls,
                          new_mean,
                          new_std,
                          xlabel=f"Residuals/{rate_err_name}",
                          save_path=save_path_hist)
+    return (fig, fig2)
 
 def plot_prediction_target_zoom(dataset,
                                pred,
@@ -422,7 +421,7 @@ def main(cfg: DictConfig):
         dataset_full = trainer.dataset_full
         val_tensor = dataset_full.X_cpu[trainer.dataset_val.indices]
         val_tensor = dataset_full.transform(val_tensor).to(cfg.common.device)
-        pred = trainer.model(val_tensor)
+        pred = trainer.model(val_tensor).detach().to(device="cpu")
         
         for i, target_name in enumerate(cfg.dataset.target_names):
             plot_val_prediction_target(trainer.dataset_val,
@@ -451,22 +450,21 @@ def main(cfg: DictConfig):
                               rate_err_name=f"rate_err[{j}]",
                               save_path=f"results/images/pull_plot_{i}.png",
                               save_path_hist=f"results/images/pull_hist_{i}.png")
-        
-        ## Prediction on both train + val set
-        pred = pred.to(device="cpu")
+                              
         val_tensor = val_tensor.to(device="cpu")
-        
         del pred
         del val_tensor
         torch.cuda.empty_cache()
         gc.collect()
 
+        ## Prediction on both train + val set
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
                                                 trainer.dataset_val])
         train_val_tensor = dataset_full.X_cpu[dataset_train_val.indices]
         train_val_tensor = dataset_full.transform(train_val_tensor).to(cfg.common.device)
 
-        pred_train_val = trainer.model(train_val_tensor)
+        pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
+
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
 
         for i, target_name in enumerate(cfg.dataset.target_names):
@@ -479,6 +477,11 @@ def main(cfg: DictConfig):
         ## Comment this line below if don't want to show
         plt.show()
 
+        train_val_tensor = train_val_tensor.to(device="cpu")
+        del pred_train_val
+        del train_val_tensor
+        torch.cuda.empty_cache()
+        gc.collect()
 
 if __name__ == "__main__":
      main()

@@ -11,3 +11,4 @@ uproot==5.0.10
 seaborn==0.12.2
 plotly==5.15.0
 tenacity==8.2.2
+ipywidgets==8.1.0
