@@ -1,7 +1,11 @@
 ## Structure
 
-This directory contains different notebooks that we used to explore the data and create basic models (linear regression or sklearn MLPregressor).
-They are not needed for more complex models (are implemented in PyTorch in `src` folder and configured via configuration files such `trainer.yaml` in `config` directory)
+## Old structure
+
+To see old notebooks as well as the old README, please git checkout to `5bf385555594e0ad319f9a084e954795c56ad37c`.
+
+This directory contained different notebooks that we used to explore the data and create basic models (linear regression or sklearn MLPregressor).
+Most of them are not needed for more complex models (are implemented in PyTorch in `src` folder and configured via configuration files such `trainer.yaml` in `config` directory)
 
 ```
 .
@@ -30,5 +34,5 @@ We wrote or ran the code in this order:
 - `fmrate_prediction.ipynb`
 - `results.ipynb`
 
-But the only two files you can run (as the dataset is in the `data` folder) are `dataset_fmrate.ipynb` and `fmrate_prediction`.
+But the only two files you could run (as the dataset is in the `data` folder) were `dataset_fmrate.ipynb` and `fmrate_prediction`.
 
