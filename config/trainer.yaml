@@ -1,3 +1,5 @@
+verbose: False
+
 wandb:
   project: POLAR-background-prediction
   mode: online

@@ -241,7 +241,6 @@ class Trainer:
         # We suppose that self.cfg.common.loss.weights were already
         # in the column names of self.dataset_full.data_cpu
         weight = self.dataset_full.data_cpu[idxs][:, self.mask_weights].to(device=self.device)
-        # weight = self.all_weights[idxs].to(device=self.device)
         return (weight*(input - target)**2).sum()/weight.sum()
 
     def create_model(self) -> nn.Module:
@@ -293,8 +292,6 @@ class Trainer:
                 self.mask_weights = torch.tensor(np.isin(self.dataset_full.column_names,
                                                     self.cfg.common.loss.weights),
                                                     dtype=torch.bool)
-                # self.all_weights = self.dataset_full.data_cpu[:, self.mask_weights]
-                # self.all_weights = self.all_weights.to(device=self.device)
                 criterion = self.weighted_mse_loss
             case _:
                 criterion = nn.MSELoss().to(device=self.device)
