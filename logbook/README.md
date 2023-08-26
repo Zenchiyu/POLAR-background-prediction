@@ -499,6 +499,8 @@ it might be useful if we want to create a very deep network for our problem.
 - Modified `../notebooks/README.md` with some information on how to get to these old notebooks.
 - Updated documentation with a new description of the notebooks folder and some description how to specify the loss function from `../config/trainer.yaml`
 - Cleaning `../notebooks/results.ipynb` and added interactive plots using ipywidgets. However, there was an issue with file size going from 1 mb to 1 gb...
+- Learned very very quickly about transforming FC (fully connected) layers into convolutional layers (some using 1 x 1 convolutions).
+- Learned that one forward pass of CNN is "equivalent" but faster than doing multiple forward passes of smaller windows (see convolutional implementation of sliding windows). This might be useful if we want to use a CNN for time series ?
 
 ### Some interesting links
 
@@ -506,7 +508,7 @@ it might be useful if we want to create a very deep network for our problem.
 
 
 ### TODO
-- Permutation importance
+- Permutation importance (be careful about colinearity or multi colinearity)
 - Maybe robust scaler instead of standard scaler for normalizing inputs
 - Interactive way to go through the clusters obtained from the red points
 - Create clusters for points in which the prediction is higher than the target (we did the opposite until now)
