@@ -501,6 +501,8 @@ it might be useful if we want to create a very deep network for our problem.
 - Cleaning `../notebooks/results.ipynb` and added interactive plots using ipywidgets. However, there was an issue with file size going from 1 mb to 1 gb...
 - Learned very very quickly about transforming FC (fully connected) layers into convolutional layers (some using 1 x 1 convolutions).
 - Learned that one forward pass of CNN is "equivalent" but faster than doing multiple forward passes of smaller windows (see convolutional implementation of sliding windows). This might be useful if we want to use a CNN for time series ?
+- Made my plots interactice using ipywidgets and ipympl. It's still to slow to update.
+- Changed orange colored curves (prediction) into black colored curves.
 
 ### Some interesting links
 
@@ -516,7 +518,48 @@ it might be useful if we want to create a very deep network for our problem.
 - Make it easier to compare different models. Maybe use weights and biases for that
 - Find how we can use CNN for time series ?
 - Learn more about sequential models such as Transformers ?
-- Find a better way to threshold and get red points ? It seems, for the moment, that it's not the most promising directions. The predictions
-or our red points can change widely just because some residuals can be higher or lower for some unknown reasons
+- Find a better way to threshold and get red points ? It seems, for the moment, that it's not the most promising directions. The predictions or our red points can change widely just because some residuals can be higher or lower for some unknown reasons
 
+</details>
+
+## Week 9: 28.08.23 - 03.09.23
+
+<details>
+
+### Summary
+- Made my plots even more interactice using ipywidgets and ipympl and made them faster to update/refresh.
+- We can click on the different "dots" on the left to select a cluster and it will automatically show an interval around that cluster. Red points are points from that cluster. As before, the blue curve represents the original curve and the black curve represents the prediction. The lower right plot represents the residuals or residuals/error rates.
+
+- Selecting a particular cluster will highlight it in black on the left plot as well as change the right plot's title. Green vertical lines in the right plot represents a known GRB trigger time (out of the 25) (Note: they're not always visible depending on which window we're looking at).
+We can also zoom in the plots and move around.
+
+- Here is an example:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/63ffd1f4-d0c1-42e5-b6c8-78ebecce7744)
+
+- Here is a screenshot of the sliders:
+
+![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/70ece583-8c6e-4a07-aae3-2a6c5b9becc1)
+
+- `w`: window size
+- `k`: used for the threshold $k\cdot \sigma$
+- `pred_below`: 1 for data s.t. residuals or pulls $> k\cdot \sigma$ and 0 for $< -k\cdot \sigma$
+
+
+### Some interesting links
+
+- https://proclusacademy.com/blog/robust-scaler-outliers/
+
+
+### TODO
+- Permutation importance (be careful about colinearity or multi colinearity)
+- Maybe robust scaler instead of standard scaler for normalizing inputs
+- ~~Interactive way to go through the clusters obtained from the red points~~ (Done)
+- ~~Create clusters for points in which the prediction is higher than the target (we did the opposite until now)~~ (Done, see `pred_below`)
+- Find a single number evaluation metric that can be useful for our clusters in order to compare different models
+- Make it easier to compare different models. Maybe use weights and biases for that
+- Find how we can use CNN for time series ?
+- Learn more about sequential models such as Transformers ?
+- Find a better way to threshold and get red points ? It seems, for the moment, that it's not the most promising directions. The predictions
+or our red points can change widely just because some residuals can be higher or lower for some unknown
 </details>
