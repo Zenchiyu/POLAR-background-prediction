@@ -533,18 +533,22 @@ it might be useful if we want to create a very deep network for our problem.
 - Selecting a particular cluster will highlight it in black on the left plot as well as change the right plot's title. Green vertical lines in the right plot represents a known GRB trigger time (out of the 25) (Note: they're not always visible depending on which window we're looking at).
 We can also zoom in the plots and move around.
 
-- Here is an example:
-
-![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/63ffd1f4-d0c1-42e5-b6c8-78ebecce7744)
-
-- Here is a screenshot of the sliders:
+- Here is a screenshot of the sliders where:
+	- `w`: window size
+	- `k`: used for the threshold $k\cdot \sigma$
+	- `pred_below`: 1 for data s.t. residuals or pulls $> k\cdot \sigma$ and 0 for $< -k\cdot \sigma$
 
 ![image](https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/70ece583-8c6e-4a07-aae3-2a6c5b9becc1)
 
-- `w`: window size
-- `k`: used for the threshold $k\cdot \sigma$
-- `pred_below`: 1 for data s.t. residuals or pulls $> k\cdot \sigma$ and 0 for $< -k\cdot \sigma$
+- Some examples without the sliders/buttons where pulls $> k\cdot \sigma$
 
+| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/a3536bbf-c8a9-4e88-8d52-ffdc4deac9de" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/d505e940-009f-4ab2-aee8-b418f9f37bc2" width=300>| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f4653965-bd63-47b6-a103-6a6153117adb" width=300>|
+|:--:|:--:|:--:|
+
+- Some examples without the sliders/buttons where pulls $< -k\cdot \sigma$
+ 
+| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36684a50-6757-4d06-99e9-7a53fe058253" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/9375257a-4f7d-4a19-86ff-b871d8174f14" width=300>| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/2e7521e3-8d6b-4758-b8ba-bcb40f4d2070" width=300>|
+|:--:|:--:|:--:|
 
 ### Some interesting links
 
