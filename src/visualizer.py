@@ -163,7 +163,7 @@ def plot_val_target_against_time(dataset_val,
     ax.plot(sorted_time_val, sorted_y_val, '-g', linewidth=0.1)
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name}")
-    ax.set_title(f"{target_name} wrt unix time for validation seet")
+    ax.set_title(f"{target_name} wrt unix time for validation set")
     if save_path: plt.savefig(save_path)
 
 def plot_loss(train_loss,
