@@ -103,7 +103,7 @@ was suggested by Nicolas Produit to ignore the "outliers" in the "pull histogram
 </details>
 
 
-## Week 3: 18.07.23 - 23.07.23
+## Week 3: 17.07.23 - 23.07.23
 
 <details>
 
@@ -566,4 +566,24 @@ We can also zoom in the plots and move around.
 - Learn more about sequential models such as Transformers ?
 - Find a better way to threshold and get red points ? It seems, for the moment, that it's not the most promising directions. The predictions
 or our red points can change widely just because some residuals can be higher or lower for some unknown
+</details>
+
+## Week 10: 04.09.23 - 10.09.23
+
+<details>
+### Summary
+</details>
+
+
+## Week 11: 11.09.23 - 17.09.23
+
+<details>
+### Summary
+</details>
+
+
+## Week 12: 18.09.23 - 24.09.23
+
+<details>
+### Summary
 </details>
