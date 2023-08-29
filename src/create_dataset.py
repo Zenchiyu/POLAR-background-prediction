@@ -59,6 +59,8 @@ def create_dataset(root_filename: str = "data/fmrate.root",
     # Filter some examples based on "filter" (true -> keep)
     filter_examples(data_df, filter_conditions=filter_conditions, verbose=verbose)
     
+    # Reset indices
+    data_df.reset_index(drop=True, inplace=True)
     
     sample_spacing = int(data_df["unix_time"].iloc[1] - data_df["unix_time"].iloc[0])
     
