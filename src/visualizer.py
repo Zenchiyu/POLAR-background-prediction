@@ -139,10 +139,10 @@ def plot_normalized_hist(data,
     if transform == "sqrt":
         ax.set_yscale(FuncScale(0, (lambda x: np.sqrt(x),
                                     lambda x: np.power(x, 2))))
-        if title is not None: ax.set_title("Sqrt Normalized Histogram")
+        if title is not None: ax.set_title("Sqrt " + title)
     elif transform == "log":
         ax.set_yscale("log")
-        if title is not None: ax.set_title("Log Normalized Histogram")
+        if title is not None: ax.set_title("Log " + title)
     else:
         ax.set_title(title)
     if save_path: plt.savefig(save_path)
@@ -286,12 +286,14 @@ def plot_val_pull(dataset_val,
     if normalized:
         y = pulls/new_std
         title = f"Normalized pull plot of {target_name}"
+        hist_title = "Normalized Histogram (Density)\nof normalized pulls"
         xlabel = fr"Residuals/({rate_err_name} $\cdot \sigma$)"
         mean_fit = new_mean
         std_fit = 1
     else:
         y = pulls
         title = f"Pull plot of {target_name}"
+        hist_title = "Normalized Histogram (Density)"
         xlabel = f"Residuals/{rate_err_name}"
         mean_fit = new_mean
         std_fit = new_std
@@ -321,16 +323,17 @@ def plot_val_pull(dataset_val,
                                 mean_fit,
                                 std_fit,
                                 transform=transform,
+                                title=hist_title,
                                 xlabel=xlabel,
                                 save_path=save_path_hist)
     
     if transform == "sqrt":
         ax_histy.set_xscale(FuncScale(0, (lambda x: np.sqrt(x),
                                     lambda x: np.power(x, 2))))
-        ax_histy.set_title("Sqrt Normalized Histogram (Density)")
+        ax_histy.set_title("Sqrt " + hist_title)
     elif transform == "log":
         ax_histy.set_xscale("log")
-        ax_histy.set_title("Log Normalized Histogram (Density)")
+        ax_histy.set_title("Log " + hist_title)
     
     if save_path: plt.savefig(save_path)
 
@@ -366,7 +369,7 @@ def plot_train_val_prediction_target_zoom(trainer,
     tmp = get_time_y_y_hat(dataset_train_val, pred_train_val, target_name)
     sorted_time, sorted_y, sorted_y_hat = tmp
     del tmp
-
+    
     # which part of train + val is the training set:
     mask_train = np.isin(dataset_train_val.indices,
                          trainer.dataset_train.indices)
@@ -399,9 +402,6 @@ def plot_train_val_prediction_target_zoom(trainer,
         axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
-    
-def get_start_length_intensity_clusters():
-    pass
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
 def main(cfg: DictConfig):
@@ -464,7 +464,7 @@ def main(cfg: DictConfig):
                                         pred,
                                         target_name=target_name,
                                         save_path=f"results/images/pred_target_zoom_{i}.png")
-            
+        
         ## Residuals + hist + gaussian fit
         for i, target_name in enumerate(cfg.dataset.target_names):
             if target_name not in [f"rate[{i}]" for i in range(13)]:
@@ -497,7 +497,7 @@ def main(cfg: DictConfig):
         pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
 
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
-
+        
         for i, target_name in enumerate(cfg.dataset.target_names):
             plot_train_val_prediction_target_zoom(trainer,
                                                 dataset_train_val,
