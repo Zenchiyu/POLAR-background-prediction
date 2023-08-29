@@ -259,6 +259,7 @@ def plot_val_pull(dataset_val,
                       save_path_hist="results/images/pull_hist.png",
                       normalized=False,
                       transform="sqrt"):
+    # Normalized pull means pull/new_std where pull=residuals/err_rate
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -282,85 +283,55 @@ def plot_val_pull(dataset_val,
     pulls = residuals/rate_err
     new_mean, new_std = find_moments(pulls)
     
-    # Pulls
-    if not(normalized):
-        ax.plot(sorted_time_val, pulls, '-r', linewidth=0.1)
-        ax.set_xlabel("Tunix [s]")
-        ax.set_ylabel(f"{target_name}")
-        ax.set_title(f"Pull plot of {target_name}")
-
-        # Gaussian fit
-        xs = np.linspace(pulls.min(), pulls.max(), 255)
-        f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
-        ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
-        # Histogram pull
-        _ = sns.histplot(data=pd.DataFrame(pulls,
-                                        columns=[target_name]),
-                        y=target_name,
-                        stat="density",
-                        ax=ax_histy)
-        
-        ####
-        fig2 = plot_normalized_hist(pulls,
-                         new_mean,
-                         new_std,
-                         transform=transform,
-                         xlabel=f"Residuals/{rate_err_name}",
-                         save_path=save_path_hist)
+    if normalized:
+        y = pulls/new_std
+        title = f"Normalized pull plot of {target_name}"
+        xlabel = fr"Residuals/({rate_err_name} $\cdot \sigma$)"
+        mean_fit = new_mean
+        std_fit = 1
     else:
-        ax.plot(sorted_time_val, pulls/new_std, '-r', linewidth=0.1)
-        ax.set_xlabel("Tunix [s]")
-        ax.set_ylabel(f"{target_name}")
-        ax.set_title(f"Normalized pull plot of {target_name}")
+        y = pulls
+        title = f"Pull plot of {target_name}"
+        xlabel = f"Residuals/{rate_err_name}"
+        mean_fit = new_mean
+        std_fit = new_std
+    
+    # (Normalized) Pulls
+    ax.plot(sorted_time_val, y, '-r', linewidth=0.1)
+    ax.set_xlabel("Tunix [s]")
+    ax.set_ylabel(f"{target_name}")
+    ax.set_title(title)
+
+    # For gaussian fit
+    xs = np.linspace(y.min(), y.max(), 255)
+    f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
+    
+    # Gaussian fit
+    ax_histy.plot(f(xs, mean_fit, std_fit), xs,
+                  zorder=np.inf, color="m", linewidth=1, linestyle="--")
         
-        # Gaussian fit
-        xs = np.linspace(pulls.min()/new_std, pulls.max()/new_std, 255)
-        f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
-        gaussian = f(xs, new_mean, 1)
-        ax_histy.plot(gaussian, xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
-        # Histogram pull
-        _ = sns.histplot(data=pd.DataFrame(pulls/new_std,
-                                        columns=[target_name]),
+    # Histogram of (normalized) pull
+    _ = sns.histplot(data=pd.DataFrame(y, columns=[target_name]),
                         y=target_name,
                         stat="density",
                         ax=ax_histy)
-        
-        # fig2 = plot_normalized_hist(pulls/new_std,
-        #                  new_mean,
-        #                  1,
-        #                  transform=transform,
-        #                  xlabel=fr"Residuals/({rate_err_name} $\cdot \sigma$)",
-        #                  save_path=save_path_hist)
-        fig2, ax2 = plt.subplots()
-        ax2.plot(xs, gaussian, zorder=np.inf, color="m", linewidth=1, linestyle="--")
-        _ = sns.histplot(data=pd.DataFrame(pulls/new_std,
-                                        columns=[target_name]),
-                    stat="density",
-                    ax=ax2)
-        ax2.set_xlabel(fr"Residuals/({rate_err_name} $\cdot \sigma$)")
-        ax2.set_ylabel(target_name)
-        
-        ax2.plot(xs, gaussian, zorder=np.inf,
-            color="m", linewidth=1, linestyle="--")
-        ax2.plot([-5, -5], [0, gaussian.max()/36],
-            'r', label=r"$-5\sigma$")
-        ax2.plot([5, 5], [0, gaussian.max()/36],
-            'g', label=r"$+5\sigma$")
     
-        # TODO: save_path=save_path_hist
+    # Again histogram but in another figure and w/o seaborn
+    fig2 = plot_normalized_hist(y,
+                                mean_fit,
+                                std_fit,
+                                transform=transform,
+                                xlabel=xlabel,
+                                save_path=save_path_hist)
     
     if transform == "sqrt":
         ax_histy.set_xscale(FuncScale(0, (lambda x: np.sqrt(x),
                                     lambda x: np.power(x, 2))))
         ax_histy.set_title("Sqrt Normalized Histogram (Density)")
-        ax2.set_yscale(FuncScale(0, (lambda x: np.sqrt(x),
-                                    lambda x: np.power(x, 2))))
-        ax2.set_title("Sqrt Normalized Histogram (Density)")
     elif transform == "log":
         ax_histy.set_xscale("log")
         ax_histy.set_title("Log Normalized Histogram (Density)")
-        ax2.set_yscale("log")
-        ax2.set_title("Log Normalized Histogram (Density)")
+    
     if save_path: plt.savefig(save_path)
 
     return (fig, fig2)
