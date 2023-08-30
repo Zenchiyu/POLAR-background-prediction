@@ -550,6 +550,11 @@ We can also zoom in the plots and move around.
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36684a50-6757-4d06-99e9-7a53fe058253" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/9375257a-4f7d-4a19-86ff-b871d8174f14" width=300>| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/2e7521e3-8d6b-4758-b8ba-bcb40f4d2070" width=300>|
 |:--:|:--:|:--:|
 
+- Fixed `integral`, it wasn't summing using the correct target.
+- Added `normalized pull` = `pull/new_std` but didn't add it in every plot. The threshold stays the same as before.
+- Fixed errors with `len()` in the scatter plots of the interactive plot that used mpl-interactions.
+- Fixed dataframe index of `data_df`.
+
 ### Some interesting links
 
 - https://proclusacademy.com/blog/robust-scaler-outliers/
