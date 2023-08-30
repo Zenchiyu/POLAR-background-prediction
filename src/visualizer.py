@@ -130,10 +130,16 @@ def plot_normalized_hist(data,
     xs = np.linspace(data.min(), data.max(), 255)
     ax.plot(xs, f(xs, mean, std), zorder=np.inf,
             color="m", linewidth=1, linestyle="--")
-    ax.plot([-5*std, -5*std], [0, f(xs, mean, std).max()/36],
-            'r', label=r"$-5\sigma$")
-    ax.plot([5*std, 5*std], [0, f(xs, mean, std).max()/36],
-            'g', label=r"$+5\sigma$")
+    if std != 1:
+        ax.plot([-5*std, -5*std], [0, f(xs, mean, std).max()/36],
+                'r', label=r"$-5\sigma$")
+        ax.plot([5*std, 5*std], [0, f(xs, mean, std).max()/36],
+                'g', label=r"$+5\sigma$")
+    else:
+        ax.plot([-5, -5], [0, f(xs, mean, std).max()/36],
+                'r', label=r"$-5$")
+        ax.plot([5, 5], [0, f(xs, mean, std).max()/36],
+                'g', label=r"$+5$")
     ax.set_xlabel(xlabel)
     ax.legend()
     if transform == "sqrt":
