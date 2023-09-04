@@ -582,6 +582,7 @@ or our red points can change widely just because some residuals can be higher or
 ## Week 10: 04.09.23 - 10.09.23
 
 <details>
+
 ### Summary
 
 - Cleaning a part of my codes
@@ -592,6 +593,7 @@ or our red points can change widely just because some residuals can be higher or
 ## Week 11: 11.09.23 - 17.09.23
 
 <details>
+
 ### Summary
 
 </details>
@@ -600,6 +602,7 @@ or our red points can change widely just because some residuals can be higher or
 ## Week 12: 18.09.23 - 24.09.23
 
 <details>
+
 ### Summary
 
 </details>
