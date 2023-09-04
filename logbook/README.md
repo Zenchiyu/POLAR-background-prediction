@@ -589,6 +589,12 @@ or our red points can change widely just because some residuals can be higher or
 - Cleaning a part of my codes
 - Tried to "interactively" save my interactive plots in PDF format to get selectable text from our figures. Couldn't find a way to do it so I went back to my first idea of printing the cluster information from the title. 
 - Can now "interactively" print cluster information below my interactive plots. By using IPython.display `clear_output`, I cannot erase previous prints without erasing my plots.
+- Changed `inter_id` to `inter_id_or_cond`: we can now show all clusters except those that don't appear in enough number of energy bins.
+
+### TODO
+- Feature importance, explain the weights, why the rate goes up or down. If can kill some weights, reduce the model complexity. Find the underlying rules that the model found.
+- Clean logbook, clean code
+- Start the two reports
 
 </details>
 
