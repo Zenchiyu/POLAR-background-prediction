@@ -583,6 +583,7 @@ or our red points can change widely just because some residuals can be higher or
 
 <details>
 ### Summary
+
 - Cleaning a part of my codes
 
 </details>
@@ -592,6 +593,7 @@ or our red points can change widely just because some residuals can be higher or
 
 <details>
 ### Summary
+
 </details>
 
 
@@ -599,4 +601,5 @@ or our red points can change widely just because some residuals can be higher or
 
 <details>
 ### Summary
+
 </details>
