@@ -130,16 +130,25 @@ def plot_normalized_hist(data,
     xs = np.linspace(data.min(), data.max(), 255)
     ax.plot(xs, f(xs, mean, std), zorder=np.inf,
             color="m", linewidth=1, linestyle="--")
-    ax.plot([-5*std, -5*std], [0, f(xs, mean, std).max()/36],
-            'r', label=r"$-5\sigma$")
-    ax.plot([5*std, 5*std], [0, f(xs, mean, std).max()/36],
-            'g', label=r"$+5\sigma$")
+    if std != 1:
+        ax.plot([-5*std, -5*std], [0, f(xs, mean, std).max()/36],
+                'r', label=r"$-5\sigma$")
+        ax.plot([5*std, 5*std], [0, f(xs, mean, std).max()/36],
+                'g', label=r"$+5\sigma$")
+    else:
+        ax.plot([-5, -5], [0, f(xs, mean, std).max()/36],
+                'r', label=r"$-5$")
+        ax.plot([5, 5], [0, f(xs, mean, std).max()/36],
+                'g', label=r"$+5$")
     ax.set_xlabel(xlabel)
     ax.legend()
     if transform == "sqrt":
         ax.set_yscale(FuncScale(0, (lambda x: np.sqrt(x),
                                     lambda x: np.power(x, 2))))
-        if title is not None: ax.set_title("Sqrt Normalized Histogram")
+        if title is not None: ax.set_title("Sqrt " + title)
+    elif transform == "log":
+        ax.set_yscale("log")
+        if title is not None: ax.set_title("Log " + title)
     else:
         ax.set_title(title)
     if save_path: plt.savefig(save_path)
@@ -160,7 +169,7 @@ def plot_val_target_against_time(dataset_val,
     ax.plot(sorted_time_val, sorted_y_val, '-g', linewidth=0.1)
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name}")
-    ax.set_title(f"{target_name} wrt unix time for validation seet")
+    ax.set_title(f"{target_name} wrt unix time for validation set")
     if save_path: plt.savefig(save_path)
 
 def plot_loss(train_loss,
@@ -253,8 +262,10 @@ def plot_val_pull(dataset_val,
                       target_name="rate[0]",
                       rate_err_name="rate_err[0]",
                       save_path="results/images/pull_plot.png",
-                      save_path_hist="results/images/pull_hist.png"):
-    # TODO: is it really a pull ? to do residual/rate_err
+                      save_path_hist="results/images/pull_hist.png",
+                      normalized=False,
+                      transform="sqrt"):
+    # Normalized pull means pull/new_std where pull=residuals/err_rate
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -278,31 +289,60 @@ def plot_val_pull(dataset_val,
     pulls = residuals/rate_err
     new_mean, new_std = find_moments(pulls)
     
-    # Pulls
-    ax.plot(sorted_time_val, pulls, '-r', linewidth=0.1)
+    if normalized:
+        y = pulls/new_std
+        title = f"Normalized pull plot of {target_name}"
+        hist_title = "Normalized Histogram (Density)\nof normalized pulls"
+        xlabel = fr"Residuals/({rate_err_name} $\cdot \sigma$)"
+        mean_fit = new_mean
+        std_fit = 1
+    else:
+        y = pulls
+        title = f"Pull plot of {target_name}"
+        hist_title = "Normalized Histogram (Density)"
+        xlabel = f"Residuals/{rate_err_name}"
+        mean_fit = new_mean
+        std_fit = new_std
+    
+    # (Normalized) Pulls
+    ax.plot(sorted_time_val, y, '-r', linewidth=0.1)
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name}")
-    ax.set_title(f"Pull plot of {target_name}")
+    ax.set_title(title)
+
+    # For gaussian fit
+    xs = np.linspace(y.min(), y.max(), 255)
+    f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     
     # Gaussian fit
-    xs = np.linspace(pulls.min(), pulls.max(), 255)
-    f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
-    ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
-    # Histogram pull
-    _ = sns.histplot(data=pd.DataFrame(pulls,
-                                       columns=[target_name]),
-                     y=target_name,
-                     stat="density",
-                     ax=ax_histy)
+    ax_histy.plot(f(xs, mean_fit, std_fit), xs,
+                  zorder=np.inf, color="m", linewidth=1, linestyle="--")
+        
+    # Histogram of (normalized) pull
+    _ = sns.histplot(data=pd.DataFrame(y, columns=[target_name]),
+                        y=target_name,
+                        stat="density",
+                        ax=ax_histy)
+    
+    # Again histogram but in another figure and w/o seaborn
+    fig2 = plot_normalized_hist(y,
+                                mean_fit,
+                                std_fit,
+                                transform=transform,
+                                title=hist_title,
+                                xlabel=xlabel,
+                                save_path=save_path_hist)
+    
+    if transform == "sqrt":
+        ax_histy.set_xscale(FuncScale(0, (lambda x: np.sqrt(x),
+                                    lambda x: np.power(x, 2))))
+        ax_histy.set_title("Sqrt " + hist_title)
+    elif transform == "log":
+        ax_histy.set_xscale("log")
+        ax_histy.set_title("Log " + hist_title)
+    
     if save_path: plt.savefig(save_path)
 
-    ######
-    
-    fig2 = plot_normalized_hist(pulls,
-                         new_mean,
-                         new_std,
-                         xlabel=f"Residuals/{rate_err_name}",
-                         save_path=save_path_hist)
     return (fig, fig2)
 
 def plot_prediction_target_zoom(dataset,
@@ -335,7 +375,7 @@ def plot_train_val_prediction_target_zoom(trainer,
     tmp = get_time_y_y_hat(dataset_train_val, pred_train_val, target_name)
     sorted_time, sorted_y, sorted_y_hat = tmp
     del tmp
-
+    
     # which part of train + val is the training set:
     mask_train = np.isin(dataset_train_val.indices,
                          trainer.dataset_train.indices)
@@ -368,9 +408,6 @@ def plot_train_val_prediction_target_zoom(trainer,
         axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
-    
-def get_start_length_intensity_clusters():
-    pass
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
 def main(cfg: DictConfig):
@@ -433,7 +470,7 @@ def main(cfg: DictConfig):
                                         pred,
                                         target_name=target_name,
                                         save_path=f"results/images/pred_target_zoom_{i}.png")
-            
+        
         ## Residuals + hist + gaussian fit
         for i, target_name in enumerate(cfg.dataset.target_names):
             if target_name not in [f"rate[{i}]" for i in range(13)]:
@@ -466,7 +503,7 @@ def main(cfg: DictConfig):
         pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
 
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
-
+        
         for i, target_name in enumerate(cfg.dataset.target_names):
             plot_train_val_prediction_target_zoom(trainer,
                                                 dataset_train_val,

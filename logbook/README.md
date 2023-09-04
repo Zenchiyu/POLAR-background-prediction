@@ -103,7 +103,7 @@ was suggested by Nicolas Produit to ignore the "outliers" in the "pull histogram
 </details>
 
 
-## Week 3: 18.07.23 - 23.07.23
+## Week 3: 17.07.23 - 23.07.23
 
 <details>
 
@@ -550,6 +550,18 @@ We can also zoom in the plots and move around.
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/36684a50-6757-4d06-99e9-7a53fe058253" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/9375257a-4f7d-4a19-86ff-b871d8174f14" width=300>| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/2e7521e3-8d6b-4758-b8ba-bcb40f4d2070" width=300>|
 |:--:|:--:|:--:|
 
+- Fixed `integral`, it wasn't summing using the correct target.
+- Added `normalized pull` = `pull/new_std` but didn't add it in every plot. The threshold stays the same as before.
+- Fixed errors with `len()` in the scatter plots of the interactive plot that used mpl-interactions.
+- Fixed dataframe index of `data_df`.
+- Fixing issue with red data points legend not showing up if first axis doesn't have one red data point
+- Tried to create cluster intersections with Nicolas Produit using for loops through some variable-sized array.
+- Abandonned that code and used pandas dataframe merge + some other operations to get the cluster intersections.
+- Found that the merge didn't keep the unix time order nor the index from `data_df`.
+- Fixed it by setting the sort argument to True and putting back the correct index after the merge.  
+- Fixed `discard_w`. There was an issue with the ending points.
+- Cleaning a part of my code
+
 ### Some interesting links
 
 - https://proclusacademy.com/blog/robust-scaler-outliers/
@@ -566,4 +578,40 @@ We can also zoom in the plots and move around.
 - Learn more about sequential models such as Transformers ?
 - Find a better way to threshold and get red points ? It seems, for the moment, that it's not the most promising directions. The predictions
 or our red points can change widely just because some residuals can be higher or lower for some unknown
+</details>
+
+## Week 10: 04.09.23 - 10.09.23
+
+<details>
+
+### Summary
+
+- Cleaning a part of my codes
+- Tried to "interactively" save my interactive plots in PDF format to get selectable text from our figures. Couldn't find a way to do it so I went back to my first idea of printing the cluster information from the title. 
+- Can now "interactively" print cluster information below my interactive plots. By using IPython.display `clear_output`, I cannot erase previous prints without erasing my plots.
+- Changed `inter_id` to `inter_id_or_cond`: we can now show all clusters except those that don't appear in enough number of energy bins.
+
+### TODO
+- Feature importance, explain the weights, why the rate goes up or down. If can kill some weights, reduce the model complexity. Find the underlying rules that the model found.
+- Clean logbook, clean code
+- Start the two reports
+
+</details>
+
+
+## Week 11: 11.09.23 - 17.09.23
+
+<details>
+
+### Summary
+
+</details>
+
+
+## Week 12: 18.09.23 - 24.09.23
+
+<details>
+
+### Summary
+
 </details>
