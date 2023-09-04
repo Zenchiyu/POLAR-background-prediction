@@ -554,6 +554,13 @@ We can also zoom in the plots and move around.
 - Added `normalized pull` = `pull/new_std` but didn't add it in every plot. The threshold stays the same as before.
 - Fixed errors with `len()` in the scatter plots of the interactive plot that used mpl-interactions.
 - Fixed dataframe index of `data_df`.
+- Fixing issue with red data points legend not showing up if first axis doesn't have one red data point
+- Tried to create cluster intersections with Nicolas Produit using for loops through some variable-sized array.
+- Abandonned that code and used pandas dataframe merge + some other operations to get the cluster intersections.
+- Found that the merge didn't keep the unix time order nor the index from `data_df`.
+- Fixed it by setting the sort argument to True and putting back the correct index after the merge.  
+- Fixed `discard_w`. There was an issue with the ending points.
+- Cleaning a part of my code
 
 ### Some interesting links
 
@@ -576,19 +583,27 @@ or our red points can change widely just because some residuals can be higher or
 ## Week 10: 04.09.23 - 10.09.23
 
 <details>
+
 ### Summary
+
+- Cleaning a part of my codes
+
 </details>
 
 
 ## Week 11: 11.09.23 - 17.09.23
 
 <details>
+
 ### Summary
+
 </details>
 
 
 ## Week 12: 18.09.23 - 24.09.23
 
 <details>
+
 ### Summary
+
 </details>
