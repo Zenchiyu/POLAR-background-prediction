@@ -587,6 +587,8 @@ or our red points can change widely just because some residuals can be higher or
 ### Summary
 
 - Cleaning a part of my codes
+- Tried to "interactively" save my interactive plots in PDF format to get selectable text from our figures. Couldn't find a way to do it so I went back to my first idea of printing the cluster information from the title. 
+- Can now "interactively" print cluster information below my interactive plots. By using IPython.display `clear_output`, I cannot erase previous prints without erasing my plots.
 
 </details>
 
