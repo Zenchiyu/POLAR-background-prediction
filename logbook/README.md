@@ -590,6 +590,11 @@ or our red points can change widely just because some residuals can be higher or
 - Tried to "interactively" save my interactive plots in PDF format to get selectable text from our figures. Couldn't find a way to do it so I went back to my first idea of printing the cluster information from the title. 
 - Can now "interactively" print cluster information below my interactive plots. By using IPython.display `clear_output`, I cannot erase previous prints without erasing my plots.
 - Changed `inter_id` to `inter_id_or_cond`: we can now show all clusters except those that don't appear in enough number of energy bins.
+- Found that the input feature normalization used the wrong dataset, it used the whole dataset including GRBs instead of the one used when training the model.
+- Trying to compute partial derivatives of the targets wrt input features using autograd automatic differentiation engine.
+- Fixed mistake in which we also zero out gradients that we appended. The solution was to clone the `.grad` attribute before appending it to our list.
+- Found that there might be an issue with our partial derivatives because x-axis values are not all unique ! and for the same value, it can lead to different rates.
+
 
 ### TODO
 - Feature importance, explain the weights, why the rate goes up or down. If can kill some weights, reduce the model complexity. Find the underlying rules that the model found.
