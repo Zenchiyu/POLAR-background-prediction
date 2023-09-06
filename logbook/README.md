@@ -591,13 +591,13 @@ or our red points can change widely just because some residuals can be higher or
 - Can now "interactively" print cluster information below my interactive plots. By using IPython.display `clear_output`, I cannot erase previous prints without erasing my plots.
 - Changed `inter_id` to `inter_id_or_cond`: we can now show all clusters except those that don't appear in enough number of energy bins.
 - Found that the input feature normalization used the wrong dataset, it used the whole dataset including GRBs instead of the one used when training the model.
-- Trying to compute partial derivatives of the targets wrt input features using autograd automatic differentiation engine.
-- Fixed mistake in which we also zero out gradients that we appended. The solution was to clone the `.grad` attribute before appending it to our list.
+- Trying to compute partial derivatives of the targets wrt *normalized* input features using autograd automatic differentiation engine. In other words, trying to see how the output varies wrt the input of the model.
+- Fixed mistake in which we also zeroed out gradients that we appended. The solution was to clone the `.grad` attribute before appending it to our list.
 - Found that there might be an issue with our partial derivatives because x-axis values are not all unique ! and for the same value, it can lead to different rates.
 - Checked that PyTorch autograd gives what we wanted. It's fine to have different partial derivative values for the same x-axis value.
-- Added contour plot with interpolation
+- Added contour plot with interpolation (might be better to use some quantized version in which the value in each bin is obtained via an average)
 - Can now export the predictions in `.root` format by using Uproot.
-- Our partial derivatives were not wrt features described in `feature_name`, they are based on their normalized versions.
+- Our partial derivatives were not wrt features described in `feature_name`, they are based on their normalized versions. However, if we want wrt to the unnormalized versions, we just need to divide by the feature standard deviation (from the training set) (see chain rule).
 - Started reading about Network Distillation:
 	- https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
 	- https://arxiv.org/abs/1503.02531
@@ -605,7 +605,16 @@ or our red points can change widely just because some residuals can be higher or
 
 - Started reading about Network Pruning (weights or neurons):
 	- https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
+- We can for instance prune some weights by setting them to 0 if they're already close to 0. In other words, we can prune weights based on their magnitude.
+- Similarly, we can prune neurons based on the magnitude of the activation. But because the activation depends on the data, we need to analyze the statistics of the magnitude.
+- We can also prune based on redundancy. If two neurons output similar values most of time, we can maybe remove one of them. It can be interesting to observe what is redundant in our model
 
+### Some interesting links
+
+- https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
+- https://arxiv.org/abs/1503.02531
+- https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
+- https://pytorch.org/tutorials/intermediate/pruning_tutorial.html
 
 ### TODO
 - Clean logbook, add more information !
