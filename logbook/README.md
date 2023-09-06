@@ -605,7 +605,16 @@ or our red points can change widely just because some residuals can be higher or
 
 - Started reading about Network Pruning (weights or neurons):
 	- https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
-- We can for instance prune some weights by setting them to 0 if they're already close to 0.
+- We can for instance prune some weights by setting them to 0 if they're already close to 0. In other words, we can prune weights based on their magnitude.
+- Similarly, we can prune neurons based on the magnitude of the activation. But because the activation depends on the data, we need to analyze the statistics of the magnitude.
+- We can also prune based on redundancy. If two neurons output similar values most of time, we can maybe remove one of them. It can be interesting to observe what is redundant in our model
+
+### Some interesting links
+
+- https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
+- https://arxiv.org/abs/1503.02531
+- https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
+- https://pytorch.org/tutorials/intermediate/pruning_tutorial.html
 
 ### TODO
 - Clean logbook, add more information !
