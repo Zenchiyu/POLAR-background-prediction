@@ -615,6 +615,8 @@ or our red points can change widely just because some residuals can be higher or
 - https://arxiv.org/abs/1503.02531
 - https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
 - https://pytorch.org/tutorials/intermediate/pruning_tutorial.html
+- https://captum.ai for interpretable models in PyTorch
+- https://christophm.github.io/interpretable-ml-book/
 
 ### TODO
 - Clean logbook, add more information !
