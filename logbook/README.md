@@ -594,9 +594,13 @@ or our red points can change widely just because some residuals can be higher or
 - Trying to compute partial derivatives of the targets wrt input features using autograd automatic differentiation engine.
 - Fixed mistake in which we also zero out gradients that we appended. The solution was to clone the `.grad` attribute before appending it to our list.
 - Found that there might be an issue with our partial derivatives because x-axis values are not all unique ! and for the same value, it can lead to different rates.
+- Checked that PyTorch autograd gives what we wanted. It's fine to have different partial derivative values for the same x-axis value.
+- Added contour plot with interpolation
+- Can now export the predictions in `.root` format by using Uproot.
 
 
 ### TODO
+- Clean logbook, add more information !
 - Feature importance, explain the weights, why the rate goes up or down. If can kill some weights, reduce the model complexity. Find the underlying rules that the model found.
 - Clean logbook, clean code
 - Start the two reports
