@@ -618,6 +618,7 @@ or our red points can change widely just because some residuals can be higher or
 - https://captum.ai for interpretable models in PyTorch
 - https://christophm.github.io/interpretable-ml-book/
 - https://infoscience.epfl.ch/record/289640/files/EPFL_TH8606.pdf
+- https://arxiv.org/pdf/1611.07634.pdf
 
 ### TODO
 - Clean logbook, add more information !
