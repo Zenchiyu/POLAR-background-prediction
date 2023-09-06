@@ -609,7 +609,7 @@ or our red points can change widely just because some residuals can be higher or
 - Similarly, we can prune neurons based on the magnitude of the activation. But because the activation depends on the data, we need to analyze the statistics of the magnitude.
 - We can also prune based on redundancy. If two neurons output similar values most of time, we can maybe remove one of them. It can be interesting to observe what is redundant in our model
 
-### Some interesting links
+### Some interesting links to explore
 
 - https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
 - https://arxiv.org/abs/1503.02531
@@ -617,6 +617,7 @@ or our red points can change widely just because some residuals can be higher or
 - https://pytorch.org/tutorials/intermediate/pruning_tutorial.html
 - https://captum.ai for interpretable models in PyTorch
 - https://christophm.github.io/interpretable-ml-book/
+- https://infoscience.epfl.ch/record/289640/files/EPFL_TH8606.pdf
 
 ### TODO
 - Clean logbook, add more information !
