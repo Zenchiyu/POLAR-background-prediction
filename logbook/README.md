@@ -597,7 +597,7 @@ or our red points can change widely just because some residuals can be higher or
 - Checked that PyTorch autograd gives what we wanted. It's fine to have different partial derivative values for the same x-axis value.
 - Added contour plot with interpolation (might be better to use some quantized version in which the value in each bin is obtained via an average)
 - Can now export the predictions in `.root` format by using Uproot.
-- Our partial derivatives were not wrt features described in `feature_name`, they are based on their normalized versions. However, if we want wrt to the unnormalized versions, we just need to divide by the feature standard deviation (from the training set).
+- Our partial derivatives were not wrt features described in `feature_name`, they are based on their normalized versions. However, if we want wrt to the unnormalized versions, we just need to divide by the feature standard deviation (from the training set) (see chain rule).
 - Started reading about Network Distillation:
 	- https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
 	- https://arxiv.org/abs/1503.02531
