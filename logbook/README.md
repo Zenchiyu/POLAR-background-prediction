@@ -598,12 +598,12 @@ or our red points can change widely just because some residuals can be higher or
 - Added contour plot with interpolation
 - Can now export the predictions in `.root` format by using Uproot.
 - Our partial derivatives were not wrt features described in `feature_name`, they are based on their normalized versions.
-- Started reading about Network Pruning and Distillation:
-	- Distillation:
-   		- https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
-		- https://arxiv.org/abs/1503.02531
-    	- Pruning (weights or neurons):
-		- https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
+- Started reading about Network Distillation:
+	- https://www.quora.com/Is-there-any-way-to-build-a-smaller-network-using-learned-weights-of-a-large-network-1
+	- https://arxiv.org/abs/1503.02531
+    
+- Started reading about Network Pruning (weights or neurons):
+	- https://towardsdatascience.com/pruning-neural-networks-1bb3ab5791f9
 
 
 ### TODO
