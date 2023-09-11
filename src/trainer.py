@@ -46,7 +46,7 @@ class Trainer:
         self.criterion = self.create_criterion()
         self.criterion_args = self.get_criterion_args()
         
-        # Note: Data will be later moved to device, one batch at a time
+        # Note: Data will be later moved to device, one mini-batch at a time
 
         ### Wandb
         ## Init
@@ -69,7 +69,8 @@ class Trainer:
                   f"\n\t- # of minibatches: {len(self.val_loader)}")
             print(f"Test:\n\t- len: {len(self.dataset_test)}"+\
                   f"\n\t- # of minibatches: {len(self.test_loader)}")
-            
+        print("Initialization Completed")
+        
     def fit(self) -> None:
         """
         Train the model using the training set.
@@ -198,6 +199,7 @@ class Trainer:
                                   batch_size=self.cfg.dataset.test.batch_size,
                                   num_workers=4,
                                   pin_memory=True)
+        print("Finished initializing train, val, test Datasets & DataLoaders")
         return self.train_loader, self.val_loader, self.test_loader
     
     def save_config(self) -> None:

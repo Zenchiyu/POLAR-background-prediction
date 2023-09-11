@@ -76,7 +76,6 @@ def periodical_split(dataset: Dataset,
 
     indices = [np.nonzero(np.isin((all_indices % periodicity),
                                   np.arange(begin, end)))[0] for begin, end in zip(cumsum[:-1], cumsum[1:])]
-    print(indices)
     subsets = tuple([Subset(dataset, idxs) for idxs in indices])
     return subsets
 
