@@ -107,7 +107,7 @@ def create_new_columns(data_df: pd.DataFrame,
     Warning: careful with "silent" errors related to the operations on existing
     columns (e.g division by 0)
     """
-
+    print("Creating new columns in data_df")
     if len(new_columns) == 0:
         return None
     
@@ -115,13 +115,15 @@ def create_new_columns(data_df: pd.DataFrame,
 
     for col, expression in zip(new_columns, expressions):
         if verbose: print(f"\nExpr to eval for col {col}: {expression}")
-        eval(expression)  # just to show any warnings or errors
+        # Eval using NumPy arrays just to show any warnings or errors
+        eval(expression)
 
         # Add new column with evaluated expression
         data_df[col] = eval(expression.replace(".values", ""))
         n_examples_old = data_df.shape[0]
         
         # Filter out the rows having at least a NaN or missing value
+        # Ex: Could be caused by a division by 0 in "eval".
         data_df.dropna(inplace=True)
         
         if verbose:
@@ -142,7 +144,7 @@ def filter_examples(data_df: pd.DataFrame,
     
     Order on these filters matters.
     """
-
+    print("Filtering some examples/data/rows in data_df")
     if len(filter_conditions) == 0:
         return None
 
@@ -150,7 +152,8 @@ def filter_examples(data_df: pd.DataFrame,
 
     for cond, expression in zip(filter_conditions, expressions):
         if verbose: print(f"\nExpr to eval for cond {cond}: {expression}")
-        eval(expression)  # just to show any warnings or errors
+        # Eval using NumPy arrays just to show any warnings or errors
+        eval(expression)
         n_examples_old = data_df.shape[0]
 
         # Filter examples based on the condition, if true -> keep
@@ -159,6 +162,7 @@ def filter_examples(data_df: pd.DataFrame,
                      inplace=True)
         
         # Filter out the rows having at least a NaN or missing value
+        # Ex: Could be caused by a division by 0 in "eval".
         data_df.dropna(inplace=True)
         
         if verbose:
