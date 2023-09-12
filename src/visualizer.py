@@ -147,7 +147,9 @@ def plot_normalized_hist(data,
                                     lambda x: np.power(x, 2))))
         if title is not None: ax.set_title("Sqrt " + title)
     elif transform == "log":
-        ax.set_yscale("log")
+        # ax.set_yscale("log")
+        ax.set_yscale(FuncScale(0, (lambda x: np.log(x+1),
+                                    lambda x: np.exp(x)-1)))
         if title is not None: ax.set_title("Log " + title)
     else:
         ax.set_title(title)
@@ -338,7 +340,8 @@ def plot_val_pull(dataset_val,
                                     lambda x: np.power(x, 2))))
         ax_histy.set_title("Sqrt " + hist_title)
     elif transform == "log":
-        ax_histy.set_xscale("log")
+        ax_histy.set_yscale(FuncScale(0, (lambda x: np.log(x+1),
+                                    lambda x: np.exp(x)-1)))
         ax_histy.set_title("Log " + hist_title)
     
     if save_path: plt.savefig(save_path)
@@ -413,7 +416,9 @@ def plot_train_val_prediction_target_zoom(trainer,
 def main(cfg: DictConfig):
     ## Don't start a wandb run
     cfg.wandb.mode = "disabled"
-    
+    ## Use the GPU when available, otherwise use the CPU
+    cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
+
     cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
     # once we're sure that we don't change anymore the dataset:
@@ -427,9 +432,9 @@ def main(cfg: DictConfig):
     #     cfg.dataset.save_format = "pkl"  # to save dataset
     
     trainer = Trainer(cfg)
-    
     ### Loading checkpoint
-    general_checkpoint = torch.load("checkpoints/last_general_checkpoint.pth")
+    general_checkpoint = torch.load("checkpoints/last_general_checkpoint.pth",
+                                    map_location=torch.device(trainer.device))
     trainer.model.load_state_dict(general_checkpoint["model_state_dict"])
     trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
 
@@ -457,7 +462,7 @@ def main(cfg: DictConfig):
         # the model
         dataset_full = trainer.dataset_full
         val_tensor = dataset_full.X_cpu[trainer.dataset_val.indices]
-        val_tensor = dataset_full.transform(val_tensor).to(cfg.common.device)
+        val_tensor = dataset_full.transform(val_tensor).to(trainer.device)
         pred = trainer.model(val_tensor).detach().to(device="cpu")
         
         for i, target_name in enumerate(cfg.dataset.target_names):
@@ -498,7 +503,7 @@ def main(cfg: DictConfig):
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
                                                 trainer.dataset_val])
         train_val_tensor = dataset_full.X_cpu[dataset_train_val.indices]
-        train_val_tensor = dataset_full.transform(train_val_tensor).to(cfg.common.device)
+        train_val_tensor = dataset_full.transform(train_val_tensor).to(trainer.device)
 
         pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
 
