@@ -20,14 +20,10 @@ def get_time_y(dataset_val,
                return_argsort=False):
     dataset = dataset_val.dataset
     df = dataset.data_df
-    # Column indices
-    idx = dataset.column_names2id
 
-    idx_target_name = idx[target_name]
     # Subset of dataset but could be in wrong order 
-    val = dataset.data_cpu[dataset_val.indices]
     time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
-    y_val = val[:, idx_target_name]
+    y_val = df.loc[df.index[dataset_val.indices], target_name].values
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
@@ -52,15 +48,10 @@ def get_time_y_y_hat(dataset_val,
 def get_all_time_y_y_hat(dataset_val, pred):
     dataset = dataset_val.dataset
     df = dataset.data_df
-    # Column indices
-    idx = dataset.column_names2id
-
-    idx_target_names = [idx[t] for t in dataset.target_names]
 
     # Subset of dataset but could be in wrong order 
-    val = dataset.data_cpu[dataset_val.indices]
     time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
-    y_val = val[:, idx_target_names]
+    y_val = df.loc[df.index[dataset_val.indices], dataset.target_names].values
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
@@ -70,15 +61,10 @@ def get_all_time_y_y_hat(dataset_val, pred):
 def get_columns(dataset_subset, column_names):
     dataset = dataset_subset.dataset
     df = dataset.data_df
-    # Column indices
-    idx = dataset.column_names2id
-
-    idx_column_names = [idx[c] for c in column_names]
 
     # Subset of dataset but could be in wrong order
-    subset = dataset.data_cpu[dataset_subset.indices]
     time = df.loc[df.index[dataset_subset.indices], "unix_time"].values
-    columns = subset[:, idx_column_names]
+    columns = df.loc[df.index[dataset_subset.indices], column_names].values
 
     # Sort by ascending time
     argsort = np.argsort(time)
@@ -415,7 +401,7 @@ def main(cfg: DictConfig):
     ## Don't start a wandb run
     cfg.wandb.mode = "disabled"
     ## Use the GPU when available, otherwise use the CPU
-    cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
+    cfg.common.device = "cpu"  # "cuda" if torch.cuda.is_available() else "cpu"
 
     cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
@@ -441,6 +427,7 @@ def main(cfg: DictConfig):
     trainer.val_loss = general_checkpoint["val_loss"].cpu()
     
     del general_checkpoint
+    gc.collect()
 
     ### Plotting
     trainer.model.eval()
@@ -460,9 +447,15 @@ def main(cfg: DictConfig):
         ## Prediction on validation set (e.g rate[0])
         # Need to transform before inputting the whole validation set into
         # the model
-        dataset_full = trainer.dataset_full
-        val_tensor = dataset_full.X_cpu[trainer.dataset_val.indices]
-        val_tensor = dataset_full.transform(val_tensor).to(trainer.device)
+        X_cpu = trainer.dataset_full.X_cpu
+        transform = trainer.dataset_full.transform
+        
+        del trainer.dataset_full
+        torch.cuda.empty_cache()
+        gc.collect()
+
+        val_tensor = X_cpu[trainer.dataset_val.indices]
+        val_tensor = transform(val_tensor).to(trainer.device)
         pred = trainer.model(val_tensor).detach().to(device="cpu")
         
         for i, target_name in enumerate(cfg.dataset.target_names):
@@ -502,14 +495,9 @@ def main(cfg: DictConfig):
         ## Prediction on both train + val set
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
                                                 trainer.dataset_val])
-        train_val_tensor = dataset_full.X_cpu[dataset_train_val.indices]
-        train_val_tensor = dataset_full.transform(train_val_tensor).to(trainer.device)
+        train_val_tensor = X_cpu[dataset_train_val.indices]
+        train_val_tensor = transform(train_val_tensor).to(trainer.device)
         
-        dataset_full = dataset_full.to(device="cpu")
-        del dataset_full
-        torch.cuda.empty_cache()
-        gc.collect()
-
         pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
         
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
