@@ -217,7 +217,6 @@ def plot_val_residual(dataset_val,
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
 
-
     left, width = 0.1, 0.65
     bottom, height = 0.1, 0.65
     spacing = 0.03
@@ -271,7 +270,6 @@ def plot_val_pull(dataset_val,
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
-
 
     left, width = 0.1, 0.65
     bottom, height = 0.1, 0.65
@@ -456,7 +454,9 @@ def main(cfg: DictConfig):
         
         ## Loss
         plot_loss(trainer.train_loss, trainer.val_loss)
-        
+        del trainer.train_loader, trainer.val_loss
+        gc.collect()
+
         ## Prediction on validation set (e.g rate[0])
         # Need to transform before inputting the whole validation set into
         # the model
@@ -504,9 +504,14 @@ def main(cfg: DictConfig):
                                                 trainer.dataset_val])
         train_val_tensor = dataset_full.X_cpu[dataset_train_val.indices]
         train_val_tensor = dataset_full.transform(train_val_tensor).to(trainer.device)
+        
+        dataset_full = dataset_full.to(device="cpu")
+        del dataset_full
+        torch.cuda.empty_cache()
+        gc.collect()
 
         pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
-
+        
         print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
         
         for i, target_name in enumerate(cfg.dataset.target_names):
