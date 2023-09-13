@@ -36,7 +36,35 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates for validation set.
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
-You can change the `config/trainer.yaml` if you want a different model architecture, hyperparameters, features etc. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
+### FAQ
+
+> How to use a different model architecture, hyperparameters, features etc.?
+
+You can change the `config/trainer.yaml`. However, your possiblities are limited to what I've implemented. Please refer to the documentation for more information.
+
+> Can I run `src/main.py` and `src/visualizer.py` remotely?
+
+Yes you can. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
+
+> Can I run the Jupyter notebooks remotely?
+
+Yes you can. You can use Jupyter and Remote-SSH VSCode extension to remotely edit and run codes on your remote Linux machine.
+
+If you don't want to use VSCode, you can take a look at this following link:
+https://docs.anaconda.com/free/anaconda/jupyter-notebooks/remote-jupyter-notebook/
+
+> The execution crashed what happened?
+
+The crash is likely due to memory usage.
+
+- You can change `verbose: False` to `verbose: True` in `config/trainer.yaml` to see more information (our prints).
+- You can check `cfg.common.device` in `config/trainer.yaml`, you might need to change it to `cpu` if you don't have a GPU (you can check that using `torch.cuda.is_available()` in Python).
+- You can use the `nvidia-smi` command to see the VRAM usage (if you're using a GPU)
+- You can use `htop` (or another command) to see the RAM usage.
+
+> Can I run the codes on CPU?
+
+`src/visualizer.py` and `notebooks/results.ipynb` should automatically work on CPU if you don't have a GPU. However, you can still manually choose the device by changing `cfg.common.device: cuda` to `cfg.common.device: cpu`.
 
 ## Credits and useful links
 
