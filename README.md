@@ -36,7 +36,7 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates for validation set.
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
-You can change the `config/trainer.yaml` if you want a different model architecture, different hyperparameters, features etc.
+You can change the `config/trainer.yaml` if you want a different model architecture, hyperparameters, features etc. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
 
 ## Credits and useful links
 
@@ -50,3 +50,4 @@ You can change the `config/trainer.yaml` if you want a different model architect
 - ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
 - VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
 - Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
+- TMux detach/reattach session: https://www.redhat.com/sysadmin/introduction-tmux-linux
