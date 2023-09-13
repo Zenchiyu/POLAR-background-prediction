@@ -26,15 +26,17 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 pip3 install -r requirements.txt
 ```
 
-The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 and torchvision==0.15.2.
+The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 and torchvision==0.15.2. Using a different Python version
+might cause problems.
 
 ## Usage
 
 - `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if don't want to use weights and biases)
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates for validation set.
-- After running the previous command, you can run the jupyter notebook `./notebooks/results.ipynb` to show our other plots.
+- Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
 You can change the `config/trainer.yaml` if you want a different model architecture, different hyperparameters, features etc.
+We've used Jupyter Notebook via VSCode.
 
 ## Credits and useful links
 
@@ -46,3 +48,5 @@ You can change the `config/trainer.yaml` if you want a different model architect
   - https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
 - Hydra: https://hydra.cc/docs/intro/
 - ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
+- VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
+- Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
