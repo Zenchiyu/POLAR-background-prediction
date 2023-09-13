@@ -18,7 +18,7 @@ common:
       - 1/rate_err[6]**2
       - 1/rate_err[10]**2
       - 1/rate_err[12]**2
-  device: cpu # cuda
+  device: cuda  # cpu
 
 dataset:
   filename: data/nf1rate.root
