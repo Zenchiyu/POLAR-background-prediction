@@ -127,10 +127,10 @@ def plot_normalized_hist(data,
     fig, ax = plt.subplots()
 
     # Histogram
-    n, bins, _ = ax.hist(data, bins=500, alpha=0.5, density=True)  # area under hist = 1
+    n, _, _ = ax.hist(data, bins=500, alpha=0.5, density=True)  # area under hist = 1
     min_n = np.min(n[np.nonzero(n)])  # minimum nonzero value of the histogram bins.
     ylim_min, ylim_max = min_n, np.max(n)+0.05
-    
+
     # Setting the scale and x-range of the gaussian
     # And title
     if transform == "sqrt":
@@ -153,16 +153,13 @@ def plot_normalized_hist(data,
                 color="m", linewidth=1, linestyle="--")
     
     # Vertical lines
-    if std != 1:
-        ax.plot([-5*std, -5*std], [min_n/2, f(xs, mean, std).max()/36],
-                'r', label=r"$-5\sigma$")
-        ax.plot([5*std, 5*std], [min_n/2, f(xs, mean, std).max()/36],
-                'g', label=r"$+5\sigma$")
-    else:
-        ax.plot([-5, -5], [min_n/2, f(xs, mean, std).max()/36],
-                'r', label=r"$-5$")
-        ax.plot([5, 5], [min_n/2, f(xs, mean, std).max()/36],
-                'g', label=r"$+5$")
+    label = r"$5\sigma$" if std != 1 else r"$5$"
+    ax.plot([-5*std, -5*std], [min_n/2, f(xs, mean, std).max()/36],
+            'r', label=r"$-$" + label)
+    ax.plot([5*std, 5*std], [min_n/2, f(xs, mean, std).max()/36],
+            'g', label=r"$+$" + label)
+    
+    # Labels, legend, limits
     ax.set_xlabel(xlabel)
     ax.set_ylim([ylim_min, ylim_max])
     ax.legend()
@@ -206,7 +203,7 @@ def plot_loss(train_loss,
 def plot_val_prediction_target(dataset_val,
                                pred,
                                target_name="rate[0]",
-                               save_path="results/images/pred_target.png"):  # TODO: use a better name
+                               save_path="results/images/pred_target.png"):
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -284,22 +281,25 @@ def plot_val_pull(dataset_val,
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
 
+    # Some constants
     left, width = 0.1, 0.65
     bottom, height = 0.1, 0.65
     spacing = 0.03
     rect_pulls = [left, bottom, width, height]
     rect_histy = [left + width + spacing, bottom, 0.2, height]
+    
+    # Setting the figure layout
     fig = plt.figure(figsize=(12, 10))
     ax = fig.add_axes(rect_pulls)
     ax_histy = fig.add_axes(rect_histy, sharey=ax)
-
     ax_histy.tick_params(axis="y", labelleft=False)
-    ax_histy.set_title("Normalized Histogram (Density)")
 
+    # Residuals, rate error and pulls 
     residuals = (sorted_y_val-sorted_y_hat_val).flatten()
     rate_err = get_column(dataset_val, rate_err_name).flatten()
-    
     pulls = residuals/rate_err
+
+    # Modified gaussian fit of the pulls
     new_mean, new_std = find_moments(pulls)
     
     if normalized:
@@ -317,26 +317,56 @@ def plot_val_pull(dataset_val,
         mean_fit = new_mean
         std_fit = new_std
     
-    # (Normalized) Pulls
+    # (Normalized) Pulls on the left
     ax.plot(sorted_time_val, y, '-r', linewidth=0.1)
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name}")
     ax.set_title(title)
 
+    # Histogram of (normalized) pull on the right
+    n, _, _ = ax_histy.hist(y, bins=500, alpha=0.5,
+                            density=True, orientation="horizontal")  # area under hist = 1
+    min_n = np.min(n[np.nonzero(n)])  # minimum nonzero value of the histogram bins.
+    xlim_min, xlim_max = min_n, np.max(n)+0.05
+    
+    # Setting the scale and x-range of the gaussian
+    # And title
+    if transform == "sqrt":
+        xs = np.linspace(y.min(), y.max(), 255)
+        ax_histy.set_xscale(FuncScale(0, (lambda x: np.sqrt(x),
+                                    lambda x: np.power(x, 2))))
+        ax_histy.set_title("Sqrt " + hist_title)
+    elif transform == "log":
+        # For "log", weird plots arise due to the x-range of the gaussian
+        # and the ylim
+        xs = np.linspace(-7*std_fit, 7*std_fit, 255)
+        xlim_max *= 3
+        ax_histy.set_xscale("log")
+        ax_histy.set_title("Log " + hist_title)
+    else:
+        ax_histy.set_title(hist_title)
+    
     # For gaussian fit
-    xs = np.linspace(y.min(), y.max(), 255)
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     
     # Gaussian fit
     ax_histy.plot(f(xs, mean_fit, std_fit), xs,
                   zorder=np.inf, color="m", linewidth=1, linestyle="--")
-        
-    # Histogram of (normalized) pull
-    _ = sns.histplot(data=pd.DataFrame(y, columns=[target_name]),
-                        y=target_name,
-                        stat="density",
-                        ax=ax_histy)
+
+    # Horizontal lines
+    label = r"$5\sigma$" if std_fit != 1 else r"$5$"
+    ax_histy.plot([min_n/2, f(xs, mean_fit, std_fit).max()/36],
+                  [-5*std_fit, -5*std_fit],
+                  'r', label=r"$-$" + label)
+    ax_histy.plot([min_n/2, f(xs, mean_fit, std_fit).max()/36],
+                  [5*std_fit, 5*std_fit],
+                  'g', label=r"$+$" + label)
     
+    # Legend, limits
+    ax_histy.set_xlim([xlim_min, xlim_max])
+    ax_histy.legend()
+
+    ######################################################
     # Again histogram but in another figure and w/o seaborn
     fig2 = plot_normalized_hist(y,
                                 mean_fit,
@@ -345,24 +375,14 @@ def plot_val_pull(dataset_val,
                                 title=hist_title,
                                 xlabel=xlabel,
                                 save_path=save_path_hist)
-    # TODO: change this below
-    if transform == "sqrt":
-        ax_histy.set_xscale(FuncScale(0, (lambda x: np.sqrt(x),
-                                    lambda x: np.power(x, 2))))
-        ax_histy.set_title("Sqrt " + hist_title)
-    elif transform == "log":
-        ax_histy.set_yscale(FuncScale(0, (lambda x: np.log(x+1),
-                                    lambda x: np.exp(x)-1)))
-        ax_histy.set_title("Log " + hist_title)
     
     if save_path: plt.savefig(save_path)
-
     return (fig, fig2)
 
 def plot_prediction_target_zoom(dataset,
                                pred,
                                target_name="rate[0]",
-                               save_path="results/images/pred_target_zoom.png"):  # TODO: use a better name
+                               save_path="results/images/pred_target_zoom.png"):
     tmp = get_time_y_y_hat(dataset, pred, target_name)
     sorted_time, sorted_y, sorted_y_hat = tmp
     del tmp
@@ -379,12 +399,11 @@ def plot_prediction_target_zoom(dataset,
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
 
-
 def plot_train_val_prediction_target_zoom(trainer,
                                           dataset_train_val,
                                           pred_train_val,
                                           target_name="rate[0]",
-                                          save_path="results/images/pred_target_zoom_train_val.png"):  # TODO: use a better name
+                                          save_path="results/images/pred_target_zoom_train_val.png"):
     # train + val
     tmp = get_time_y_y_hat(dataset_train_val, pred_train_val, target_name)
     sorted_time, sorted_y, sorted_y_hat = tmp
