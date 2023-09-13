@@ -83,7 +83,6 @@ In terms of memory usage, this is not great. Instead, you can try to work with m
 <br>
 
 - `src/main.py`: I recommend using the GPU for model training because it's faster and because I mostly trained my model using the GPU.
-
 However, if you still want to change the device to CPU, you can swap `cfg.common.device: cuda` with `cfg.common.device: cpu`.
 
 - `src/visualizer.py` and `notebooks/results.ipynb` work by default on GPU if available; if not, they work on CPU. Although this behavior **overrides** `cfg.common.device`, you can still manually change it by replacing in the code:
