@@ -36,7 +36,13 @@ The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 a
 
 You can change the `config/trainer.yaml` if you want a different model architecture, different hyperparameters, features etc.
 
-## Credits
+## Credits and useful links
 
 - Code and project structure: https://github.com/eloialonso/iris
 - 55 GRBs: https://www.researchgate.net/publication/326811280_Overview_of_the_GRB_observation_by_POLAR
+- Weights & biases: https://wandb.ai/site
+- Pytorch:
+  - https://pytorch.org/tutorials/beginner/basics/intro.html
+  - https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
+- Hydra: https://hydra.cc/docs/intro/
+- ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
