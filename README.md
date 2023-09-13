@@ -48,7 +48,7 @@ Yes you can. To remotely run our Python scripts without keeping an opened SSH co
 
 > Can I run the Jupyter notebooks remotely?
 
-Yes you can. You can use Jupyter and Remote-SSH VSCode extension to remotely edit and run codes on your remote Linux machine.
+Yes you can. You can use Jupyter and Remote-SSH VSCode extensions to remotely edit and run codes on your remote Linux machine.
 
 If you don't want to use VSCode, you can take a look at this following link:
 https://docs.anaconda.com/free/anaconda/jupyter-notebooks/remote-jupyter-notebook/
@@ -59,7 +59,7 @@ The crash is likely due to memory usage.
 
 - You can change `verbose: False` to `verbose: True` in `config/trainer.yaml` to see more information (our prints).
 - You can check `cfg.common.device` in `config/trainer.yaml`, you might need to change it to `cpu` if you don't have a GPU (you can check that using `torch.cuda.is_available()` in Python).
-- You can use the `nvidia-smi` command to see the VRAM usage (if you're using a GPU)
+- You can use `nvidia-smi` to see the VRAM usage (if you're using a GPU)
 - You can use `htop` (or another command) to see the RAM usage.
 
 > Can I run the codes on CPU?
