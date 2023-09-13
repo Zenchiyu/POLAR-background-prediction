@@ -82,7 +82,7 @@ In terms of memory usage, this is not great. Instead, you can try to work with m
 <summary>Can I run the codes on CPU?</summary>
 <br>
 
-- `src/main.py`: It is recommended to use the GPU for model training as it's faster. Moreover, I didn't try to train my models using the research group's CPU. To change the device, you need to change `cfg.common.device` to either `cpu` or `cuda`.
+- `src/main.py`: It is recommended to use the GPU for model training as it's faster. Moreover, as I only tried once to train my model using the research group's CPU, it's uncertain if it works as expected. However, if you still want to change the device to CPU, you need to change `cfg.common.device: cuda` to either `cfg.common.device: cpu`.
 - `src/visualizer.py` and `notebooks/results.ipynb` work by default on GPU (if available, otherwise work on CPU) and overrides whatever you've selected via `cfg.common.device`. However, you can still manually choose the device by changing in the code:
 
 ```python
