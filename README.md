@@ -82,7 +82,27 @@ In terms of memory usage, this is not great. Instead, you can try to work with m
 <summary>Can I run the codes on CPU?</summary>
 <br>
 
-`src/visualizer.py` and `notebooks/results.ipynb` should automatically work on CPU if you don't have a GPU. However, you can still manually choose the device by changing `cfg.common.device: cuda` to `cfg.common.device: cpu`.
+- `src/main.py`: It is recommended to use the GPU for model training as it's faster. Moreover, I didn't try to train my models using the research group's CPU. To change the device, you need to change `cfg.common.device` to either `cpu` or `cuda`.
+- `src/visualizer.py` and `notebooks/results.ipynb` work by default on GPU (if available, otherwise work on CPU) and overrides whatever you've selected via `cfg.common.device`. However, you can still manually choose the device by changing in the code:
+
+```python
+cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
+```
+to
+```python
+cfg.common.device = "cpu"  # "cuda" if torch.cuda.is_available() else "cpu"
+```
+
+before `trainer = Trainer(cfg)`.
+
+</details>
+
+<details>
+<summary>Why results using CPU are different than when using GPU?</summary>
+<br>
+
+See 
+https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than-in-gpu/1356/6
 </details>
 
 ## Credits and useful links
