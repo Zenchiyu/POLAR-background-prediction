@@ -38,22 +38,33 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 
 ### FAQ
 
-> How to use a different model architecture, hyperparameters, features etc.?
+<details>
+<summary>How to use a different model architecture, hyperparameters, features etc.?</summary>
+<br>
 
 You can change the `config/trainer.yaml`. However, your possiblities are limited to what I've implemented. Please refer to the documentation for more information.
+</details>
 
-> Can I run `src/main.py` and `src/visualizer.py` remotely?
+<details>
+<summary>Can I run src/main.py and src/visualizer.py remotely? </summary>
+<br>
 
 Yes you can. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
+</details>
 
-> Can I run the Jupyter notebooks remotely?
+<details>
+<summary>Can I run the Jupyter notebooks remotely?</summary>
+<br>
 
 Yes you can. You can use Jupyter and Remote-SSH VSCode extensions to remotely edit and run codes on your remote Linux machine.
 
 If you don't want to use VSCode, you can take a look at this following link:
 https://docs.anaconda.com/free/anaconda/jupyter-notebooks/remote-jupyter-notebook/
+</details>
 
-> The execution crashed what happened?
+<details>
+<summary>The execution crashed what happened?</summary>
+<br>
 
 The crash is likely due to memory usage.
 
@@ -61,10 +72,14 @@ The crash is likely due to memory usage.
 - You can check `cfg.common.device` in `config/trainer.yaml`, you might need to change it to `cpu` if you don't have a GPU (you can check that using `torch.cuda.is_available()` in Python).
 - You can use `nvidia-smi` to see the VRAM usage (if you're using a GPU)
 - You can use `htop` (or another command) to see the RAM usage.
+</details>
 
-> Can I run the codes on CPU?
+<details>
+<summary>Can I run the codes on CPU?</summary>
+<br>
 
 `src/visualizer.py` and `notebooks/results.ipynb` should automatically work on CPU if you don't have a GPU. However, you can still manually choose the device by changing `cfg.common.device: cuda` to `cfg.common.device: cpu`.
+</details>
 
 ## Credits and useful links
 
