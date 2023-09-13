@@ -39,7 +39,8 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 ### FAQ
 
 <details>
-<summary>How to use a different model architecture, hyperparameters, features etc.?</summary>
+<summary>I want to use a different model architecture, hyperparameters, features etc. What can I do?
+</summary>
 <br>
 
 You can change the `config/trainer.yaml`. However, your possiblities are limited to what I've implemented. Please refer to the documentation for more information.
@@ -49,29 +50,32 @@ You can change the `config/trainer.yaml`. However, your possiblities are limited
 <summary>Can I run src/main.py and src/visualizer.py remotely? </summary>
 <br>
 
-Yes you can. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
+Yes, you can. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
 </details>
 
 <details>
 <summary>Can I run the Jupyter notebooks remotely?</summary>
 <br>
 
-Yes you can. You can use Jupyter and Remote-SSH VSCode extensions to remotely edit and run codes on your remote Linux machine.
+Yes, you can. You can use Jupyter and Remote-SSH VSCode extensions. They allow you to edit and run codes on your remote Linux machine.
 
-If you don't want to use VSCode, you can take a look at this following link:
+If you don't want to use VSCode, you can take a look at the following link:
 https://docs.anaconda.com/free/anaconda/jupyter-notebooks/remote-jupyter-notebook/
 </details>
 
 <details>
-<summary>The execution crashed what happened?</summary>
+<summary>The execution crashed. What happened?</summary>
 <br>
 
-The crash is likely due to memory usage.
+The crash is likely due to memory usage as we sometimes create/store data structures with over 3 million entries.
 
 - You can change `verbose: False` to `verbose: True` in `config/trainer.yaml` to see more information (our prints).
 - You can check `cfg.common.device` in `config/trainer.yaml`, you might need to change it to `cpu` if you don't have a GPU (you can check that using `torch.cuda.is_available()` in Python).
 - You can use `nvidia-smi` to see the VRAM usage (if you're using a GPU)
 - You can use `htop` (or another command) to see the RAM usage.
+- I sometimes create tensors containing the whole dataset to perform a single forward pass on all the examples instead of many.
+In terms of memory usage, this is not great. Instead, you can try to work with mini-batches despite the fact that you will have to perform multiple forward passes.
+
 </details>
 
 <details>
