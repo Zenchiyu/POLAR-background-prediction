@@ -69,6 +69,8 @@ class Trainer:
                   f"\n\t- # of minibatches: {len(self.val_loader)}")
             print(f"Test:\n\t- len: {len(self.dataset_test)}"+\
                   f"\n\t- # of minibatches: {len(self.test_loader)}")
+        else:
+            print(f"Using device: {self.device}")
         print("Initialization Completed")
         
     def fit(self) -> None:
