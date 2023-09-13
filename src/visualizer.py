@@ -20,10 +20,14 @@ def get_time_y(dataset_val,
                return_argsort=False):
     dataset = dataset_val.dataset
     df = dataset.data_df
+    # Target indices
+    idx = dataset.target_names2id
 
+    idx_target_name = idx[target_name]
     # Subset of dataset but could be in wrong order 
+    val = dataset.y_cpu[dataset_val.indices]
     time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
-    y_val = df.loc[df.index[dataset_val.indices], target_name].values
+    y_val = val[:, idx_target_name]
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
@@ -48,10 +52,15 @@ def get_time_y_y_hat(dataset_val,
 def get_all_time_y_y_hat(dataset_val, pred):
     dataset = dataset_val.dataset
     df = dataset.data_df
+    # Target indices
+    idx = dataset.target_names2id
+
+    idx_target_names = [idx[t] for t in dataset.target_names]
 
     # Subset of dataset but could be in wrong order 
+    val = dataset.y_cpu[dataset_val.indices]
     time_val = df.loc[df.index[dataset_val.indices], "unix_time"].values
-    y_val = df.loc[df.index[dataset_val.indices], dataset.target_names].values
+    y_val = val[:, idx_target_names]
     
     # Sort by ascending time
     argsort = np.argsort(time_val)
@@ -61,10 +70,15 @@ def get_all_time_y_y_hat(dataset_val, pred):
 def get_columns(dataset_subset, column_names):
     dataset = dataset_subset.dataset
     df = dataset.data_df
+    # Column indices
+    idx = dataset.column_names2id
+
+    idx_column_names = [idx[c] for c in column_names]
 
     # Subset of dataset but could be in wrong order
+    subset = dataset.data_cpu[dataset_subset.indices]
     time = df.loc[df.index[dataset_subset.indices], "unix_time"].values
-    columns = df.loc[df.index[dataset_subset.indices], column_names].values
+    columns = subset[:, idx_column_names]
 
     # Sort by ascending time
     argsort = np.argsort(time)
@@ -111,36 +125,49 @@ def plot_normalized_hist(data,
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     
     fig, ax = plt.subplots()
-    ax.hist(data, bins=500, alpha=0.5, density=True)
 
-    xs = np.linspace(data.min(), data.max(), 255)
-    ax.plot(xs, f(xs, mean, std), zorder=np.inf,
-            color="m", linewidth=1, linestyle="--")
-    if std != 1:
-        ax.plot([-5*std, -5*std], [0, f(xs, mean, std).max()/36],
-                'r', label=r"$-5\sigma$")
-        ax.plot([5*std, 5*std], [0, f(xs, mean, std).max()/36],
-                'g', label=r"$+5\sigma$")
-    else:
-        ax.plot([-5, -5], [0, f(xs, mean, std).max()/36],
-                'r', label=r"$-5$")
-        ax.plot([5, 5], [0, f(xs, mean, std).max()/36],
-                'g', label=r"$+5$")
-    ax.set_xlabel(xlabel)
-    ax.legend()
+    # Histogram
+    n, bins, _ = ax.hist(data, bins=500, alpha=0.5, density=True)  # area under hist = 1
+    min_n = np.min(n[np.nonzero(n)])  # minimum nonzero value of the histogram bins.
+    ylim_min, ylim_max = min_n, np.max(n)+0.05
+    
+    # Setting the scale and x-range of the gaussian
+    # And title
     if transform == "sqrt":
+        xs = np.linspace(data.min(), data.max(), 255)
         ax.set_yscale(FuncScale(0, (lambda x: np.sqrt(x),
                                     lambda x: np.power(x, 2))))
         if title is not None: ax.set_title("Sqrt " + title)
     elif transform == "log":
-        # ax.set_yscale("log")
-        ax.set_yscale(FuncScale(0, (lambda x: np.log(x+1),
-                                    lambda x: np.exp(x)-1)))
+        # For "log", weird plots arise due to the x-range of the gaussian
+        # and the ylim
+        xs = np.linspace(-7*std, 7*std, 255)
+        ylim_max *= 3
+        ax.set_yscale("log")
         if title is not None: ax.set_title("Log " + title)
     else:
         ax.set_title(title)
-    if save_path: plt.savefig(save_path)
+    
+    # Gaussian
+    ax.plot(xs, f(xs, mean, std), zorder=np.inf,
+                color="m", linewidth=1, linestyle="--")
+    
+    # Vertical lines
+    if std != 1:
+        ax.plot([-5*std, -5*std], [min_n/2, f(xs, mean, std).max()/36],
+                'r', label=r"$-5\sigma$")
+        ax.plot([5*std, 5*std], [min_n/2, f(xs, mean, std).max()/36],
+                'g', label=r"$+5\sigma$")
+    else:
+        ax.plot([-5, -5], [min_n/2, f(xs, mean, std).max()/36],
+                'r', label=r"$-5$")
+        ax.plot([5, 5], [min_n/2, f(xs, mean, std).max()/36],
+                'g', label=r"$+5$")
+    ax.set_xlabel(xlabel)
+    ax.set_ylim([ylim_min, ylim_max])
+    ax.legend()
 
+    if save_path: plt.savefig(save_path)
     return fig
 
 #############################################################################
@@ -318,7 +345,7 @@ def plot_val_pull(dataset_val,
                                 title=hist_title,
                                 xlabel=xlabel,
                                 save_path=save_path_hist)
-    
+    # TODO: change this below
     if transform == "sqrt":
         ax_histy.set_xscale(FuncScale(0, (lambda x: np.sqrt(x),
                                     lambda x: np.power(x, 2))))
@@ -401,7 +428,7 @@ def main(cfg: DictConfig):
     ## Don't start a wandb run
     cfg.wandb.mode = "disabled"
     ## Use the GPU when available, otherwise use the CPU
-    cfg.common.device = "cpu"  # "cuda" if torch.cuda.is_available() else "cpu"
+    cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     cfg.dataset.save_format = "pkl"
     # Comment prev. line and uncomment this below
@@ -453,7 +480,7 @@ def main(cfg: DictConfig):
         del trainer.dataset_full
         torch.cuda.empty_cache()
         gc.collect()
-
+        
         val_tensor = X_cpu[trainer.dataset_val.indices]
         val_tensor = transform(val_tensor).to(trainer.device)
         pred = trainer.model(val_tensor).detach().to(device="cpu")
