@@ -6,7 +6,7 @@ Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bu
 
 These time intervals might include moments in which the detector was turned off or had problems which caused our predictions to be significantly higher or lower than the target rates. They might also include solar events such as solar flares.
 
-**tl;dr**:
+**tl;dr**
 - Built a model of the background (light curve)
 - Used the residuals (target-prediction) to extract time intervals
 
