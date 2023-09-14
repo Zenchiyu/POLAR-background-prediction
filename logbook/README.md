@@ -608,6 +608,9 @@ or our red points can change widely just because some residuals can be higher or
 - We can for instance prune some weights by setting them to 0 if they're already close to 0. In other words, we can prune weights based on their magnitude.
 - Similarly, we can prune neurons based on the magnitude of the activation. But because the activation depends on the data, we need to analyze the statistics of the magnitude.
 - We can also prune based on redundancy. If two neurons output similar values most of time, we can maybe remove one of them. It can be interesting to observe what is redundant in our model
+- Adding more comments & markdown in the jupyter notebook
+- Discovered while analyzing partial derivatives that the crabarf feature didn't make any sense from the physical viewpoint.
+- Prof. Nicolas Produit fixed the dataset and I trained my model again but on the fixed dataset
 
 ### Some interesting links to explore
 
@@ -635,6 +638,23 @@ or our red points can change widely just because some residuals can be higher or
 
 ### Summary
 
+- Fixing some variable names, cleaning the code, adding more explanation in Markdown or in the comments.
+- Added some code for partial derivatives wrt the un-normalized features (using the chain rule).
+- Verified that we get the same partial derivatives as when using directly PyTorch autograd automatic differentiation engine.
+- Added Table Of Contents in our Jupyter notebook (TOC)
+- Added some kind of "profile histogram" just like in ROOT-CERN. See https://root.cern.ch/doc/master/classTProfile2D.html for more information.
+- Deleted my old contour plots (were too slow and used interpolation).
+- Further code cleaning
+- Checked whether Prof. Nicolas Produit could run my codes. There was a lot of dependency issues and pipreqs forgot to add `wandb` in the `requirements.txt` so I fixed it. The other dependency issues are likely due to the different Python version.
+- Setted up wandb for Prof. Nicolas Produit.
+- My codes work fine when ran on raidpolar but my jupyter notebook can be quiet slow and could crash quiet often when I or Nicolas Produit were not using VSCode.
+- Discovered that I didn't try my codes on CPU device
+- Fixed it for all my Python scripts and the jupyter notebook (and tried running everything again only on CPU, even the training). Found that the results differ when the training was done on CPU vs on GPU, this is mostly due to the order of operations.
+- Training phase takes about 2 hours to run on CPU instead of 1 hour 25 on GPU which shows that we might be able to improve even further the performance on GPU.
+- Memory usage issues on a less powerful computer (e.g. laptop with 8 gigabyte of RAM and no GPU) are left unresolved but could be an extra useful feature.
+- Cleaned the rest of the code & README.md's
+- Fixing log scales in the partial derivatives histograms
+- - 
 </details>
 
 
