@@ -6,7 +6,7 @@ We first try to predict the background part of a light curve (y axis being the n
 
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> |
 |:--:| 
-| *Trying to detect 25 known GRBs: red dot: above threshold, green vertical line: trigger time GRB, blue curve: original curve (e.g. `rate[0]`), black curve: predicted curve* |
+| *Trying to detect 25 known GRBs: red dot: above threshold, green vertical line: GRB trigger time, blue curve: original curve (e.g. `rate[0]`), black curve: predicted curve* |
 
 
 Related links:
@@ -32,8 +32,9 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 
 ## Usage
 
-- `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if don't want to use weights and biases)
+- `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if you don't want to use weights and biases)
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates for validation set.
+- `python src/export.py` to export, into .root format (ROOT CERN), our predictions over the whole dataset with the 25 known GRBs.
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
 ### FAQ
@@ -47,7 +48,7 @@ You can change the `config/trainer.yaml`. However, your possiblities are limited
 </details>
 
 <details>
-<summary>Can I run src/main.py and src/visualizer.py remotely? </summary>
+<summary>Can I run src/main.py, src/visualizer.py and src/export.py remotely? </summary>
 <br>
 
 Yes, you can. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
@@ -83,9 +84,9 @@ In terms of memory usage, this is not great. Instead, you can try to work with m
 <br>
 
 - `src/main.py`: I recommend using the GPU for model training because it's faster and because I mostly trained my model using the GPU.
-However, if you want continue with the CPU, you can swap `cfg.common.device: cuda` with `cfg.common.device: cpu`.
+However, if you want to continue with the CPU, you can swap `cfg.common.device: cuda` with `cfg.common.device: cpu`.
 
-- `src/visualizer.py` and `notebooks/results.ipynb` work by default on GPU if available; if not, they work on CPU. Although this behavior **overrides** `cfg.common.device`, you can still manually change it by replacing in the code:
+- `src/visualizer.py`, `src/export.py` and `notebooks/results.ipynb` work by default on GPU if available; if not, they work on CPU. Although this behavior **overrides** `cfg.common.device`, you can still manually change it by replacing in the code:
 
 ```python
 cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -111,12 +112,16 @@ https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than
 
 - Code and project structure: https://github.com/eloialonso/iris
 - 55 GRBs: https://www.researchgate.net/publication/326811280_Overview_of_the_GRB_observation_by_POLAR
-- Weights & biases: https://wandb.ai/site
-- Pytorch:
-  - https://pytorch.org/tutorials/beginner/basics/intro.html
-  - https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
-- Hydra: https://hydra.cc/docs/intro/
-- ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
-- VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
-- Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
-- TMux detach/reattach session: https://www.redhat.com/sysadmin/introduction-tmux-linux
+- <details>
+  <summary>Technologies</summary>
+  
+  - Weights & biases: https://wandb.ai/site
+  - Pytorch:
+    - https://pytorch.org/tutorials/beginner/basics/intro.html
+    - https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
+  - Hydra: https://hydra.cc/docs/intro/
+  - ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
+  - VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
+  - Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
+  - TMux detach/reattach session: https://www.redhat.com/sysadmin/introduction-tmux-linux
+</details>
