@@ -6,6 +6,10 @@ Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bu
 
 These time intervals might include moments in which the detector was turned off or had problems which caused our predictions to be significantly higher or lower than the target rates. They might also include solar events such as solar flares.
 
+**tl;dr**:
+- Built a model of the background (light curve)
+- Used the residuals (target-prediction) to extract time intervals
+
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> |
 |:--:| 
 | *Trying to detect 25 known GRBs: red dot: above threshold, green vertical line: GRB trigger time, blue curve: original curve (e.g. `rate[0]`), black curve: predicted curve* |
