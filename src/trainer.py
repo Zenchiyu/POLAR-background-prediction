@@ -211,7 +211,6 @@ class Trainer:
             shutil.copyfile("config/trainer.yaml", path + "/trainer.yaml")
             
     def save_checkpoints(self, epoch: int) -> None:
-        
         # https://pytorch.org/tutorials/recipes/recipes/saving_and_loading_a_general_checkpoint.html
         general_checkpoint = {"model_state_dict": self.model.state_dict(),
                               "optimizer_state_dict": self.optimizer.state_dict(),
@@ -228,6 +227,16 @@ class Trainer:
             os.makedirs(path, exist_ok=True)
             
             torch.save(general_checkpoint, path + "/general_checkpoint.pth")
+    
+    def load_checkpoints(self, checkpoint_path: str) -> None:
+        general_checkpoint = torch.load(checkpoint_path,
+                                        map_location=torch.device(self.device))
+        self.model.load_state_dict(general_checkpoint["model_state_dict"])
+        self.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
+
+        self.epoch = general_checkpoint["epoch"]
+        self.train_loss = general_checkpoint["train_loss"].cpu()
+        self.val_loss = general_checkpoint["val_loss"].cpu()
 
     def lowercase(self, txt: Optional[str]) -> Optional[str]:
         return txt.lower() if txt else None
@@ -289,7 +298,6 @@ class Trainer:
     
     def create_criterion(self) -> torch.nn.modules.loss._Loss|Callable[..., torch.Tensor]:
         criterion: torch.nn.modules.loss._Loss|Callable[..., torch.Tensor]
-        
         # Create criterion as well as other useful variables
         match self.lowercase(self.cfg.common.loss.name):
             case "weighted_mse_loss":

@@ -476,17 +476,8 @@ def main(cfg: DictConfig):
     
     trainer = Trainer(cfg)
     ### Loading checkpoint
-    general_checkpoint = torch.load("checkpoints/last_general_checkpoint.pth",
-                                    map_location=torch.device(trainer.device))
-    trainer.model.load_state_dict(general_checkpoint["model_state_dict"])
-    trainer.optimizer.load_state_dict(general_checkpoint["optimizer_state_dict"])
-
-    trainer.epoch = general_checkpoint["epoch"]
-    trainer.train_loss = general_checkpoint["train_loss"].cpu()
-    trainer.val_loss = general_checkpoint["val_loss"].cpu()
+    trainer.load_checkpoints("checkpoints/last_general_checkpoint.pth")
     
-    delete(general_checkpoint)
-
     ### Plotting
     trainer.model.eval()
     with torch.no_grad():

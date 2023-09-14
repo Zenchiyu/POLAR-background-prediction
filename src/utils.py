@@ -90,7 +90,7 @@ def merge_torch_subsets(subsets: list[torch.utils.data.Subset]) -> Subset:
 
 def delete(el: Any) -> None:
     try:
-        el.to("cpu")
+        el.to(device="cpu")
     except:
         print(f"Element of type {type(el)} you're trying to "+\
               "delete doesn't have a .to() method "+\
