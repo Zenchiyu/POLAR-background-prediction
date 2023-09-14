@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import pandas as pd
 import re
@@ -86,6 +87,17 @@ def merge_torch_subsets(subsets: list[torch.utils.data.Subset]) -> Subset:
     """
     indices = list(set().union(*[subset.indices for subset in subsets]))
     return Subset(subsets[0].dataset, indices)
+
+def delete(el: Any) -> None:
+    try:
+        el.to("cpu")
+    except:
+        print(f"Element of type {type(el)} you're trying to "+\
+              "delete doesn't have a .to() method "+\
+                "so changing its device to CPU is ignored")
+    del el
+    torch.cuda.empty_cache()
+    gc.collect()
 
 def generator_expressions(raw_expressions: list[str] = []) -> Generator[str, None, None]:
     # Generate expressions that can be evaluated from the raw_expressions

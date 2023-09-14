@@ -1,17 +1,15 @@
-import gc
 import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import re
-import seaborn as sns
 import torch
 
 from matplotlib.scale import FuncScale
 from omegaconf import DictConfig
 from pathlib import Path
 from trainer import Trainer
-from utils import merge_torch_subsets, numpy_output
+from utils import merge_torch_subsets, numpy_output, delete
 
 
 @numpy_output
@@ -210,12 +208,13 @@ def plot_val_prediction_target(dataset_val,
 
     _, ax = plt.subplots()
     ax.plot(sorted_time_val, sorted_y_val,
-            '-g', linewidth=0.1, label="true")
+            '-g', linewidth=0.1, label="original")
     ax.plot(sorted_time_val, sorted_y_hat_val,
-            '-r', linewidth=0.1, label="predicted")
+            '-r', linewidth=0.1, label="pred")
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
     ax.set_title(f"Prediction of {target_name.capitalize()}")
+    ax.legend()
     if save_path: plt.savefig(save_path)
 
 def plot_val_residual(dataset_val,
@@ -223,6 +222,8 @@ def plot_val_residual(dataset_val,
                       target_name="rate[0]",
                       save_path="results/images/residual_plot.png",
                       save_path_hist="results/images/residual_hist.png"):
+    # XXX: This function doesn't support log scale or sqrt scale
+    # please take a look at "plot_val_pull" if you want to see how we can do it
     tmp = get_time_y_y_hat(dataset_val, pred, target_name)
     sorted_time_val, sorted_y_val, sorted_y_hat_val = tmp
     del tmp
@@ -252,12 +253,11 @@ def plot_val_residual(dataset_val,
     xs = np.linspace(residuals.min(), residuals.max(), 255)
     f = lambda x, mean, std: 1/np.sqrt(2*np.pi*std**2)*np.exp(-(x-mean)**2/(2*std**2))
     ax_histy.plot(f(xs, new_mean, new_std), xs, zorder=np.inf, color="m", linewidth=1, linestyle="--")
-    # Histogram residuals
-    _ = sns.histplot(data=pd.DataFrame(residuals,
-                                       columns=[target_name]),
-                     y=target_name,
-                     stat="density",
-                     ax=ax_histy)
+    
+    # Histogram of residuals on the right
+    n, _, _ = ax_histy.hist(residuals, bins=500, alpha=0.5,
+                            density=True, orientation="horizontal")  # area under hist = 1
+    
     if save_path: plt.savefig(save_path)
 
     ######
@@ -391,11 +391,16 @@ def plot_prediction_target_zoom(dataset,
 
     for i, (low_n, high_n) in enumerate([(1000, 1200), (2000, 2200),
                                     (10000, 10200), (12000, 12200)]):
-        axs[i//2, i%2].plot(sorted_time[low_n:high_n], sorted_y[low_n:high_n], '-g', linewidth=0.5)
-        axs[i//2, i%2].plot(sorted_time[low_n:high_n], sorted_y_hat[low_n:high_n], '-r', linewidth=0.5)
+        axs[i//2, i%2].plot(sorted_time[low_n:high_n], sorted_y[low_n:high_n],
+                            '-g', linewidth=0.5,
+                            label="original")
+        axs[i//2, i%2].plot(sorted_time[low_n:high_n], sorted_y_hat[low_n:high_n],
+                            '-r', linewidth=0.5,
+                            label="pred")
         axs[i//2, i%2].set_xlabel("Tunix [s]")
         axs[i//2, i%2].set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
         axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
+        axs[i//2, i%2].legend()
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
 
@@ -406,7 +411,7 @@ def plot_train_val_prediction_target_zoom(trainer,
                                           save_path="results/images/pred_target_zoom_train_val.png"):
     # train + val
     tmp = get_time_y_y_hat(dataset_train_val, pred_train_val, target_name)
-    sorted_time, sorted_y, sorted_y_hat = tmp
+    sorted_time, sorted_y_train_val, sorted_y_train_val_hat = tmp
     del tmp
     
     # which part of train + val is the training set:
@@ -429,16 +434,24 @@ def plot_train_val_prediction_target_zoom(trainer,
         
         # Train
         axs[i//2, i%2].plot(sorted_time[mask_time & mask_train],
-                            sorted_y[mask_time & mask_train], '.-c', linewidth=0.5)
+                            sorted_y_train_val[mask_time & mask_train],
+                            '.-c', linewidth=0.5,
+                            label="train set")
         # Validation
-        axs[i//2, i%2].plot(time_val, sorted_y_val[low_n:high_n], '.-g', linewidth=0.5)
+        axs[i//2, i%2].plot(time_val,
+                            sorted_y_val[low_n:high_n],
+                            '.-g', linewidth=0.5,
+                            label="val set")
         
         # Prediction using train + val
         axs[i//2, i%2].plot(sorted_time[mask_time],
-                            sorted_y_hat[mask_time], '-r', linewidth=0.5)
+                            sorted_y_train_val_hat[mask_time],
+                            '-r', linewidth=0.5,
+                            label="pred")
         axs[i//2, i%2].set_xlabel("Tunix [s]")
         axs[i//2, i%2].set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
         axs[i//2, i%2].set_title(f"{target_name.capitalize()}: l={low_n}, h={high_n}")
+        axs[i//2, i%2].legend()
     plt.tight_layout()
     if save_path: plt.savefig(save_path)
 
@@ -472,8 +485,7 @@ def main(cfg: DictConfig):
     trainer.train_loss = general_checkpoint["train_loss"].cpu()
     trainer.val_loss = general_checkpoint["val_loss"].cpu()
     
-    del general_checkpoint
-    gc.collect()
+    delete(general_checkpoint)
 
     ### Plotting
     trainer.model.eval()
@@ -487,8 +499,8 @@ def main(cfg: DictConfig):
         
         ## Loss
         plot_loss(trainer.train_loss, trainer.val_loss)
-        del trainer.train_loader, trainer.val_loss
-        gc.collect()
+        delete(trainer.train_loss)
+        delete(trainer.val_loss)
 
         ## Prediction on validation set (e.g rate[0])
         # Need to transform before inputting the whole validation set into
@@ -496,9 +508,7 @@ def main(cfg: DictConfig):
         X_cpu = trainer.dataset_full.X_cpu
         transform = trainer.dataset_full.transform
         
-        del trainer.dataset_full
-        torch.cuda.empty_cache()
-        gc.collect()
+        delete(trainer.dataset_full)
         
         val_tensor = X_cpu[trainer.dataset_val.indices]
         val_tensor = transform(val_tensor).to(trainer.device)
@@ -532,11 +542,8 @@ def main(cfg: DictConfig):
                               save_path=f"results/images/pull_plot_{i}.png",
                               save_path_hist=f"results/images/pull_hist_{i}.png")
                               
-        val_tensor = val_tensor.to(device="cpu")
-        del pred
-        del val_tensor
-        torch.cuda.empty_cache()
-        gc.collect()
+        delete(pred)
+        delete(val_tensor)
 
         ## Prediction on both train + val set
         dataset_train_val = merge_torch_subsets([trainer.dataset_train,
@@ -546,7 +553,7 @@ def main(cfg: DictConfig):
         
         pred_train_val = trainer.model(train_val_tensor).detach().to(device="cpu")
         
-        print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
+        # print("after pred_train_val", print(torch.cuda.memory_allocated(device="cuda")))
         
         for i, target_name in enumerate(cfg.dataset.target_names):
             plot_train_val_prediction_target_zoom(trainer,
@@ -558,11 +565,8 @@ def main(cfg: DictConfig):
         ## Comment this line below if don't want to show
         plt.show()
 
-        train_val_tensor = train_val_tensor.to(device="cpu")
-        del pred_train_val
-        del train_val_tensor
-        torch.cuda.empty_cache()
-        gc.collect()
+        delete(pred_train_val)
+        delete(train_val_tensor)
 
 if __name__ == "__main__":
      main()
