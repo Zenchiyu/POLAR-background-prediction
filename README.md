@@ -24,7 +24,7 @@ These time intervals might include moments in which the detector was turned off 
 - https://www.astro.unige.ch/polar/
 - https://www.unige.ch/dpnc/fr/groups/xin-wu/experiences/polar/
 - https://www.astro.unige.ch/polar/grb-light-curves
-- [`nf1rate.root` dataset](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0)
+- [`nf1rate.root` dataset (ROOT-CERN format)](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0)
 
 **Contact**
 
