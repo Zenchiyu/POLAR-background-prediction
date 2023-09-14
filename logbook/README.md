@@ -653,8 +653,8 @@ or our red points can change widely just because some residuals can be higher or
 - Training phase takes about 2 hours to run on CPU instead of 1 hour 25 on GPU which shows that we might be able to improve even further the performance on GPU.
 - Memory usage issues on a less powerful computer (e.g. laptop with 8 gigabyte of RAM and no GPU) are left unresolved but could be an extra useful feature.
 - Cleaned the rest of the code & README.md's
-- Fixing log scales in the partial derivatives histograms
-- - 
+- Fixed log scales in all our histograms, whether it's for partial derivatives or (normalized) pulls
+- Added `../src/export.py` to export, in ROOT-CERN format, predictions over the whole dataset with the 25 GRBs.
 </details>
 
 
