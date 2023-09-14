@@ -1,6 +1,8 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # POLAR background prediction
+[Stéphane Nguyen](https://www.linkedin.com/in/st%C3%A9phane-liem-nguyen/), [Nicolas Produit](https://www.isdc.unige.ch/~produit/)\*<br>
+\* Denotes supervisor
 
 
 Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bursts (GRBs).
@@ -18,11 +20,15 @@ These time intervals might include moments in which the detector was turned off 
 - Used the residuals (target-prediction) to extract time intervals
 - Brief peek at model interpretability by using partial derivatives of output wrt input
 
-Related links:
+**Related links**
 - https://www.astro.unige.ch/polar/
 - https://www.unige.ch/dpnc/fr/groups/xin-wu/experiences/polar/
 - https://www.astro.unige.ch/polar/grb-light-curves
 - [`nf1rate.root` dataset](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0)
+
+**Contact**
+
+Please contact Prof. Nicolas Produit if you need any information on the dataset or anything related to physics as I'm not an expert in the field.
 
 ---
 
