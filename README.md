@@ -1,17 +1,34 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # POLAR background prediction
-
-We first try to predict the background part of a light curve (y axis being the number of photons arriving into the POLAR detector per second) or transformed light curve. We would then like to subtract the prediction from the original and use the resulting curve to detect gamma ray bursts (GRBs).
-
-| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> |
-|:--:| 
-| *Trying to detect 25 known GRBs: red dot: above threshold, green vertical line: GRB trigger time, blue curve: original curve (e.g. `rate[0]`), black curve: predicted curve* |
+[Stéphane Nguyen](https://www.linkedin.com/in/st%C3%A9phane-liem-nguyen/), [Nicolas Produit](https://www.isdc.unige.ch/~produit/)\*<br>
+\* Denotes supervisor
 
 
-Related links:
+Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bursts (GRBs).
+
+| <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/8cf67dbb-2ca8-44a9-9e5c-97b57eac6aee" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/89ae18e2-3345-4dcf-9934-46554dcbeb9b" width=300>
+|:--:| :--:| :--:| 
+| *A cluster intersection with > 3 energy bins<br>Prof. Nicolas Produit confirmed a solar flare* | *Trying to detect 25 known GRBs based on `rate[0]`<br>Some GRBs are missed because of the binning, they're too short* | *Another cluster intersection with > 3 energy bins*|
+
+Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aims at building a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
+
+These time intervals might include moments in which the detector was turned off or had problems which caused our predictions to be significantly higher or lower than the target rates. They might also include solar events such as solar flares.
+
+**tl;dr**
+- Built a model of the background (light curve) using data collected from the POLAR detector
+- Used the residuals (target-prediction) to extract time intervals
+- Brief peek at model interpretability by using partial derivatives of output wrt input
+
+**Related links**
 - https://www.astro.unige.ch/polar/
-- https://www.unige.ch/dpnc/fr/grups/xin-wu/experiences/polar/
+- https://www.unige.ch/dpnc/fr/groups/xin-wu/experiences/polar/
+- https://www.astro.unige.ch/polar/grb-light-curves
+- [`nf1rate.root` dataset (ROOT-CERN format)](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0)
+
+**Contact**
+
+Please contact Prof. Nicolas Produit if you need any information on the dataset or anything related to physics as I'm not an expert in the field.
 
 ---
 
@@ -25,6 +42,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ```
 pip3 install -r requirements.txt
 ```
+- Download the `nf1rate.root` dataset in ROOT-CERN format from my [Dropbox](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0) and place it under the `./data` directory.
 
 The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 and torchvision==0.15.2. Using a different Python version might cause problems.
 
@@ -104,8 +122,11 @@ before `trainer = Trainer(cfg)`.
 <summary>Why results using CPU are different than when using GPU?</summary>
 <br>
 
-See 
-https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than-in-gpu/1356/6
+Operations execution order is most likely the cause of these differences.
+
+See the following links:
+- https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than-in-gpu/1356/6
+- https://pytorch.org/docs/stable/notes/randomness.html#reproducibility
 </details>
 
 ## Credits and useful links
