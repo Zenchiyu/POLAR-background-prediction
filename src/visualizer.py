@@ -213,7 +213,7 @@ def plot_val_prediction_target(dataset_val,
             '-r', linewidth=0.1, label="pred")
     ax.set_xlabel("Tunix [s]")
     ax.set_ylabel(f"{target_name.capitalize()}")  # Nb. photons per second: [Hz] if rate[i]
-    ax.set_title(f"Prediction of {target_name.capitalize()}")
+    ax.set_title(f"Prediction of {target_name.capitalize()} for validation set")
     ax.legend()
     if save_path: plt.savefig(save_path)
 
