@@ -112,12 +112,16 @@ https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than
 
 - Code and project structure: https://github.com/eloialonso/iris
 - 55 GRBs: https://www.researchgate.net/publication/326811280_Overview_of_the_GRB_observation_by_POLAR
-- Weights & biases: https://wandb.ai/site
-- Pytorch:
-  - https://pytorch.org/tutorials/beginner/basics/intro.html
-  - https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
-- Hydra: https://hydra.cc/docs/intro/
-- ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
-- VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
-- Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
-- TMux detach/reattach session: https://www.redhat.com/sysadmin/introduction-tmux-linux
+- <details>
+  <summary>Technologies</summary>
+  
+  - Weights & biases: https://wandb.ai/site
+  - Pytorch:
+    - https://pytorch.org/tutorials/beginner/basics/intro.html
+    - https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html
+  - Hydra: https://hydra.cc/docs/intro/
+  - ReviewNB ("git diff but for Jupyter notebooks"): https://www.reviewnb.com/
+  - VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
+  - Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
+  - TMux detach/reattach session: https://www.redhat.com/sysadmin/introduction-tmux-linux
+</details>
