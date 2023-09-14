@@ -122,8 +122,11 @@ before `trainer = Trainer(cfg)`.
 <summary>Why results using CPU are different than when using GPU?</summary>
 <br>
 
-See 
-https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than-in-gpu/1356/6
+Operations execution order is most likely the cause of these differences.
+
+See the following links:
+- https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than-in-gpu/1356/6
+- https://pytorch.org/docs/stable/notes/randomness.html#reproducibility
 </details>
 
 ## Credits and useful links
