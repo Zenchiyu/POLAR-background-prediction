@@ -2,7 +2,7 @@
 
 # POLAR background prediction
 
-Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bursts (GRBs). Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aimed at building a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
+Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bursts (GRBs). Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aims at building a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
 
 These time intervals might include moments in which the detector was turned off or had problems which caused our predictions to be significantly higher or lower than the target rates. They might also include solar events such as solar flares.
 
