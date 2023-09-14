@@ -12,7 +12,7 @@ This directory contains notebook(s) to explore/visualize the results when we use
 3 directories, 2 files
 ```
 
-The `formats` folder is used to store some notebooks in other formats such as PDF or HTML.
+The `formats` folder is used to store, in other formats such as PDF or HTML, some potentially old notebooks.
 
 ## Old structure
 
