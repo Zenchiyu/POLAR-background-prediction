@@ -12,11 +12,11 @@ This directory contains notebook(s) to explore/visualize the results when we use
 3 directories, 2 files
 ```
 
-The `formats` folder is used to store some notebooks in other formats such as PDF or HTML.
+The `formats` folder is used to store, in other formats such as PDF or HTML, some potentially old notebooks.
 
 ## Old structure
 
-To see old notebooks as well as the old README, please git checkout to `5bf385555594e0ad319f9a084e954795c56ad37c`.
+To see old notebooks as well as the old README, you can go to [the repository at an old commit](https://github.com/Zenchiyu/POLAR-background-prediction/tree/5bf385555594e0ad319f9a084e954795c56ad37c/notebooks) or git checkout to this commit: `5bf385555594e0ad319f9a084e954795c56ad37c`.
 
 This directory contained different notebooks that we used to explore the data and create basic models (linear regression or sklearn MLPregressor).
 Most of them are not needed for more complex models (are implemented in PyTorch in `src` folder and configured via configuration files such `trainer.yaml` in `config` directory)
