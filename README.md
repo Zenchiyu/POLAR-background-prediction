@@ -33,7 +33,7 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 ## Usage
 
 - `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if you don't want to use weights and biases)
-- `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates for validation set.
+- `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates (for validation set if not specified).
 - `python src/export.py` to export, into .root format (ROOT CERN), our predictions over the whole dataset with the 25 known GRBs.
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
