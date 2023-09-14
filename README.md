@@ -9,6 +9,7 @@ These time intervals might include moments in which the detector was turned off 
 **tl;dr**
 - Built a model of the background (light curve) using data collected from the POLAR detector
 - Used the residuals (target-prediction) to extract time intervals
+- Brief peek at model interpretability by using partial derivatives of output wrt input
 
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> |
 |:--:| 
