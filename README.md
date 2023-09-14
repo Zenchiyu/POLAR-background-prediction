@@ -12,6 +12,7 @@ We first try to predict the background part of a light curve (y axis being the n
 Related links:
 - https://www.astro.unige.ch/polar/
 - https://www.unige.ch/dpnc/fr/grups/xin-wu/experiences/polar/
+- [`nf1rate.root` dataset](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0)
 
 ---
 
@@ -25,6 +26,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ```
 pip3 install -r requirements.txt
 ```
+- Download the `nf1rate.root` dataset in ROOT-CERN format from my [Dropbox](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0) and place it under the `./data` directory.
 
 The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 and torchvision==0.15.2. Using a different Python version might cause problems.
 
