@@ -2,7 +2,9 @@
 
 # POLAR background prediction
 
-We first try to predict the background part of a light curve (y axis being the number of photons arriving into the POLAR detector per second) or transformed light curve. We would then like to subtract the prediction from the original and use the resulting curve to detect gamma ray bursts (GRBs).
+Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bursts (GRBs). Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aimed at building a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
+
+These time intervals might include moments in which the detector was turned off or had problems which caused our predictions to be significantly higher or lower than the target rates. They might also include solar events such as solar flares.
 
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> |
 |:--:| 
