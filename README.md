@@ -9,7 +9,7 @@ Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bu
 
 | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/8cf67dbb-2ca8-44a9-9e5c-97b57eac6aee" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/f2fa9896-db10-4742-b824-1cbe684a8b59" width=300> | <img src="https://github.com/Zenchiyu/POLAR-background-prediction/assets/49496107/89ae18e2-3345-4dcf-9934-46554dcbeb9b" width=300>
 |:--:| :--:| :--:| 
-| *A cluster intersection with > 3 energy bins<br>Prof. Nicolas Produit confirmed a solar flare* | *Trying to detect 25 known GRBs based on `rate[0]`* | *Another cluster intersection with > 3 energy bins*|
+| *A cluster intersection with > 3 energy bins<br>Prof. Nicolas Produit confirmed a solar flare* | *Trying to detect 25 known GRBs based on `rate[0]`<br>Some GRBs are missed because of the binning, they're too short* | *Another cluster intersection with > 3 energy bins*|
 
 Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aims at building a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
 
