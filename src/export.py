@@ -1,47 +1,32 @@
 import hydra
+import uproot as ur
 import torch
 
 from omegaconf import DictConfig
-from pathlib import Path
 from trainer import Trainer
 from utils import delete
 
 
 @hydra.main(version_base=None, config_path="../config", config_name="trainer")
 def main(cfg: DictConfig):
-    ## Don't start a wandb run
     cfg.wandb.mode = "disabled"
-    ## Use the GPU when available, otherwise use the CPU
     cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
-
     cfg.dataset.save_format = "pkl"
-    # Comment prev. line and uncomment this below
-    # once we're sure that we don't change anymore the dataset:
-    
-    ## Save dataset or load it
-    # p = Path(cfg.dataset.filename)
-    # filename =  f"{str(p.parent)}/{p.stem}_dataset.pkl"
-    # if Path(filename).is_file():  # if exists and is a file
-    #     cfg.dataset.filename = filename
-    # else:
-    #     cfg.dataset.save_format = "pkl"  # to save dataset
-    
     trainer = Trainer(cfg)
     ### Loading checkpoint
     trainer.load_checkpoints("checkpoints/last_general_checkpoint.pth")
 
     trainer.model.eval()
     torch.set_grad_enabled(False)
-
+    
     # Init trainer with a dataset that doesn't filter out the
     # GRBs -> we only use it to obtain the dataset with GRBs
     # May take some time as it recreates the dataset
     cfg.dataset.save_format = None
     cfg.dataset.filter_conditions = ["rate[0]/rate_err[0] > 20"]
-    
     trainer_with_GRBs = Trainer(cfg)
-    dataset_full_GRBs = trainer_with_GRBs.dataset_full
 
+    dataset_full_GRBs = trainer_with_GRBs.dataset_full
     # Fix the dataset transform to match the transform we used when training the model
     dataset_full_GRBs.transform = trainer.dataset_full.transform
 
@@ -57,6 +42,15 @@ def main(cfg: DictConfig):
     # Remove unused tensors that are on GPU
     delete(dataset_tensor)
 
+    ### Export our predictions in .root (ROOT CERN) format
+    print("Exporting our predictions in .root (ROOT CERN) format...")
+    data_df = trainer_with_GRBs.dataset_full.data_df
+    out_root_filename = 'data/pred_nf1rate.root'
+    with ur.recreate(out_root_filename) as file:
+        my_dict = {"unix_time": data_df["unix_time"].values}
+        my_dict |= {"pred_rate": pred.numpy()}
+        file["pred_nf1rate"] = my_dict
+        file["pred_nf1rate"].show()
 
 if __name__ == "__main__":
      main()
