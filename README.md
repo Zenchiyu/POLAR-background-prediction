@@ -24,7 +24,7 @@ These time intervals might include moments in which the detector was turned off 
 - https://www.astro.unige.ch/polar/
 - https://www.unige.ch/dpnc/fr/groups/xin-wu/experiences/polar/
 - https://www.astro.unige.ch/polar/grb-light-curves
-- [`nf1rate.root` dataset (ROOT-CERN format)](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0)
+- [`nf1rate.root` dataset (ROOT-CERN format)](https://www.dropbox.com/sh/f1a9w7cy71svgb6/AAA0rsyGrqZOilqvgAZHnZToa?dl=0)
 
 **Contact**
 
@@ -42,7 +42,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ```
 pip3 install -r requirements.txt
 ```
-- Download the `nf1rate.root` dataset in ROOT-CERN format from my [Dropbox](https://www.dropbox.com/scl/fo/0v3769k6b58fpy7j61coo/h?rlkey=gfjwy2ww9oh6pp1jlu2kxhknp&dl=0) and place it under the `./data` directory.
+- Download the `nf1rate.root` dataset in ROOT-CERN format from my [Dropbox](https://www.dropbox.com/sh/f1a9w7cy71svgb6/AAA0rsyGrqZOilqvgAZHnZToa?dl=0) and place it under the `./data` directory.
 
 The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 and torchvision==0.15.2. Using a different Python version might cause problems.
 
