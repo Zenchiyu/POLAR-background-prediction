@@ -7,7 +7,7 @@ wandb:
 wandb_watch: True  # log in w&b model & criterion
 
 common:
-  seed: null # 42
+  seed: 42
   n_epochs: 200
   loss:
     name: weighted_mse_loss  # by default nn.MSELoss
