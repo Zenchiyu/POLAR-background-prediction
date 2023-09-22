@@ -7,7 +7,7 @@ wandb:
 wandb_watch: True  # log in w&b model & criterion
 
 common:
-  seed: 42
+  seed: None # 42
   n_epochs: 200
   loss:
     name: weighted_mse_loss  # by default nn.MSELoss
@@ -97,9 +97,9 @@ dataset:
     - (unix_time < 1489586173.0) | (unix_time > 1489586373.0)  # GRB_170315A
     - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
   split:
-    type: random_split
-    # type: periodical
-    # periodicity: 256  # # of samples for the periodicity, for type periodical
+    # type: random_split
+    type: periodical
+    periodicity: 256  # # of samples for the periodicity, for type periodical
   train:
     size: 0.98
     batch_size: 256  # if 200 -> similar to sklearn 'auto', might be better a power of 2
