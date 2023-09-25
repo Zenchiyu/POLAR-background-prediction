@@ -25,6 +25,12 @@ dataset:
   save_format: null  # won't save in .pkl nor .csv
   # new_columns: []
   new_columns:  # not necessarily used in the features or targets
+    - rate_err[0]
+    - rate_err[1]
+    - rate_err[5]
+    - rate_err[6]
+    - rate_err[10]
+    - rate_err[12]
     - 1/rate_err[0]**2
     - 1/rate_err[1]**2
     - 1/rate_err[5]**2
@@ -62,6 +68,7 @@ dataset:
     - B_theta
     - B_phi
   target_names:
+#    - rate[0]/rate_err[0]  # TODO: check whether prediction*rate_err[0] is same as prediction when target is rate[0]
     - rate[0]
     - rate[1]
     - rate[5]
@@ -97,18 +104,17 @@ dataset:
     - (unix_time < 1489586173.0) | (unix_time > 1489586373.0)  # GRB_170315A
     - (unix_time < 1489743856.0) | (unix_time > 1489744056.0)  # GRB_170317A
   split:
-    type: random_split
-    # type: periodical
-    # periodicity: 256  # # of samples for the periodicity, for type periodical
+    type: periodical
+    periodicity: 256  # # of samples for the periodicity, for type periodical
   train:
-    size: 0.8  # 0.98
+    size: 0.98
     batch_size: 256  # if 200 -> similar to sklearn 'auto', might be better a power of 2
     shuffle: True
   val:
-    size: 0.1  # 0.01
+    size: 0.01
     batch_size: 256
   test:
-    size: 0.1  # 0.01
+    size: 0.01
     batch_size: 256
 
 model:
@@ -122,7 +128,7 @@ model:
 
 optimizer:
   hyperparams:
-    # For Adam optimizer: https://pytorch.org/docs/stable/generated/torch.optim.Adam.html
+    # For adam optimizer
     lr: 1e-3
     betas:
       - 0.9
