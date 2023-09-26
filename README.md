@@ -129,6 +129,15 @@ See the following links:
 - https://pytorch.org/docs/stable/notes/randomness.html#reproducibility
 </details>
 
+</details>
+
+<details>
+<summary>The interactive plots in results.ipynb don't work</summary>
+<br>
+
+You can try to re-run the corresponding Jupyter notebook cell.
+</details>
+
 ## Credits and useful links
 
 - Code and project structure: https://github.com/eloialonso/iris
