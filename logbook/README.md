@@ -655,13 +655,16 @@ or our red points can change widely just because some residuals can be higher or
 - Cleaned the rest of the code & README.md's
 - Fixed log scales in all our histograms, whether it's for partial derivatives or (normalized) pulls
 - Added `../src/export.py` to export, in ROOT-CERN format, predictions over the whole dataset with the 25 GRBs.
+- Started writing the reports
 </details>
 
 
-## Week 12: 18.09.23 - 24.09.23
+## Week 12 & 13: 18.09.23 - 01.10.23
 
 <details>
 
 ### Summary
+- I asked someone to try installing and running my codes. I discovered that the uploaded dataset (on Dropbox) was corrupt. Moreover, the SHA-256 didn't match.
+- Reserved for writing the report
 
 </details>

@@ -53,6 +53,7 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 - `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if you don't want to use weights and biases)
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates (for validation set if not specified).
 - `python src/export.py` to export, into .root format (ROOT CERN), our predictions over the whole dataset with the 25 known GRBs.
+- `python src/export_cluster_intersections.py` to export, into .root format, the same as `python src/export.py` but also the cluster intersections for different sets of energy bins or conditions. Moreover, it also exports in .pkl different tables used in our documentation (incl. number of clusters).
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
 ### FAQ
@@ -66,7 +67,7 @@ You can change the `config/trainer.yaml`. However, your possiblities are limited
 </details>
 
 <details>
-<summary>Can I run src/main.py, src/visualizer.py and src/export.py remotely? </summary>
+<summary>Can I run src/main.py, src/visualizer.py, src/export.py and src/export_cluster_intersections.py remotely? </summary>
 <br>
 
 Yes, you can. To remotely run our Python scripts without keeping an opened SSH connection for the whole execution duration, you can use `tmux` and detach the session.
@@ -104,7 +105,7 @@ In terms of memory usage, this is not great. Instead, you can try to work with m
 - `src/main.py`: I recommend using the GPU for model training because it's faster and because I mostly trained my model using the GPU.
 However, if you want to continue with the CPU, you can swap `cfg.common.device: cuda` with `cfg.common.device: cpu`.
 
-- `src/visualizer.py`, `src/export.py` and `notebooks/results.ipynb` work by default on GPU if available; if not, they work on CPU. Although this behavior **overrides** `cfg.common.device`, you can still manually change it by replacing in the code:
+- `src/visualizer.py`, `src/export.py`, `src/export_cluster_intersections.py` and `notebooks/results.ipynb` work by default on GPU if available; if not, they work on CPU. Although this behavior **overrides** `cfg.common.device`, you can still manually change it by replacing in the code:
 
 ```python
 cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -127,6 +128,15 @@ Operations execution order is most likely the cause of these differences.
 See the following links:
 - https://discuss.pytorch.org/t/why-different-results-when-multiplying-in-cpu-than-in-gpu/1356/6
 - https://pytorch.org/docs/stable/notes/randomness.html#reproducibility
+</details>
+
+</details>
+
+<details>
+<summary>The interactive plots in results.ipynb don't work</summary>
+<br>
+
+You can try to re-run the corresponding Jupyter notebook cell.
 </details>
 
 ## Credits and useful links

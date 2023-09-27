@@ -25,6 +25,12 @@ dataset:
   save_format: null  # won't save in .pkl nor .csv
   # new_columns: []
   new_columns:  # not necessarily used in the features or targets
+    - rate_err[0]
+    - rate_err[1]
+    - rate_err[5]
+    - rate_err[6]
+    - rate_err[10]
+    - rate_err[12]
     - 1/rate_err[0]**2
     - 1/rate_err[1]**2
     - 1/rate_err[5]**2
@@ -62,6 +68,7 @@ dataset:
     - B_theta
     - B_phi
   target_names:
+#    - rate[0]/rate_err[0]  # TODO: check whether prediction*rate_err[0] is same as prediction when target is rate[0]
     - rate[0]
     - rate[1]
     - rate[5]
@@ -121,7 +128,7 @@ model:
 
 optimizer:
   hyperparams:
-    # For Adam optimizer: https://pytorch.org/docs/stable/generated/torch.optim.Adam.html
+    # For adam optimizer
     lr: 1e-3
     betas:
       - 0.9
