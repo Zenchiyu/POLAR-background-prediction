@@ -260,7 +260,7 @@ def main(cfg: DictConfig):
     ../notebooks/results.ipynb
     """
     path = lambda x: str(Path(x))
-    export_last = False
+    export_last = True
 
     # 10 run ids (trained with 10 different seeds)
     date = "2023-09-22"
