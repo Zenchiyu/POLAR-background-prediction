@@ -246,7 +246,7 @@ def main(cfg: DictConfig):
     as well as the number of positive/negative cluster intersections for different sets
     of energy bins or conditions.
 
-    Here's a minimal code to load the two pickled dataframes:
+    Here's a minimal code to load the two pickled dataframes (for export_last=True):
     ```
     import pandas as pd
     counts = pd.read_pickle("data/num_examples_clusters.pkl")
@@ -254,144 +254,193 @@ def main(cfg: DictConfig):
     ```
     Please change the path accordingly if you're not running from the parent directory.
     
+    Changing "export_last" to False will allow you to export from specific runs.
+
     More information and comments can be found in the Jupyter Notebook:
     ../notebooks/results.ipynb
     """
     path = lambda x: str(Path(x))
+    export_last = False
 
-    ### XXX: Paths
-    # Checkpoint path
-    checkpoint_path = path("checkpoints/last_general_checkpoint.pth")
+    # 10 run ids (trained with 10 different seeds)
+    date = "2023-09-22"
+    ids = ["0307eblk", "162pncmd", "45dljtwk", "5fs1oqli", "6wsxi1hf",
+        "7sdm9qvf", "h444g60r", "ntlx23x5", "tziecklt", "xetzm1dg"]
+    # Seed 42 id: n00r57nc
+    if export_last: ids = []
 
-    # Paths to save our pkl files
-    counts_path = path("data/num_examples_clusters.pkl")
-    counts_inter_path = path("data/num_cluster_intersections.pkl")
-    # Paths to save our root files
-    out_root_filename_cluster_inter = path('data/cluster_inter_nf1rate.root')
-    out_root_filename = path('data/pred_nf1rate.root')
-    
     cfg.wandb.mode = "disabled"
     cfg.common.device = "cuda" if torch.cuda.is_available() else "cpu"
     cfg.dataset.save_format = "pkl"
     trainer = Trainer(cfg)
-    ### XXX: Loading checkpoint
-    trainer.load_checkpoints(checkpoint_path)
 
-    trainer.model.eval()
-    torch.set_grad_enabled(False)
+    for id in ids:
+        ### XXX: Paths
+        if export_last:
+            # Checkpoint path
+            checkpoint_path = path("checkpoints/last_general_checkpoint.pth")
+            # Paths to save our pkl files
+            counts_path = path("data/num_examples_clusters.pkl")
+            counts_inter_path = path("data/num_cluster_intersections.pkl")
+            # Paths to save our root files
+            out_root_filename_cluster_inter = path("data/cluster_inter_nf1rate.root")
+            out_root_filename = path("data/pred_nf1rate.root")
+        else:
+            # Checkpoint path
+            checkpoint_path = path(f"checkpoints/{date}/run_{id}/general_checkpoint.pth")
+            # Paths to save our pkl files
+            counts_path = path(f"data/num_examples_clusters_{id}.pkl")
+            counts_inter_path = path(f"data/num_cluster_intersections_{id}.pkl")
+            # Paths to save our root files
+            out_root_filename_cluster_inter = path(f"data/cluster_inter_nf1rate_{id}.root")
+            out_root_filename = path(f"data/pred_nf1rate_{id}.root")
+        
+        ### XXX: Loading checkpoint
+        trainer.load_checkpoints(checkpoint_path)
 
-    # Init trainer with a dataset that doesn't filter out the
-    # GRBs -> we only use it to obtain the dataset with GRBs
-    # May take some time as it recreates the dataset
-    cfg.dataset.save_format = None
-    cfg.dataset.filter_conditions = ["rate[0]/rate_err[0] > 20"]
-    trainer_with_GRBs = Trainer(cfg)
+        trainer.model.eval()
+        torch.set_grad_enabled(False)
 
-    dataset_full_GRBs = trainer_with_GRBs.dataset_full
-    # Fix the dataset transform to match the transform we used when training the model
-    dataset_full_GRBs.transform = trainer.dataset_full.transform
+        # Init trainer with a dataset that doesn't filter out the
+        # GRBs -> we only use it to obtain the dataset with GRBs
+        # May take some time as it recreates the dataset
+        cfg.dataset.save_format = None
+        cfg.dataset.filter_conditions = ["rate[0]/rate_err[0] > 20"]
+        trainer_with_GRBs = Trainer(cfg)
 
-    ### XXX: Prediction on full dataset with GRBs (e.g rate[0])
-    # Need to transform before inputting the whole set into the model
-    X = dataset_full_GRBs.X_cpu
-    dataset_tensor = trainer.dataset_full.transform(X).to(device=trainer.device)
+        dataset_full_GRBs = trainer_with_GRBs.dataset_full
+        # Fix the dataset transform to match the transform we used when training the model
+        dataset_full_GRBs.transform = trainer.dataset_full.transform
 
-    # Apply the model trained without GRBs to the whole dataset
-    # including GRBs.
-    pred = trainer.model(dataset_tensor).detach().to("cpu")
+        ### XXX: Prediction on full dataset with GRBs (e.g rate[0])
+        # Need to transform before inputting the whole set into the model
+        X = dataset_full_GRBs.X_cpu
+        dataset_tensor = trainer.dataset_full.transform(X).to(device=trainer.device)
 
-    # Remove unused tensors that are on GPU
-    delete(dataset_tensor)
-    
-    ### XXX: Some useful variables
-    # Create a PyTorch Subset with all data
-    data_df = dataset_full_GRBs.data_df
-    subset_dataset_full_GRBs = Subset(dataset_full_GRBs,
-                                indices=range(dataset_full_GRBs.n_examples))
-    # Note: We do it because our functions require PyTorch Subsets as input
-    target_id_dict = trainer.dataset_full.target_names2id
-    feature_id_dict = trainer.dataset_full.feature_names2id
+        # Apply the model trained without GRBs to the whole dataset
+        # including GRBs.
+        pred = trainer.model(dataset_tensor).detach().to("cpu")
 
-    # Track the err rate names, they will be used to retrieve the corresponding err rates
-    rate_err_names = [f'rate_err[{re.findall("[0-9]+", target_name)[0]}]'\
-                    for target_name in cfg.dataset.target_names]
-    
-    rate_errs = get_columns(subset_dataset_full_GRBs, rate_err_names)
-    # Residuals: Target - prediction
-    sorted_time, sorted_y, sorted_y_hat = get_all_time_y_y_hat(subset_dataset_full_GRBs, pred)
-    residuals = sorted_y-sorted_y_hat
+        # Remove unused tensors that are on GPU
+        delete(dataset_tensor)
+        
+        ### XXX: Some useful variables
+        # Create a PyTorch Subset with all data
+        data_df = dataset_full_GRBs.data_df
+        subset_dataset_full_GRBs = Subset(dataset_full_GRBs,
+                                    indices=range(dataset_full_GRBs.n_examples))
+        # Note: We do it because our functions require PyTorch Subsets as input
+        target_id_dict = trainer.dataset_full.target_names2id
+        feature_id_dict = trainer.dataset_full.feature_names2id
 
-    # Pulls
-    var, var_name = residuals/rate_errs, "pull"
+        # Track the err rate names, they will be used to retrieve the corresponding err rates
+        rate_err_names = [f'rate_err[{re.findall("[0-9]+", target_name)[0]}]'\
+                        for target_name in cfg.dataset.target_names]
+        
+        rate_errs = get_columns(subset_dataset_full_GRBs, rate_err_names)
+        # Residuals: Target - prediction
+        sorted_time, sorted_y, sorted_y_hat = get_all_time_y_y_hat(subset_dataset_full_GRBs, pred)
+        residuals = sorted_y-sorted_y_hat
 
-    # Modified gaussian fit
-    new_mean, new_std = list(zip(*[find_moments(var[:, j]) for j in range(var.shape[1])]))
-    new_mean, new_std = np.array(new_mean), np.array(new_std)
-    
-    ### XXX: Number of +/- ve examples/clusters
-    k = 5
-    names = ["new_std", "# +ve examples", "# -ve examples"]
-    counts = pd.DataFrame([new_std, np.sum(var > k*new_std, axis=0), np.sum(var < -k*new_std, axis=0)],
-            columns=cfg.dataset.target_names,
-            index=names).T.astype({names[1]: 'int',
-                                    names[2]: 'int'})
-    # Get number of clusters too:
-    cluster_counts = {f"# {(1-pred_below)*'-'+pred_below*'+'}ve clusters":
-                [get_clusters(data_df, var, new_std,
-                                target_name, target_id_dict[target_name],
-                                k=5,
-                                pred_below=pred_below,
-                                discard_w=0)[3].size for target_name in cfg.dataset.target_names]
-                for pred_below in [1, 0]}
-    cluster_counts = pd.DataFrame(cluster_counts, index=cfg.dataset.target_names)
-    counts = pd.concat([counts, cluster_counts], axis=1)
-    counts.to_pickle(counts_path)
+        # Pulls
+        var, var_name = residuals/rate_errs, "pull"
 
-    print(f"Pickled counts at {counts_path}")
+        # Modified gaussian fit
+        new_mean, new_std = list(zip(*[find_moments(var[:, j]) for j in range(var.shape[1])]))
+        new_mean, new_std = np.array(new_mean), np.array(new_std)
+        
+        ### XXX: Number of +/- ve examples/clusters
+        k = 5
+        names = ["new_std", "# +ve examples", "# -ve examples"]
+        counts = pd.DataFrame([new_std, np.sum(var > k*new_std, axis=0), np.sum(var < -k*new_std, axis=0)],
+                columns=cfg.dataset.target_names,
+                index=names).T.astype({names[1]: 'int',
+                                        names[2]: 'int'})
+        # Get number of clusters too:
+        cluster_counts = {f"# {(1-pred_below)*'-'+pred_below*'+'}ve clusters":
+                    [get_clusters(data_df, var, new_std,
+                                    target_name, target_id_dict[target_name],
+                                    k=5,
+                                    pred_below=pred_below,
+                                    discard_w=0)[3].size for target_name in cfg.dataset.target_names]
+                    for pred_below in [1, 0]}
+        cluster_counts = pd.DataFrame(cluster_counts, index=cfg.dataset.target_names)
+        counts = pd.concat([counts, cluster_counts], axis=1)
+        counts.to_pickle(counts_path)
 
-    # XXX: Number of +/- ve cluster intersections
-    dict_counts_inter = {0: {}, 1: {}}
-    dict_starts_ends = {0: {}, 1: {}}
+        print(f"Pickled counts at {counts_path}")
 
-    k, discard_w = 5, 30
-    dfs = [get_merged_df(cfg, data_df, var, new_std,
-                        k, pred_below, discard_w) for pred_below in [0, 1]]
-    
-    for pred_below, df in enumerate(dfs):
-        inter_id_or_conds = list(df["inter_id"].unique())+\
-            [f"# inter > {i}" for i in range(len(cfg.dataset.target_names))]
+        # XXX: Number of +/- ve cluster intersections
+        dict_counts_inter = {0: {}, 1: {}}
+        dict_starts_ends = {0: {}, 1: {}}
 
-        for inter_id_or_cond in inter_id_or_conds:
-            # XXX: k, pred_below, discard_w are fixed. They were
-            # defined earlier
-            out = get_inter_clusters(data_df, df, inter_id_or_cond)
-            m_points, data, times, starts, ends, groups, integrals, lengths = out
-            
-            dict_counts_inter[pred_below] |= {inter_id_or_cond: starts.size}
-            # For the vstack: First col: starts, Second row: ends
-            dict_starts_ends[pred_below] |= {inter_id_or_cond.replace(',','_').replace(' ', '_').replace('>','more'):
-                                            np.vstack([starts, ends])}
-    counts_inter = pd.DataFrame(dict_counts_inter).astype(pd.Int64Dtype()).rename(columns={0: 'negative', 1: 'positive'})
-    counts_inter.to_pickle(counts_inter_path)
+        k, discard_w = 5, 30
+        dfs = [get_merged_df(cfg, data_df, var, new_std,
+                            k, pred_below, discard_w) for pred_below in [0, 1]]
+        
+        for pred_below, df in enumerate(dfs):
+            inter_id_or_conds = list(df["inter_id"].unique())+\
+                [f"# inter > {i}" for i in range(len(cfg.dataset.target_names))]
 
-    print(f"Pickled counts_inter at {counts_inter_path}")
+            for inter_id_or_cond in inter_id_or_conds:
+                # XXX: k, pred_below, discard_w are fixed. They were
+                # defined earlier
+                out = get_inter_clusters(data_df, df, inter_id_or_cond)
+                m_points, data, times, starts, ends, groups, integrals, lengths = out
+                
+                dict_counts_inter[pred_below] |= {inter_id_or_cond: starts.size}
+                # For the vstack: First col: starts, Second row: ends
+                dict_starts_ends[pred_below] |= {inter_id_or_cond.replace(',','_').replace(' ', '_').replace('>','more'):
+                                                np.vstack([starts, ends])}
+        counts_inter = pd.DataFrame(dict_counts_inter).astype(pd.Int64Dtype()).rename(columns={0: 'negative', 1: 'positive'})
+        counts_inter.to_pickle(counts_inter_path)
 
-    ### XXX: Export our cluster intersections in .root (ROOT CERN) format
-    print("Exporting our cluster intersections in .root (ROOT CERN) format...")
-    with ur.recreate(out_root_filename_cluster_inter) as file:
-        file["cluster_inter_nf1rate"] = dict_starts_ends[1]  # positive examples
-        file["cluster_inter_nf1rate"].show()
+        print(f"Pickled counts_inter at {counts_inter_path}")
 
-        file["negative_cluster_inter_nf1rate"] = dict_starts_ends[0]  # negative examples
-        file["negative_cluster_inter_nf1rate"].show()
+        ### XXX: Export our cluster intersections in .root (ROOT CERN) format
+        print("Exporting our cluster intersections in .root (ROOT CERN) format...")
+        with ur.recreate(out_root_filename_cluster_inter) as file:
+            file["cluster_inter_nf1rate"] = dict_starts_ends[1]  # positive examples
+            file["cluster_inter_nf1rate"].show()
 
-    ### XXX: Export our predictions in .root (ROOT CERN) format
-    print("Exporting our predictions in .root (ROOT CERN) format...")
-    with ur.recreate(out_root_filename) as file:
-        my_dict = {"unix_time": data_df["unix_time"].values}
-        my_dict |= {"pred_rate": pred.numpy()}
-        file["pred_nf1rate"] = my_dict
-        file["pred_nf1rate"].show()
+            file["negative_cluster_inter_nf1rate"] = dict_starts_ends[0]  # negative examples
+            file["negative_cluster_inter_nf1rate"].show()
+
+        ### XXX: Export our predictions in .root (ROOT CERN) format
+        print("Exporting our predictions in .root (ROOT CERN) format...")
+        with ur.recreate(out_root_filename) as file:
+            my_dict = {"unix_time": data_df["unix_time"].values}
+            my_dict |= {"pred_rate": pred.numpy()}
+            file["pred_nf1rate"] = my_dict
+            file["pred_nf1rate"].show()
 
 if __name__ == "__main__":
     main()
+
+    # Code to get our LaTex tables (nearly, then need to replace some characters)
+    ids = ["0307eblk", "162pncmd", "45dljtwk", "5fs1oqli", "6wsxi1hf",
+        "7sdm9qvf", "h444g60r", "ntlx23x5", "tziecklt", "xetzm1dg"]
+    combined = pd.concat({id: pd.read_pickle(f"data/num_cluster_intersections_{id}.pkl") for id in ids})
+    print((("$"+\
+            combined.groupby(level=1).mean().round(decimals=3).astype(str) +\
+            "\pm"+\
+            combined.groupby(level=1).std().round(decimals=3).astype(str)+\
+            "$").iloc[:22, :]).to_latex())
+    print((("$"+\
+            combined.groupby(level=1).mean().round(decimals=3).astype(str) +\
+            "\pm"+\
+            combined.groupby(level=1).std().round(decimals=3).astype(str)+\
+            "$").iloc[22:, :]).to_latex())
+    print((("$"+\
+            combined.groupby(level=1).mean().round(decimals=3).astype(str) +\
+            "\pm"+\
+            combined.groupby(level=1).std().round(decimals=3).astype(str)+\
+            "$").iloc[44:, :]).to_latex())
+    
+    print("\n\nnum_examples_clusters:")
+    combined = pd.concat({id: pd.read_pickle(f"data/num_examples_clusters_{id}.pkl") for id in ids})
+    print((("$"+\
+            combined.groupby(level=1).mean().round(decimals=3).astype(str) +\
+            "\pm"+\
+            combined.groupby(level=1).std().round(decimals=3).astype(str)+\
+            "$")).to_latex())
