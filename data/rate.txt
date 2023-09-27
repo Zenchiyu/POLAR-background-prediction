@@ -1,0 +1,15 @@
+rate
+0 single bar > 15 kev     *
+1 single bar > 20         *
+2            > 30
+3            > 50
+4            > 70
+5 any bar    > 15 kev     *
+6 any bar    > 20         *
+7            > 30
+8            > 50
+9            > 70
+10           any          *
+11           more then 8 bars
+12           any no post cosmics *
+
