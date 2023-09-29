@@ -44,7 +44,7 @@ pip3 install -r requirements.txt
 ```
 - Download the `nf1rate.root` dataset in ROOT-CERN format from my [Dropbox](https://www.dropbox.com/sh/f1a9w7cy71svgb6/AAA0rsyGrqZOilqvgAZHnZToa?dl=0) and place it under the `./data` directory.
 
-The code was developed for Python `3.10.12` and `3.10.6` and with torch==2.0.1 and torchvision==0.15.2. Using a different Python version might cause problems.
+The code was developed for Python `3.10.12` and `3.10.6` with torch==2.0.1 and torchvision==0.15.2. Using a different Python version might cause problems. As for the ROOT-CERN tool, I used ROOT 6.26/06.
 
 I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of VSCode `1.81.1` to remotely edit and run codes on raidpolar (POLAR research group's Linux machine).
 
