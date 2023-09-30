@@ -4,15 +4,11 @@ This directory contains notebook(s) to explore/visualize the results when we use
 
 ```
 .
-├── formats
-├── images
 ├── README.md
 └── results.ipynb
 
-3 directories, 2 files
+0 directories, 2 files
 ```
-
-The `formats` folder is used to store, in other formats such as PDF or HTML, some potentially old notebooks.
 
 ## Old structure
 

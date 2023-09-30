@@ -97,7 +97,7 @@ def find_moments(data, verbose=False):
     std = data.std()
     mean = data.mean()
     
-    while ~np.isclose(prev_std, std):
+    while ~(np.isclose(prev_std, std)|np.isclose(low, high)):
         # Update interval
         low = -3*std + mean
         high = 3*std + mean
@@ -105,6 +105,8 @@ def find_moments(data, verbose=False):
         prev_std = std
         std = (data[(data>low) & (data<high)]).std()
         if verbose: print(mean, std, low, high)
+    if np.isclose(low, high):
+        return mean, 0
     return mean, std
 
 def plot_normalized_hist(data,
