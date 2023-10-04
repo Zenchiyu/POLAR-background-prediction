@@ -1,6 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # POLAR background prediction
+[POLAR background prediction](https://github.com/Zenchiyu/POLAR-background-prediction/blob/main/documentation/academic_report.pdf)<br>
 [Stéphane Nguyen](https://www.linkedin.com/in/st%C3%A9phane-liem-nguyen/), [Nicolas Produit](https://www.isdc.unige.ch/~produit/)\*<br>
 \* Denotes supervisor
 
