@@ -1,6 +1,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # POLAR background prediction
+[POLAR background prediction](https://github.com/Zenchiyu/POLAR-background-prediction/blob/main/documentation/academic_report.pdf)<br>
 [Stéphane Nguyen](https://www.linkedin.com/in/st%C3%A9phane-liem-nguyen/), [Nicolas Produit](https://www.isdc.unige.ch/~produit/)\*<br>
 \* Denotes supervisor
 
@@ -11,7 +12,7 @@ Physicists from the POLAR collaboration are interested in detecting Gamma Ray Bu
 |:--:| :--:| :--:| 
 | *A cluster intersection with > 3 energy bins:<br>Prof. Nicolas Produit confirmed a solar flare* | *Trying to detect 25 known GRBs based on `rate[0]`:<br>Some short GRBs are missed because of the binning* | *Another cluster intersection with > 3 energy bins*|
 
-Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aims at building a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
+Based on past data collected from the POLAR detector mounted on the Tiangong-2 spacelab, this project aims to build a model of the background and use it to extract potentially meaningful time intervals for further analysis by experts. These time intervals are extracted based the magnitude of the difference between the target and predicted photon rates (photon counts per second) for different energy bins.
 
 These time intervals might include moments in which the detector was turned off or had problems which caused our predictions to be significantly higher or lower than the target rates. They might also include solar events such as solar flares.
 
@@ -52,8 +53,8 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 
 - `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if you don't want to use weights and biases)
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates (for validation set if not specified).
-- `python src/export.py` to export, into .root format (ROOT CERN), our predictions over the whole dataset with the 25 known GRBs.
-- `python src/export_cluster_intersections.py` to export, into .root format, the same as `python src/export.py` but also the cluster intersections for different sets of energy bins or conditions. Moreover, it also exports in .pkl different tables used in our documentation (incl. number of clusters).
+- `python src/export.py` to export into .root format (ROOT CERN), our predictions over the whole dataset with the 25 known GRBs.
+- `python src/export_cluster_intersections.py` to export into .root format, the same as `python src/export.py` but also the cluster intersections for different sets of energy bins or conditions. Moreover, it also exports in .pkl a few tables used in our documentation (incl. number of clusters).
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
 ### FAQ
