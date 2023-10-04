@@ -54,7 +54,7 @@ I also used Jupyter `v2023.7.1002162226` and Remote-SSH `v0.102.0` extensions of
 - `python src/main.py` to run the training phase (use `python src/main.py wandb.mode=disabled` if you don't want to use weights and biases)
 - `python src/visualizer.py` to load pretrained model, plot loss and predicted photon rates (for validation set if not specified).
 - `python src/export.py` to export into .root format (ROOT CERN), our predictions over the whole dataset with the 25 known GRBs.
-- `python src/export_cluster_intersections.py` to export into .root format, the same as `python src/export.py` but also the cluster intersections for different sets of energy bins or conditions. Moreover, it also exports in .pkl different tables used in our documentation (incl. number of clusters).
+- `python src/export_cluster_intersections.py` to export into .root format, the same as `python src/export.py` but also the cluster intersections for different sets of energy bins or conditions. Moreover, it also exports in .pkl a few tables used in our documentation (incl. number of clusters).
 - Run the different cells of `./notebooks/results.ipynb` to show the rest of our (interactive) plots (clusters, cluster intersections, etc.).
 
 ### FAQ
