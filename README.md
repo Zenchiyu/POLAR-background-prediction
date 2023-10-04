@@ -142,6 +142,7 @@ You can try to re-run the corresponding Jupyter notebook cell.
 ## Credits and useful links
 
 - Code and project structure: https://github.com/eloialonso/iris
+- LSTM to predict GRB occurrences from past photon counts and energy info: https://cernbox.cern.ch/pdf-viewer/public/X1OvZ4iY19vewcV/HAGRID_in_Space.pdf
 - 55 GRBs: https://www.researchgate.net/publication/326811280_Overview_of_the_GRB_observation_by_POLAR
 - <details>
   <summary>Technologies</summary>
