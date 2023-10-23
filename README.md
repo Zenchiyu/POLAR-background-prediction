@@ -157,4 +157,5 @@ You can try to re-run the corresponding Jupyter notebook cell.
   - VSCode Remote SSH: https://code.visualstudio.com/docs/remote/ssh-tutorial
   - Diff with colors by using `diff <file1> <file2> --color`: https://man7.org/linux/man-pages/man1/diff.1.html
   - TMux detach/reattach session: https://www.redhat.com/sysadmin/introduction-tmux-linux
+  - Rsync
 </details>
